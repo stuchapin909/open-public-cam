@@ -5,6 +5,12 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const AD_DOMAINS = [
+  'googlesyndication.com', 'adservice.google.com', 'google-analytics.com',
+  'doubleclick.net', 'adsystem.com', 'adnxs.com', 'quantserve.com',
+  'facebook.net', 'fontawesome.com', 'scorecardresearch.com'
+];
+
 function normalizeUrl(url) {
   try {
     const u = new URL(url);
@@ -22,11 +28,21 @@ async function verifyCam(url, isSubmission = false) {
     browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' });
     const page = await context.newPage();
+
+    // 1. Network-Level Ad Blocking
+    await page.route('**/*', (route) => {
+      const url = route.request().url();
+      if (AD_DOMAINS.some(domain => url.includes(domain))) {
+        route.abort();
+      } else {
+        route.continue();
+      }
+    });
     
     // Smart Strategy: YouTube Detection
     const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
 
-    // 1. Keyword Shield (Check title/meta before heavy loading)
+    // 2. Keyword Shield
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
     const title = await page.title();
     const spamKeywords = ['crypto', 'casino', 'pharmacy', 'viagra', 'ads', 'marketing', 'earn money', 'security', 'cctv', 'private', 'login', 'admin', 'password', 'protected'];
@@ -36,7 +52,7 @@ async function verifyCam(url, isSubmission = false) {
       return { active: false, reason: "spam_or_privacy_keywords" };
     }
 
-    // 2. Handle Cookie Consents / Overlays
+    // 3. Handle Cookie Consents / Overlays
     try {
       const consentSelectors = ['button:has-text("Accept all")', 'button:has-text("AGREE")', '#accept-choices', '.yt-spec-button-shape-next--filled'];
       for (const sel of consentSelectors) {
@@ -47,9 +63,25 @@ async function verifyCam(url, isSubmission = false) {
       }
     } catch (e) {}
 
-    // 3. Platform-Specific Tweaks
+    // 4. CSS Cloaking
+    await page.addStyleTag({
+      content: `
+        #ad_container, .ad-overlay, .video-ads, .ytp-ad-module, .ytp-ad-overlay-container, [id*="ad-"], [class*="ad-"] { 
+          display: none !important; 
+        }
+      `
+    });
+
+    // 5. Platform-Specific Tweaks
     let selector = 'video, img, canvas';
     if (isYouTube) {
+      try {
+        const skipBtn = page.locator('.ytp-ad-skip-button');
+        if (await skipBtn.isVisible({ timeout: 5000 })) {
+          await skipBtn.click();
+        }
+      } catch (e) {}
+
       await page.evaluate(() => {
         const video = document.querySelector('video.video-stream.html5-main-video');
         if (video) { video.play(); video.muted = true; }
@@ -57,14 +89,13 @@ async function verifyCam(url, isSubmission = false) {
       selector = 'video.video-stream.html5-main-video';
     }
 
-    // 4. Motion Detection (Take two snapshots 5s apart)
+    // 6. Motion Detection
     await page.waitForTimeout(5000); // Wait for stream
-    const shot1 = await page.screenshot({ type: 'jpeg', quality: 10 }); // Low res for speed
+    const shot1 = await page.screenshot({ type: 'jpeg', quality: 10 });
     
     await page.waitForTimeout(5000); // Wait for motion
     const shot2 = await page.screenshot({ type: 'jpeg', quality: 10 });
     
-    // Improved buffer comparison (count differing bytes as a proxy for entropy)
     let diffs = 0;
     const minLen = Math.min(shot1.length, shot2.length);
     for (let i = 0; i < minLen; i++) {
@@ -73,7 +104,7 @@ async function verifyCam(url, isSubmission = false) {
     const diffRatio = diffs / minLen;
     const sizeRatio = Math.abs(shot1.length - shot2.length) / Math.max(shot1.length, shot2.length);
 
-    if (diffRatio < 0.005 && sizeRatio < 0.01) { // 0.5% byte diff AND <1% size change
+    if (diffRatio < 0.005 && sizeRatio < 0.01) {
       console.log(`REJECTED: Static image detected (Diff Ratio: ${(diffRatio * 100).toFixed(4)}%)`);
       await browser.close();
       return { active: false, reason: "static_image" };
@@ -90,7 +121,6 @@ async function verifyCam(url, isSubmission = false) {
 
 const args = process.argv.slice(2);
 
-// MODE 1: Nightly Batch Check
 if (args[0] === "--batch") {
   (async () => {
     console.log("Starting Nightly Batch Validation...");
@@ -112,14 +142,11 @@ if (args[0] === "--batch") {
     fs.writeFileSync(path.join(__dirname, "validation-log.json"), JSON.stringify(log, null, 2));
     process.exit(0);
   })();
-} 
-// MODE 2: Single Issue Verification
-else {
+} else {
   const issueData = JSON.parse(args[0]);
   const isSubmission = !!issueData.name;
   const registry = JSON.parse(fs.readFileSync(path.join(__dirname, "community-registry.json"), "utf8"));
 
-  // 3. Duplicate & Geo Check (Submission Only)
   if (isSubmission) {
     const normalizedNew = normalizeUrl(issueData.url);
     const isDupUrl = registry.some(c => normalizeUrl(c.url) === normalizedNew);

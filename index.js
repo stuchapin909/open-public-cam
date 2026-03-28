@@ -20,6 +20,13 @@ if (!fs.existsSync(SNAPSHOTS_DIR)) {
   fs.mkdirSync(SNAPSHOTS_DIR, { recursive: true });
 }
 
+// Common Ad/Tracker domains to block at network level
+const AD_DOMAINS = [
+  'googlesyndication.com', 'adservice.google.com', 'google-analytics.com',
+  'doubleclick.net', 'adsystem.com', 'adnxs.com', 'quantserve.com',
+  'facebook.net', 'fontawesome.com', 'scorecardresearch.com'
+];
+
 // GitHub Repository Info
 const GITHUB_OWNER = "stuchapin909";
 const GITHUB_REPO = "open-public-cam";
@@ -307,6 +314,16 @@ server.tool(
         viewport: { width: 1280, height: 720 }
       });
       const page = await context.newPage();
+
+      // 1. Network-Level Ad Blocking
+      await page.route('**/*', (route) => {
+        const url = route.request().url();
+        if (AD_DOMAINS.some(domain => url.includes(domain))) {
+          route.abort();
+        } else {
+          route.continue();
+        }
+      });
       
       // Smart Strategy: YouTube Detection
       const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
@@ -314,7 +331,7 @@ server.tool(
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
       await page.waitForTimeout(2000);
 
-      // 1. Handle Cookie Consents / Overlays
+      // 2. Handle Cookie Consents / Overlays
       try {
         const consentSelectors = ['button:has-text("Accept all")', 'button:has-text("AGREE")', '#accept-choices', '.yt-spec-button-shape-next--filled'];
         for (const sel of consentSelectors) {
@@ -325,14 +342,32 @@ server.tool(
         }
       } catch (e) {}
 
-      // 2. Platform-Specific Tweaks
+      // 3. Platform-Specific Tweaks & CSS Cloaking
+      await page.addStyleTag({
+        content: `
+          /* General Ad Cloaking */
+          #ad_container, .ad-overlay, .video-ads, .ytp-ad-module, .ytp-ad-overlay-container, [id*="ad-"], [class*="ad-"] { 
+            display: none !important; 
+          }
+          /* YouTube Specific */
+          .ytp-chrome-bottom, .ytp-chrome-top, .ytp-gradient-bottom, .ytp-gradient-top { 
+            display: none !important; 
+          }
+        `
+      });
+
       if (isYouTube) {
+        // Wait for potential pre-roll ad to finish or skip it
+        try {
+          const skipBtn = page.locator('.ytp-ad-skip-button');
+          if (await skipBtn.isVisible({ timeout: 5000 })) {
+            await skipBtn.click();
+          }
+        } catch (e) {}
+
         await page.evaluate(() => {
           const video = document.querySelector('video.video-stream.html5-main-video');
           if (video) { video.play(); video.muted = true; }
-        });
-        await page.addStyleTag({
-          content: '.ytp-chrome-bottom, .ytp-chrome-top, .ytp-gradient-bottom, .ytp-gradient-top { display: none !important; }'
         });
         selector = 'video.video-stream.html5-main-video';
       }
