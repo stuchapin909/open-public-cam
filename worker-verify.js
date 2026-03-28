@@ -1,5 +1,9 @@
 import { chromium } from "playwright-chromium";
 import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function normalizeUrl(url) {
   try {
@@ -19,6 +23,9 @@ async function verifyCam(url, isSubmission = false) {
     const context = await browser.newContext({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' });
     const page = await context.newPage();
     
+    // Smart Strategy: YouTube Detection
+    const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
+
     // 1. Keyword Shield (Check title/meta before heavy loading)
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
     const title = await page.title();
@@ -29,7 +36,28 @@ async function verifyCam(url, isSubmission = false) {
       return { active: false, reason: "spam_or_privacy_keywords" };
     }
 
-    // 2. Motion Detection (Take two snapshots 5s apart)
+    // 2. Handle Cookie Consents / Overlays
+    try {
+      const consentSelectors = ['button:has-text("Accept all")', 'button:has-text("AGREE")', '#accept-choices', '.yt-spec-button-shape-next--filled'];
+      for (const sel of consentSelectors) {
+        if (await page.locator(sel).isVisible({ timeout: 2000 })) {
+          await page.locator(sel).click();
+          await page.waitForTimeout(1000);
+        }
+      }
+    } catch (e) {}
+
+    // 3. Platform-Specific Tweaks
+    let selector = 'video, img, canvas';
+    if (isYouTube) {
+      await page.evaluate(() => {
+        const video = document.querySelector('video.video-stream.html5-main-video');
+        if (video) { video.play(); video.muted = true; }
+      });
+      selector = 'video.video-stream.html5-main-video';
+    }
+
+    // 4. Motion Detection (Take two snapshots 5s apart)
     await page.waitForTimeout(5000); // Wait for stream
     const shot1 = await page.screenshot({ type: 'jpeg', quality: 10 }); // Low res for speed
     
@@ -51,7 +79,7 @@ async function verifyCam(url, isSubmission = false) {
       return { active: false, reason: "static_image" };
     }
 
-    const exists = await page.$('video, img, canvas');
+    const exists = await page.$(selector) || await page.$('video, img, canvas');
     await browser.close();
     return { active: !!exists };
   } catch (e) {
@@ -66,8 +94,8 @@ const args = process.argv.slice(2);
 if (args[0] === "--batch") {
   (async () => {
     console.log("Starting Nightly Batch Validation...");
-    const registry = JSON.parse(fs.readFileSync("community-registry.json", "utf8"));
-    const log = JSON.parse(fs.readFileSync("validation-log.json", "utf8"));
+    const registry = JSON.parse(fs.readFileSync(path.join(__dirname, "community-registry.json"), "utf8"));
+    const log = JSON.parse(fs.readFileSync(path.join(__dirname, "validation-log.json"), "utf8"));
     
     const toCheck = registry.sort(() => 0.5 - Math.random()).slice(0, 20);
     
@@ -81,7 +109,7 @@ if (args[0] === "--batch") {
         delete log[cam.id];
       }
     }
-    fs.writeFileSync("validation-log.json", JSON.stringify(log, null, 2));
+    fs.writeFileSync(path.join(__dirname, "validation-log.json"), JSON.stringify(log, null, 2));
     process.exit(0);
   })();
 } 
@@ -89,7 +117,7 @@ if (args[0] === "--batch") {
 else {
   const issueData = JSON.parse(args[0]);
   const isSubmission = !!issueData.name;
-  const registry = JSON.parse(fs.readFileSync("community-registry.json", "utf8"));
+  const registry = JSON.parse(fs.readFileSync(path.join(__dirname, "community-registry.json"), "utf8"));
 
   // 3. Duplicate & Geo Check (Submission Only)
   if (isSubmission) {
@@ -112,7 +140,7 @@ else {
           ...issueData,
           verified: true
         });
-        fs.writeFileSync("community-registry.json", JSON.stringify(registry, null, 2));
+        fs.writeFileSync(path.join(__dirname, "community-registry.json"), JSON.stringify(registry, null, 2));
         process.exit(0);
       } else {
         console.log(`SUBMISSION_FAILED: ${result.reason}`);
@@ -121,9 +149,9 @@ else {
     } else {
       if (!result.active) {
         console.log("VERIFIED_BROKEN_REPORT");
-        const log = JSON.parse(fs.readFileSync("validation-log.json", "utf8"));
+        const log = JSON.parse(fs.readFileSync(path.join(__dirname, "validation-log.json"), "utf8"));
         log[issueData.cam_id] = { status: issueData.status, reason: result.reason, timestamp: new Date().toISOString(), reported_by: "worker_verified" };
-        fs.writeFileSync("validation-log.json", JSON.stringify(log, null, 2));
+        fs.writeFileSync(path.join(__dirname, "validation-log.json"), JSON.stringify(log, null, 2));
         process.exit(0);
       } else {
         console.log("REPORT_FAILED_ACTIVE");

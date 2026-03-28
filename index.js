@@ -13,6 +13,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REGISTRY_PATH = path.join(__dirname, "community-registry.json");
 const LOG_PATH = path.join(__dirname, "validation-log.json");
 const CONFIG_PATH = path.join(__dirname, "config.json");
+const SNAPSHOTS_DIR = path.join(__dirname, "snapshots");
+
+// Ensure snapshots directory exists
+if (!fs.existsSync(SNAPSHOTS_DIR)) {
+  fs.mkdirSync(SNAPSHOTS_DIR, { recursive: true });
+}
 
 // GitHub Repository Info
 const GITHUB_OWNER = "stuchapin909";
@@ -21,7 +27,7 @@ const GITHUB_RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GIT
 
 const server = new McpServer({
   name: "open-public-cam",
-  version: "1.3.0",
+  version: "1.4.0",
 });
 
 // Cache for Discovery (to be a good API citizen)
@@ -103,7 +109,7 @@ const checkForUpdates = async () => {
 
 server.tool(
   "submit_report_to_github",
-  "Submit a webcam health report directly to the global GitHub repository for worker verification. (Requires GitHub CLI 'gh' to be installed and logged in)",
+  "Submit a health report for an exterior public webcam directly to the global GitHub repository for worker verification. (Requires GitHub CLI 'gh')",
   {
     cam_id: z.string().describe("The ID or URL of the webcam"),
     status: z.enum(["active", "offline", "low_quality", "obstructed", "broken_link"]).describe("Reported status"),
@@ -148,9 +154,9 @@ server.tool(
 
 server.tool(
   "submit_new_webcam_to_github",
-  "Submit a newly discovered webcam to the global GitHub repository for worker verification and inclusion. (Requires GitHub CLI 'gh')",
+  "Submit a newly discovered exterior public webcam (streets, landmarks, nature) to the global GitHub repository for verification. (Requires GitHub CLI 'gh')",
   {
-    name: z.string().describe("Descriptive name of the webcam"),
+    name: z.string().describe("Descriptive name (e.g., 'Venice Beach Boardwalk')"),
     url: z.string().url().describe("The public URL of the feed or page"),
     location: z.string().describe("City, Country"),
     category: z.string().optional().describe("e.g. 'city', 'nature', 'traffic'")
@@ -279,9 +285,9 @@ server.tool(
 
 server.tool(
   "get_webcam_snapshot",
-  "Captures a live snapshot image from a webcam URL using a headless browser",
+  "Captures a live snapshot image from an exterior public webcam URL and saves it as a local JPEG file",
   {
-    url: z.string().describe("The URL of the webcam page"),
+    url: z.string().describe("The URL of the public webcam page"),
     selector: z.string().optional().default("video").describe("CSS selector"),
     wait_ms: z.number().optional().default(5000)
   },
@@ -299,8 +305,35 @@ server.tool(
         viewport: { width: 1280, height: 720 }
       });
       const page = await context.newPage();
+      
+      // Smart Strategy: YouTube Detection
+      const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
+      
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
       await page.waitForTimeout(2000);
+
+      // 1. Handle Cookie Consents / Overlays
+      try {
+        const consentSelectors = ['button:has-text("Accept all")', 'button:has-text("AGREE")', '#accept-choices', '.yt-spec-button-shape-next--filled'];
+        for (const sel of consentSelectors) {
+          if (await page.locator(sel).isVisible({ timeout: 1000 })) {
+            await page.locator(sel).click();
+            await page.waitForTimeout(1000);
+          }
+        }
+      } catch (e) {}
+
+      // 2. Platform-Specific Tweaks
+      if (isYouTube) {
+        await page.evaluate(() => {
+          const video = document.querySelector('video.video-stream.html5-main-video');
+          if (video) { video.play(); video.muted = true; }
+        });
+        await page.addStyleTag({
+          content: '.ytp-chrome-bottom, .ytp-chrome-top, .ytp-gradient-bottom, .ytp-gradient-top { display: none !important; }'
+        });
+        selector = 'video.video-stream.html5-main-video';
+      }
 
       try { await page.waitForSelector(selector, { timeout: 15000 }); } catch (e) {
         try { await page.waitForSelector('video, img, canvas', { timeout: 5000 }); } catch (e2) {}
@@ -316,10 +349,17 @@ server.tool(
         buffer = await page.screenshot({ type: 'jpeg', quality: 80 });
       }
 
+      // Generate local filename and save
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const sanitizedUrl = url.replace(/[^a-z0-9]/gi, "_").substring(0, 50);
+      const filename = `snapshot_${sanitizedUrl}_${timestamp}.jpg`;
+      const fullPath = path.join(SNAPSHOTS_DIR, filename);
+      
+      fs.writeFileSync(fullPath, buffer);
+
       return {
         content: [
-          { type: "text", text: `Successfully captured snapshot from ${url}.` },
-          { type: "image", data: buffer.toString('base64'), mimeType: "image/jpeg" }
+          { type: "text", text: `Successfully captured snapshot and saved to disk.\n\nLocal Path: ${fullPath}\n\nYou can now use your standard vision tools to analyze this file.` }
         ],
       };
     } catch (error) {

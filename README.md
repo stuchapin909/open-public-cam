@@ -13,7 +13,8 @@ An open-source Model Context Protocol (MCP) server for a global, community-valid
 - **Self-Cleaning Registry**: A nightly worker re-verifies the directory to prune dead or static feeds.
 - **Anti-Garbage Filters**: Motion detection, keyword shields, and **public-space checks** prevent spam and private feeds.
 - **Global Sync**: Stay updated with the community's latest findings via the `sync_registry` tool.
-- **Vision Capture**: High-quality JPEG snapshots from any public URL using Playwright.
+- **Lean Vision Capture**: High-quality JPEG snapshots saved locally to prevent AI context bloat.
+- **Smart Strategy**: Specialized handling for YouTube and complex players (muted autoplay, UI hiding).
 
 ---
 
@@ -31,8 +32,10 @@ npx playwright install chromium
 ## 🤖 MCP Tools
 
 ### `get_webcam_snapshot`
-- **Purpose**: Returns a base64 JPEG of a live webcam feed.
-- **Scope**: Targeted at public, exterior feeds (cities, landmarks, weather).
+- **Purpose**: Returns a local file path to a live webcam snapshot.
+- **Context Protection**: To prevent AI "context bloat," this tool converts raw image data into a local `.jpg` file and returns only the file path.
+- **Smart Strategies**: Automatically handles complex players (like YouTube) by muting, triggering autoplay, and hiding UI overlays for a clean capture.
+- **Universal Bypassing**: Automatically attempts to click through cookie consents and GDPR overlays.
 
 ### `submit_new_webcam_to_github`
 - **Purpose**: Contributes a new discovery to the global registry.
@@ -55,8 +58,9 @@ To ensure the registry remains high-quality without manual oversight, the **Work
 1. **Motion Detection**: The worker takes two snapshots 5 seconds apart. If 0.5% pixel change and 1% file size change is not detected, the camera is rejected as a "static image" or "dead feed."
 2. **Keyword Shield**: Automatic rejection of URLs containing spam keywords or privacy-sensitive terms (e.g., 'security', 'cctv', 'private') in the page title or metadata.
 3. **Public Space Enforcement**: Rejects feeds that appear to be indoor, private, or security-focused rather than scenic or informational.
-4. **Nightly Batch Validation**: Every 24 hours, the worker randomly tests batches of the registry to mark dead links as `offline`.
-5. **Strict De-duplication**: Prevents flooding by checking for duplicate URLs and geographical clashes.
+4. **Smart Verification**: Uses the same browser automation as the snapshot tool to verify "difficult" feeds like YouTube.
+5. **Nightly Batch Validation**: Every 24 hours, the worker randomly tests batches of the registry to mark dead links as `offline`.
+6. **Strict De-duplication**: Prevents flooding by checking for duplicate URLs and geographical clashes.
 
 ---
 
