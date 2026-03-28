@@ -1,20 +1,43 @@
 import { chromium } from "playwright-chromium";
 import fs from "fs";
 
-async function verifyCam(url) {
+async function verifyCam(url, isSubmission = false) {
   let browser;
   try {
     browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' });
     const page = await context.newPage();
+    
+    // 1. Keyword Shield (Check title/meta before heavy loading)
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await page.waitForTimeout(5000);
+    const title = await page.title();
+    const spamKeywords = ['crypto', 'casino', 'pharmacy', 'viagra', 'ads', 'marketing', 'earn money'];
+    if (spamKeywords.some(k => title.toLowerCase().includes(k))) {
+      console.log("REJECTED: Spam keywords detected in title");
+      await browser.close();
+      return { active: false, reason: "spam_keywords" };
+    }
+
+    // 2. Motion Detection (Take two snapshots 5s apart)
+    await page.waitForTimeout(5000); // Wait for stream
+    const shot1 = await page.screenshot({ type: 'jpeg', quality: 10 }); // Low res for speed
+    
+    await page.waitForTimeout(5000); // Wait for motion
+    const shot2 = await page.screenshot({ type: 'jpeg', quality: 10 });
+    
+    // Simple buffer comparison (entropy check)
+    if (shot1.equals(shot2)) {
+      console.log("REJECTED: Static image detected (No motion)");
+      await browser.close();
+      return { active: false, reason: "static_image" };
+    }
+
     const exists = await page.$('video, img, canvas');
     await browser.close();
-    return !!exists;
+    return { active: !!exists };
   } catch (e) {
     if (browser) await browser.close();
-    return false;
+    return { active: false, reason: "timeout_or_error" };
   }
 }
 
@@ -27,36 +50,43 @@ if (args[0] === "--batch") {
     const registry = JSON.parse(fs.readFileSync("community-registry.json", "utf8"));
     const log = JSON.parse(fs.readFileSync("validation-log.json", "utf8"));
     
-    // Check up to 20 cameras per run (to keep actions short)
     const toCheck = registry.sort(() => 0.5 - Math.random()).slice(0, 20);
     
     for (const cam of toCheck) {
       console.log(`Checking ${cam.name}...`);
-      const active = await verifyCam(cam.url);
-      if (!active) {
-        console.log(`-> Reported OFFLINE: ${cam.name}`);
-        log[cam.id] = { status: "offline", timestamp: new Date().toISOString(), reported_by: "nightly_worker" };
-      } else {
-        // If it was offline but is now active, clear the status
-        if (log[cam.id] && log[cam.id].status === "offline") {
-          delete log[cam.id];
-        }
+      const result = await verifyCam(cam.url);
+      if (!result.active) {
+        console.log(`-> Reported OFFLINE: ${cam.name} (${result.reason})`);
+        log[cam.id] = { status: "offline", reason: result.reason, timestamp: new Date().toISOString(), reported_by: "nightly_worker" };
+      } else if (log[cam.id] && log[cam.id].status === "offline") {
+        delete log[cam.id];
       }
     }
     fs.writeFileSync("validation-log.json", JSON.stringify(log, null, 2));
     process.exit(0);
   })();
 } 
-// MODE 2: Single Issue Verification (Report or Submission)
+// MODE 2: Single Issue Verification
 else {
   const issueData = JSON.parse(args[0]);
-  const isSubmission = !!issueData.name; // Submissions have 'name'
+  const isSubmission = !!issueData.name;
+  const registry = JSON.parse(fs.readFileSync("community-registry.json", "utf8"));
 
-  verifyCam(issueData.url || issueData.cam_id).then(isActive => {
+  // 3. Duplicate & Geo Check (Submission Only)
+  if (isSubmission) {
+    const isDupUrl = registry.some(c => c.url === issueData.url);
+    const isDupLoc = registry.some(c => c.location === issueData.location && c.name === issueData.name);
+    
+    if (isDupUrl || isDupLoc) {
+      console.log("REJECTED: Duplicate entry detected");
+      process.exit(1);
+    }
+  }
+
+  verifyCam(issueData.url || issueData.cam_id, isSubmission).then(result => {
     if (isSubmission) {
-      if (isActive) {
+      if (result.active) {
         console.log("VERIFIED_ACTIVE_SUBMISSION");
-        const registry = JSON.parse(fs.readFileSync("community-registry.json", "utf8"));
         registry.push({
           id: `comm-${Date.now()}`,
           ...issueData,
@@ -65,15 +95,14 @@ else {
         fs.writeFileSync("community-registry.json", JSON.stringify(registry, null, 2));
         process.exit(0);
       } else {
-        console.log("SUBMISSION_FAILED_OFFLINE");
+        console.log(`SUBMISSION_FAILED: ${result.reason}`);
         process.exit(1);
       }
     } else {
-      // Logic for reports
-      if (!isActive) {
+      if (!result.active) {
         console.log("VERIFIED_BROKEN_REPORT");
         const log = JSON.parse(fs.readFileSync("validation-log.json", "utf8"));
-        log[issueData.cam_id] = { status: issueData.status, notes: issueData.notes, timestamp: new Date().toISOString(), reported_by: "worker_verified" };
+        log[issueData.cam_id] = { status: issueData.status, reason: result.reason, timestamp: new Date().toISOString(), reported_by: "worker_verified" };
         fs.writeFileSync("validation-log.json", JSON.stringify(log, null, 2));
         process.exit(0);
       } else {
