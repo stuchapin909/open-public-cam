@@ -3,16 +3,17 @@
 An open-source Model Context Protocol (MCP) server for a global, community-validated directory of public webcams. **No API keys required.**
 
 ## 🌍 The Vision
-**open-public-cam** is not just a list; it is a living, agent-maintained ecosystem. It empowers AI agents to see the world through public webcams while giving them the tools to discover, report, and maintain the global directory for everyone.
+**open-public-cam** is a living, agent-maintained ecosystem. It empowers AI agents to see the world through public webcams while giving them the tools to discover, report, and maintain the global directory autonomously.
 
 ---
 
-## 🚀 Features
+## 🚀 Key Features
 
-- **Automated Verification**: When an agent reports a broken cam, a free GitHub Action worker independently verifies the report.
-- **Global Sync**: Users stay in sync with the community's latest findings via a manual `sync_registry` tool.
-- **Vision Capture**: Captures live JPEG snapshots using a headless browser (Playwright).
-- **Keyless Discovery**: Find thousands of webcams worldwide using OpenStreetMap (Overpass API).
+- **Autonomous Growth**: Agents can submit new webcams; a worker verifies them and merges them automatically.
+- **Self-Cleaning Registry**: A nightly worker re-verifies the directory to prune dead or static feeds.
+- **Anti-Garbage Filters**: Motion detection and keyword shields prevent spam and "fake" cameras.
+- **Global Sync**: Stay updated with the community's latest findings via the `sync_registry` tool.
+- **Vision Capture**: High-quality JPEG snapshots from any public URL using Playwright.
 
 ---
 
@@ -31,48 +32,43 @@ npx playwright install chromium
 
 ### `get_webcam_snapshot`
 - **Purpose**: Returns a base64 JPEG of a live webcam feed.
-- **How it works**: Uses Playwright to navigate, wait for video/image elements, and take a screenshot.
+- **Logic**: Navigates via headless browser, waits for video/image load, and captures a frame.
 
-### `sync_registry`
-- **Purpose**: Pulls the latest `community-registry.json` and `validation-log.json` from the main GitHub repository.
-- **Rule**: You must be synced before you can submit new data.
+### `submit_new_webcam_to_github`
+- **Purpose**: Contributes a new discovery to the global registry.
+- **Gatekeeper**: Triggers a worker that MUST see motion and pass keyword filters before merging.
 
 ### `submit_report_to_github`
-- **Purpose**: Triggers the **Automated Worker**. 
-- **Action**: Opens a GitHub Issue with a specific JSON payload that a GitHub Action worker then picks up to verify.
+- **Purpose**: Reports a broken or offline camera.
+- **Verification**: A worker independently confirms the failure before updating the global status.
 
-### `discover_webcams_by_location`
-- **Purpose**: Queries OpenStreetMap for objects tagged with `contact:webcam`.
-- **Performance**: Results are cached for 30 minutes to protect public API limits.
-
----
-
-## 🏗 The Maintenance Loop (Agent Workflow)
-
-This project relies on **Agent-as-a-Maintainer** logic:
-
-1. **Discovery**: Agent finds a webcam via `discover_webcams_by_location`.
-2. **Usage**: Agent captures a snapshot via `get_webcam_snapshot`.
-3. **Feedback**: 
-   - If the capture fails, the agent calls `report_webcam_status` (Local) and `submit_report_to_github` (Global).
-4. **Verification**: 
-   - A GitHub Action "Worker" boots up, verifies the URL, and if broken, **automatically commits** the status to the main repo.
-5. **Propagation**: 
-   - Other users see an `[UPDATE AVAILABLE]` notice and run `sync_registry` to get the fix.
+### `sync_registry`
+- **Purpose**: Pulls the latest `community-registry.json` and `validation-log.json` from GitHub.
+- **Requirement**: You must be synced before you can contribute new data or reports.
 
 ---
 
-## 🤝 How to Contribute
+## 🏗 Autonomous Quality Control (Anti-Garbage)
 
-We love community contributions!
+To ensure the registry remains high-quality without manual oversight, the **Worker Engine** employs:
+
+1. **Motion Detection**: The worker takes two snapshots 5 seconds apart. If 0% pixel change is detected, the camera is rejected as a "static image" or "dead feed."
+2. **Keyword Shield**: Automatic rejection of URLs containing spam keywords (crypto, gambling, etc.) in the page title or metadata.
+3. **Nightly Batch Validation**: Every 24 hours, the worker randomly tests batches of the registry to mark dead links as `offline`.
+4. **Strict De-duplication**: Prevents flooding by checking for duplicate URLs and geographical clashes.
+
+---
+
+## 🤝 How to Participate
 
 ### For Humans:
-- **Add Curated Cams**: Fork the repo, add famous webcams to `index.js`, and submit a Pull Request.
-- **Improve the Worker**: Help us make the `worker-verify.js` better at detecting tricky video players.
+- **Fork & Improve**: Help us refine the `worker-verify.js` logic to handle more complex video players.
+- **Curate**: Add famous landmarks to the core `WEBCAMS` list in `index.js` via Pull Request.
 
-### For Agents:
-- You are authorized to use `submit_webcam` to grow the registry.
-- You are encouraged to use `submit_report_to_github` whenever you encounter a broken link.
+### For AI Agents:
+- **Discover**: Use `discover_webcams_by_location` to find new feeds.
+- **Contribute**: Use `submit_new_webcam_to_github` to grow the global registry.
+- **Maintain**: Use `submit_report_to_github` to flag broken links for the community.
 
 ---
 
