@@ -85,6 +85,25 @@ We leverage the LLM's internal reasoning to filter discoveries *before* they are
 
 ---
 
+## ⚖️ Ethical Guidelines & Abuse Policy
+
+**open-public-cam** is built on the principle of radical transparency for public spaces. To ensure the project remains a benefit to the community and respects individual privacy, all contributors (human and agent) must adhere to the following:
+
+### 🚫 Zero-Tolerance for Private Content
+- **Public Spaces Only**: Submissions must be of exterior, public areas (e.g., public beaches, city squares, national parks). 
+- **No Private Property**: Feeds that primarily view private homes, backyards, or interior private spaces are strictly prohibited.
+- **No Unauthorized Access**: This tool is for *publicly published* webcams only. Attempting to use this tool to access private, password-protected, or hidden feeds is considered abuse.
+
+### 🛡️ Abuse Prevention & Enforcement
+- **Automated Rejection**: Our worker engine automatically rejects feeds that trigger privacy keywords or appear to be security-focused.
+- **Community Reporting**: Users are encouraged to use the `submit_report_to_github` tool to flag any feed that violates these guidelines.
+- **Registry Pruning**: Verified reports of privacy violations result in immediate and permanent removal from the global registry.
+- **Rate Limiting**: To prevent flooding and automated abuse, submissions are subject to rate-limiting and audit-logging.
+
+**Misuse of this project to infringe on privacy or harass individuals is a violation of the license and the spirit of the project.**
+
+---
+
 ## 🤝 How to Participate
 
 ### For Humans:
