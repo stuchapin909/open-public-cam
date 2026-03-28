@@ -139,6 +139,52 @@ server.tool(
 );
 
 server.tool(
+  "submit_new_webcam_to_github",
+  "Submit a newly discovered webcam to the global GitHub repository for worker verification and inclusion. (Requires GitHub CLI 'gh')",
+  {
+    name: z.string().describe("Descriptive name of the webcam"),
+    url: z.string().url().describe("The public URL of the feed or page"),
+    location: z.string().describe("City, Country"),
+    category: z.string().optional().describe("e.g. 'city', 'nature', 'traffic'")
+  },
+  async ({ name, url, location, category }) => {
+    const update = await checkForUpdates();
+    if (update.updateAvailable) {
+      return {
+        content: [{ type: "text", text: "Error: Your registry is out of date. Please run 'sync_registry' before submitting new cameras." }],
+        isError: true
+      };
+    }
+
+    try {
+      const submissionBody = {
+        name,
+        url,
+        location,
+        category: category || "uncategorized",
+        submitted_at: new Date().toISOString()
+      };
+
+      const { execSync } = await import("child_process");
+      const title = `[webcam-submission] ${name} (${location})`;
+      const body = `\`\`\`json\n${JSON.stringify(submissionBody, null, 2)}\n\`\`\``;
+      
+      const command = `gh issue create --title "${title}" --body '${body}' --label "webcam-submission"`;
+      const output = execSync(command, { encoding: 'utf8' });
+
+      return {
+        content: [{ type: "text", text: `Submission sent to GitHub! The worker will verify the link and add it to the global registry if it passes.\nIssue URL: ${output.trim()}` }]
+      };
+    } catch (e) {
+      return {
+        content: [{ type: "text", text: `Failed to submit to GitHub: ${e.message}` }],
+        isError: true
+      };
+    }
+  }
+);
+
+server.tool(
   "sync_registry",
   "Manually update the local webcam registry and validation logs from the global GitHub repository",
   {},
