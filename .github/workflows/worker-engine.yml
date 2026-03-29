@@ -16,6 +16,9 @@ jobs:
     permissions:
       contents: write
       issues: write
+    
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout repository
@@ -24,7 +27,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install dependencies
         run: |
@@ -37,10 +40,14 @@ jobs:
           node worker-verify.js --batch
           git config --global user.name "Webcam-Worker-Bot"
           git config --global user.email "bot@open-public-cam.local"
-          git add validation-log.json
-          git commit -m "Worker: Nightly Batch Validation Complete" || echo "No changes to commit"
-          git pull --rebase || true
-          git push
+          if [ -n "$(git status --porcelain)" ]; then
+            git add validation-log.json
+            git commit -m "Worker: Nightly Batch Validation Complete"
+            git pull --rebase
+            git push
+          else
+            echo "No changes to commit"
+          fi
 
       - name: Extract JSON from Issue
         if: github.event_name == 'issues'
@@ -53,24 +60,37 @@ jobs:
         if: github.event_name == 'issues'
         id: verify
         run: |
-          node worker-verify.js '${{ steps.extract_json.outputs.DATA }}' | tee worker-stdout.log
-          RESULTS=$(grep "WORKER_RESULT:" worker-stdout.log | cut -d':' -f2-)
-          if [ -z "$RESULTS" ]; then RESULTS="No detailed results captured."; fi
-          echo "RESULTS=$RESULTS" >> $GITHUB_OUTPUT
+          set +e
+          node worker-verify.js '${{ steps.extract_json.outputs.DATA }}'
+          EXIT_CODE=$?
+          set -e
+          
+          if [ -f worker-results.txt ]; then
+            echo "RESULTS<<EOF" >> $GITHUB_OUTPUT
+            cat worker-results.txt >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "RESULTS=No detailed results captured. Exit Code: $EXIT_CODE" >> $GITHUB_OUTPUT
+          fi
+          echo "EXIT_CODE=$EXIT_CODE" >> $GITHUB_OUTPUT
         continue-on-error: true
 
       - name: Commit Verified Changes
-        if: github.event_name == 'issues' && steps.verify.outcome == 'success'
+        if: github.event_name == 'issues' && steps.verify.outputs.EXIT_CODE == '0'
         run: |
           git config --global user.name "Webcam-Worker-Bot"
           git config --global user.email "bot@open-public-cam.local"
-          git add community-registry.json validation-log.json
-          git commit -m "Worker: Verified and updated registry for ${{ github.event.issue.title }}" || echo "No changes to commit"
-          git pull --rebase || true
-          git push
+          if [ -n "$(git status --porcelain)" ]; then
+            git add community-registry.json validation-log.json
+            git commit -m "Worker: Verified and updated registry for ${{ github.event.issue.title }}"
+            git pull --rebase
+            git push
+          else
+            echo "No changes detected in registry."
+          fi
 
       - name: Comment and Close (Success)
-        if: github.event_name == 'issues' && steps.verify.outcome == 'success'
+        if: github.event_name == 'issues' && steps.verify.outputs.EXIT_CODE == '0'
         uses: actions/github-script@v7
         with:
           script: |
@@ -91,7 +111,7 @@ jobs:
           WORKER_RESULTS: ${{ steps.verify.outputs.RESULTS }}
 
       - name: Comment and Close (Failure)
-        if: github.event_name == 'issues' && steps.verify.outcome != 'success'
+        if: github.event_name == 'issues' && steps.verify.outputs.EXIT_CODE != '0'
         uses: actions/github-script@v7
         with:
           script: |

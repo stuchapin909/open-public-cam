@@ -4,6 +4,13 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const LOG_FILE = "worker-results.txt";
+
+// Synchronous logging for reliable capture in CI
+function logResult(msg) {
+  fs.appendFileSync(LOG_FILE, msg + "\n");
+  console.log(msg);
+}
 
 const AD_DOMAINS = [
   'googlesyndication.com', 'adservice.google.com', 'google-analytics.com',
@@ -25,6 +32,8 @@ function normalizeUrl(url) {
 async function verifyCam(url, isSubmission = false) {
   let browser;
   try {
+    if (fs.existsSync(LOG_FILE)) fs.unlinkSync(LOG_FILE);
+    
     browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' });
     const page = await context.newPage();
@@ -45,7 +54,7 @@ async function verifyCam(url, isSubmission = false) {
     const spamKeywords = ['crypto', 'casino', 'pharmacy', 'viagra', 'ads', 'marketing', 'earn money', 'security', 'cctv', 'private', 'login', 'admin', 'password', 'protected'];
     if (spamKeywords.some(k => title.toLowerCase().includes(k))) {
       const reason = "spam_or_privacy_keywords";
-      console.log(`WORKER_RESULT: REASON=${reason} TITLE=${title}`);
+      logResult(`WORKER_RESULT: REASON=${reason} TITLE=${title}`);
       await browser.close();
       return { active: false, reason };
     }
@@ -100,17 +109,17 @@ async function verifyCam(url, isSubmission = false) {
 
     if (diffRatio < 0.005 && sizeRatio < 0.01) {
       const reason = "static_image";
-      console.log(`WORKER_RESULT: REASON=${reason} DIFF_RATIO=${(diffRatio * 100).toFixed(4)}% SIZE_RATIO=${(sizeRatio * 100).toFixed(4)}%`);
+      logResult(`WORKER_RESULT: REASON=${reason} DIFF_RATIO=${(diffRatio * 100).toFixed(4)}% SIZE_RATIO=${(sizeRatio * 100).toFixed(4)}%`);
       await browser.close();
       return { active: false, reason };
     }
 
     const exists = await page.$(selector) || await page.$('video, img, canvas');
-    console.log(`WORKER_RESULT: REASON=verified_active DIFF_RATIO=${(diffRatio * 100).toFixed(4)}%`);
+    logResult(`WORKER_RESULT: REASON=verified_active DIFF_RATIO=${(diffRatio * 100).toFixed(4)}%`);
     await browser.close();
     return { active: !!exists };
   } catch (e) {
-    console.log(`WORKER_RESULT: REASON=error ERROR=${e.message}`);
+    logResult(`WORKER_RESULT: REASON=error ERROR=${e.message}`);
     if (browser) await browser.close();
     return { active: false, reason: "timeout_or_error" };
   }
@@ -150,7 +159,7 @@ if (args[0] === "--batch") {
     const isDupLoc = registry.some(c => c.location === issueData.location && c.name === issueData.name);
     
     if (isDupUrl || isDupLoc) {
-      console.log("WORKER_RESULT: REASON=duplicate_entry");
+      logResult("WORKER_RESULT: REASON=duplicate_entry");
       process.exit(1);
     }
   }
@@ -158,7 +167,7 @@ if (args[0] === "--batch") {
   verifyCam(issueData.url || issueData.cam_id, isSubmission).then(result => {
     if (isSubmission) {
       if (result.active) {
-        console.log("VERIFIED_ACTIVE_SUBMISSION");
+        logResult("WORKER_LOG: Verified active submission.");
         registry.push({
           id: `comm-${Date.now()}`,
           ...issueData,
@@ -167,18 +176,18 @@ if (args[0] === "--batch") {
         fs.writeFileSync(path.join(__dirname, "community-registry.json"), JSON.stringify(registry, null, 2));
         process.exit(0);
       } else {
-        console.log(`SUBMISSION_FAILED: ${result.reason}`);
+        logResult(`WORKER_LOG: Submission failed verification: ${result.reason}`);
         process.exit(1);
       }
     } else {
       if (!result.active) {
-        console.log("VERIFIED_BROKEN_REPORT");
+        logResult("WORKER_LOG: Verified broken report.");
         const log = JSON.parse(fs.readFileSync(path.join(__dirname, "validation-log.json"), "utf8"));
         log[issueData.cam_id] = { status: issueData.status, reason: result.reason, timestamp: new Date().toISOString(), reported_by: "worker_verified" };
         fs.writeFileSync(path.join(__dirname, "validation-log.json"), JSON.stringify(log, null, 2));
         process.exit(0);
       } else {
-        console.log("REPORT_FAILED_ACTIVE");
+        logResult("WORKER_LOG: Report failed verification (cam is active).");
         process.exit(1);
       }
     }
