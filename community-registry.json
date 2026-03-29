@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "id": "vision-valid-cam",
+    "name": "FDR Drive @ Brooklyn Bridge",
+    "url": "https://nyctmc.org/api/cameras/ecba28cb-ac70-4d25-abcb-6506111ea120/image",
+    "location": "Manhattan, New York, USA",
+    "timezone": "America/New_York",
+    "category": "highway",
+    "verified": false,
+    "submitted_at": "2026-03-29T17:25:00.000Z"
+  },
+  {
+    "id": "vision-test-logo",
+    "name": "GitHub Logo",
+    "url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+    "location": "Internet",
+    "timezone": "UTC",
+    "category": "other",
+    "verified": false,
+    "submitted_at": "2026-03-29T17:25:00.000Z"
+  }
+]

@@ -68,7 +68,7 @@ async function visionCheck(imageBuffer) {
     const response = await axios.post(
       "https://models.inference.ai.azure.com/chat/completions",
       {
-        model: "Phi-3.5-vision-instruct",
+        model: "gpt-4o-mini",
         messages: [{
           role: "user",
           content: [
