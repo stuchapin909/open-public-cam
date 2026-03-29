@@ -3,7 +3,7 @@
 [![Registry Validator](https://github.com/stuchapin909/Eagle-Eye/actions/workflows/validate-registry.yml/badge.svg)](https://github.com/stuchapin909/Eagle-Eye/actions/workflows/validate-registry.yml)
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
-Instant webcam snapshots from public cameras worldwide. One HTTP GET, sub-second captures, no API keys, no browser automation.
+Instant webcam snapshots from public cameras worldwide. One HTTP GET, sub-second captures, no browser automation. Most cameras work with zero config; some optionally require free API keys.
 
 ## Quick start
 
@@ -40,11 +40,28 @@ A valid webcam URL is any endpoint that returns a JPEG or PNG image on a plain H
 | Tool | Description |
 |---|---|
 | `get_webcam_snapshot` | Capture a live snapshot from any registered webcam |
-| `list_webcams` | List all webcams with status indicators |
+| `list_webcams` | List all webcams with status, location counts, and auth indicators |
 | `search_webcams` | Search by name or location |
-| `draft_webcam` | Add a webcam entry to the local registry |
+| `draft_webcam` | Add a webcam entry to the local registry (supports auth metadata) |
 | `draft_webcam_report` | Report a broken or offline webcam |
+| `get_config_info` | Show API key configuration status |
 | `sync_registry` | Pull latest community data from GitHub |
+
+## API Keys (optional)
+
+Most cameras work out of the box with zero configuration. Some cameras require a free API key from their provider. If so, the tool will tell you where to sign up and how to configure it.
+
+Create `~/.eagleeye/config.json`:
+
+```json
+{
+  "api_keys": {
+    "TFL_API_KEY": "your-tfl-app-key-here"
+  }
+}
+```
+
+Use `get_config_info` to check which cameras need keys and whether yours are configured.
 
 ## Registry
 

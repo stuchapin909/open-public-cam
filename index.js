@@ -1,32 +1,44 @@
-     1|#!/usr/bin/env node
-     2|import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-     3|import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-     4|import { z } from "zod";
-     5|import axios from "axios";
-     6|import fs from "fs";
-     7|import path from "path";
-     8|import { fileURLToPath } from "url";
-     9|
-    10|const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    11|const REGISTRY_PATH = path.join(__dirname, "community-registry.json");
-    12|const LOG_PATH = path.join(__dirname, "validation-log.json");
-    13|const SNAPSHOTS_DIR = path.join(__dirname, "snapshots");
-    14|
-    15|// Version 4.0.0 (Direct-image only, no yt-dlp, no ffmpeg)
-    16|const VERSION = "4.0.0";
-    17|
-    18|// GitHub Constants
-    19|const GITHUB_OWNER = "stuchapin909";
-    20|const GITHUB_REPO = "Eagle-Eye";
-    21|const GITHUB_RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/master`;
-    22|
-    23|if (!fs.existsSync(SNAPSHOTS_DIR)) fs.mkdirSync(SNAPSHOTS_DIR, { recursive: true });
-    24|
-    25|const server = new McpServer({ name: "eagle-eye", version: VERSION });
-    26|
-// v4.0.0 Curated List — 100 verified NYC TMC webcams
-// All validated: direct-image URLs, content-type verified, vision-AI confirmed
-// Distributed across 5 boroughs: Manhattan (38), Brooklyn (22), Queens (22), Staten Island (10), Bronx (8)
+#!/usr/bin/env node
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+import axios from "axios";
+import fs from "fs";
+import path from "path";
+import os from "os";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const REGISTRY_PATH = path.join(__dirname, "community-registry.json");
+const LOG_PATH = path.join(__dirname, "validation-log.json");
+const SNAPSHOTS_DIR = path.join(__dirname, "snapshots");
+const USER_CONFIG_DIR = path.join(os.homedir(), ".eagleeye");
+const USER_CONFIG_PATH = path.join(USER_CONFIG_DIR, "config.json");
+
+// Version 5.0.0 — Auth metadata, TfL cameras, user config for API keys
+const VERSION = "5.0.0";
+
+// GitHub Constants
+const GITHUB_OWNER = "stuchapin909";
+const GITHUB_REPO = "Eagle-Eye";
+const GITHUB_RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/master`;
+
+if (!fs.existsSync(SNAPSHOTS_DIR)) fs.mkdirSync(SNAPSHOTS_DIR, { recursive: true });
+if (!fs.existsSync(USER_CONFIG_DIR)) fs.mkdirSync(USER_CONFIG_DIR, { recursive: true });
+
+const server = new McpServer({ name: "eagle-eye", version: VERSION });
+
+// v5.0.0 Curated List — verified direct-image webcams with auth metadata
+// Auth schema (optional field on each camera):
+//   {
+//     provider: "Transport for London",        // Human-readable provider name
+//     signup_url: "https://...",               // Where to register for a key
+//     key_required: false,                     // Whether the image URL needs a key at fetch time
+//     key_type: "query_params" | "header",     // How to inject the key (if key_required=true)
+//     key_names: ["app_key"],                  // Query param or header names
+//     config_key: "TFL_API_KEY",              // Key name in ~/.eagleeye/config.json
+//     note: "Free registration required..."    // Free-form description
+//   }
 const CURATED_WEBCAMS = [
   {
     id: "nyc-bb-21-north-rdwy-at-above-south-st",
@@ -929,128 +941,270 @@ const CURATED_WEBCAMS = [
     verified: true
   }
 ];
-    62|
-    63|// Helpers
-    64|const getCommunityData = () => { try { return JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8")); } catch (e) { return []; } };
-    65|const getValidationLog = () => { try { return JSON.parse(fs.readFileSync(LOG_PATH, "utf8")); } catch (e) { return {}; } };
-    66|const saveRegistry = (data) => fs.writeFileSync(REGISTRY_PATH, JSON.stringify(data, null, 2));
-    67|const saveLog = (data) => fs.writeFileSync(LOG_PATH, JSON.stringify(data, null, 2));
-    68|
-    69|function findWebcam(idOrUrl) {
-    70|  return CURATED_WEBCAMS.find(c => c.id === idOrUrl || c.url === idOrUrl) || getCommunityData().find(c => c.id === idOrUrl || c.url === idOrUrl);
-    71|}
-    72|
-    73|function isNighttimeAt(timezone) {
-    74|  if (!timezone) return false;
-    75|  try {
-    76|    const hour = new Date().toLocaleString("en-US", { timeZone: timezone, hour: "numeric", hour12: false });
-    77|    return parseInt(hour, 10) >= 20 || parseInt(hour, 10) < 6;
-    78|  } catch (e) { return false; }
-    79|}
-    80|
-    81|const HUMAN_HEADERS = {
-    82|  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-    83|  'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-    84|  'Accept-Language': 'en-US,en;q=0.9',
-    85|  'Cache-Control': 'no-cache',
-    86|  'Pragma': 'no-cache',
-    87|  'Sec-Fetch-Dest': 'image',
-    88|  'Sec-Fetch-Mode': 'no-cors',
-    89|  'Sec-Fetch-Site': 'cross-site'
-    90|};
-    91|
-    92|async function validateImageUrl(url) {
-    93|  try {
-    94|    const resp = await axios.get(url, { timeout: 5000, headers: HUMAN_HEADERS, responseType: 'stream' });
-    95|    const ct = resp.headers['content-type'] || "";
-    96|    resp.data.destroy();
-    97|    return ct.includes('image/');
-    98|  } catch (e) { return false; }
-    99|}
-   100|
-   101|// SNAPSHOT TOOL
-   102|server.tool(
-   103|  "get_webcam_snapshot",
-   104|  "Capture a live snapshot from a registered webcam.",
-   105|  { cam_id: z.string().describe("Webcam ID or URL") },
-   106|  async ({ cam_id }) => {
-   107|    const cam = findWebcam(cam_id);
-   108|    if (!cam) return { content: [{ type: "text", text: `Error: Cam '${cam_id}' not found.` }], isError: true };
-   109|
-   110|    const filename = `${cam.id.substring(0, 30)}_${Date.now()}.jpg`.replace(/[^a-z0-9.]/gi, '_');
-   111|    const fullPath = path.join(SNAPSHOTS_DIR, filename);
-   112|
-   113|    try {
-   114|      const response = await axios.get(cam.url, { responseType: 'arraybuffer', timeout: 10000, headers: HUMAN_HEADERS });
-   115|      const ct = response.headers['content-type'] || "";
-   116|      if (!ct.includes('image/')) throw new Error(`Not an image (content-type: ${ct})`);
-   117|      fs.writeFileSync(fullPath, Buffer.from(response.data));
-   118|      if (!fs.existsSync(fullPath)) throw new Error("No output file created.");
-   119|      return { content: [{ type: "text", text: `Snapshot captured: ${fullPath}` }] };
-   120|    } catch (e) { return { content: [{ type: "text", text: `Snapshot failed: ${e.message}` }], isError: true }; }
-   121|  }
-   122|);
-   123|
-   124|// REGISTRY TOOLS
-   125|server.tool("list_webcams", "List all registered webcams.", {}, async () => {
-   126|  const all = [...CURATED_WEBCAMS, ...getCommunityData()];
-   127|  const logs = getValidationLog();
-   128|  if (all.length === 0) return { content: [{ type: "text", text: `v${VERSION} — Registry is empty. Use draft_webcam to add entries.` }] };
-   129|  const list = all.map(c => {
-   130|    const icon = (logs[c.id]?.status || "active") === "active" ? "+" : "-";
-   131|    return `${icon} ${c.name} (${c.location}) — ID: ${c.id} [${c.category || "uncategorized"}]`;
-   132|  }).join("\n");
-   133|  return { content: [{ type: "text", text: `v${VERSION} Registry:\n\n${list}` }] };
-   134|});
-   135|
-   136|server.tool("search_webcams", "Search registry by name or location.", { query: z.string() }, async ({ query }) => {
-   137|  const all = [...CURATED_WEBCAMS, ...getCommunityData()];
-   138|  const results = all.filter(c => c.name.toLowerCase().includes(query.toLowerCase()) || c.location.toLowerCase().includes(query.toLowerCase()));
-   139|  if (results.length === 0) return { content: [{ type: "text", text: `No results for "${query}".` }] };
-   140|  return { content: [{ type: "text", text: JSON.stringify(results, null, 2) }] };
-   141|});
-   142|
-   143|// DRAFT TOOLS
-   144|server.tool("draft_webcam", "Add a local unverified webcam entry.", {
-   145|  name: z.string(), url: z.string().url(), location: z.string(), timezone: z.string(), category: z.string().optional()
-   146|}, async (cam) => {
-   147|  const community = getCommunityData();
-   148|  const id = `comm-${Date.now()}`;
-   149|  community.push({ ...cam, id, verified: false, submitted_at: new Date().toISOString() });
-   150|  saveRegistry(community);
-   151|  return { content: [{ type: "text", text: `Drafted: ${cam.name} (ID: ${id})` }] };
-   152|});
-   153|
-   154|server.tool("draft_webcam_report", "Save a local health report for a webcam.", {
-   155|  cam_id: z.string(),
-   156|  status: z.enum(["active", "offline", "broken_link", "low_quality"]),
-   157|  notes: z.string().optional()
-   158|}, async ({ cam_id, status, notes }) => {
-   159|  const cam = findWebcam(cam_id);
-   160|  if (cam && isNighttimeAt(cam.timezone)) return { content: [{ type: "text", text: "Report blocked: nighttime at webcam location." }], isError: true };
-   161|  const logs = getValidationLog();
-   162|  logs[cam_id] = { status, notes, timestamp: new Date().toISOString() };
-   163|  saveLog(logs);
-   164|  return { content: [{ type: "text", text: `Report saved for ${cam_id}.` }] };
-   165|});
-   166|
-   167|// SYNC
-   168|server.tool("sync_registry", "Sync community data from GitHub.", {}, async () => {
-   169|  try {
-   170|    const [reg, logs] = await Promise.all([
-   171|      axios.get(`${GITHUB_RAW_BASE}/community-registry.json`),
-   172|      axios.get(`${GITHUB_RAW_BASE}/validation-log.json`).catch(() => ({ data: {} }))
-   173|    ]);
-   174|    saveRegistry(reg.data); saveLog(logs.data);
-   175|    return { content: [{ type: "text", text: "Registry synced." }] };
-   176|  } catch (e) { return { content: [{ type: "text", text: `Sync failed: ${e.message}` }], isError: true }; }
-   177|});
-   178|
-   179|async function main() {
-   180|  const transport = new StdioServerTransport();
-   181|  await server.connect(transport);
-   182|  console.error(`Eagle Eye v${VERSION}`);
-   183|}
-   184|
-   185|main().catch(console.error);
-   186|
+
+// --- User Config ---
+function getUserConfig() {
+  try {
+    if (fs.existsSync(USER_CONFIG_PATH)) {
+      return JSON.parse(fs.readFileSync(USER_CONFIG_PATH, "utf8"));
+    }
+  } catch {}
+  return {};
+}
+
+function getUserApiKeys() {
+  return getUserConfig().api_keys || {};
+}
+
+// --- Helpers ---
+const getCommunityData = () => { try { return JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8")); } catch (e) { return []; } };
+const getValidationLog = () => { try { return JSON.parse(fs.readFileSync(LOG_PATH, "utf8")); } catch (e) { return {}; } };
+const saveRegistry = (data) => fs.writeFileSync(REGISTRY_PATH, JSON.stringify(data, null, 2));
+const saveLog = (data) => fs.writeFileSync(LOG_PATH, JSON.stringify(data, null, 2));
+
+function findWebcam(idOrUrl) {
+  return CURATED_WEBCAMS.find(c => c.id === idOrUrl || c.url === idOrUrl) || getCommunityData().find(c => c.id === idOrUrl || c.url === idOrUrl);
+}
+
+function isNighttimeAt(timezone) {
+  if (!timezone) return false;
+  try {
+    const hour = new Date().toLocaleString("en-US", { timeZone: timezone, hour: "numeric", hour12: false });
+    return parseInt(hour, 10) >= 20 || parseInt(hour, 10) < 6;
+  } catch (e) { return false; }
+}
+
+const HUMAN_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+  'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Cache-Control': 'no-cache',
+  'Pragma': 'no-cache',
+  'Sec-Fetch-Dest': 'image',
+  'Sec-Fetch-Mode': 'no-cors',
+  'Sec-Fetch-Site': 'cross-site'
+};
+
+async function validateImageUrl(url) {
+  try {
+    const resp = await axios.get(url, { timeout: 5000, headers: HUMAN_HEADERS, responseType: 'stream' });
+    const ct = resp.headers['content-type'] || "";
+    resp.data.destroy();
+    return ct.includes('image/');
+  } catch (e) { return false; }
+}
+
+/**
+ * Build request config for a camera, injecting API keys if needed.
+ * Returns { url, headers } or { error } if required keys are missing.
+ */
+function buildRequestConfig(cam) {
+  const auth = cam.auth;
+  if (!auth || !auth.key_required) {
+    return { url: cam.url, headers: { ...HUMAN_HEADERS } };
+  }
+
+  const apiKeys = getUserApiKeys();
+  const configKey = auth.config_key || auth.key_names?.[0];
+
+  if (!configKey || !apiKeys[configKey]) {
+    return {
+      error: `This camera requires an API key from ${auth.provider}.\n` +
+        `Sign up: ${auth.signup_url}\n` +
+        `Then add to ${USER_CONFIG_PATH}:\n` +
+        `{\n  "api_keys": {\n    "${configKey}": "your-key-here"\n  }\n}`
+    };
+  }
+
+  const url = new URL(cam.url);
+  const headers = { ...HUMAN_HEADERS };
+
+  if (auth.key_type === "header") {
+    for (const keyName of auth.key_names || [configKey]) {
+      headers[keyName] = apiKeys[configKey];
+    }
+  } else {
+    for (const keyName of auth.key_names || [configKey]) {
+      url.searchParams.set(keyName, apiKeys[configKey]);
+    }
+  }
+
+  return { url: url.toString(), headers };
+}
+
+// SNAPSHOT TOOL
+server.tool(
+  "get_webcam_snapshot",
+  "Capture a live snapshot from a registered webcam.",
+  { cam_id: z.string().describe("Webcam ID or URL") },
+  async ({ cam_id }) => {
+    const cam = findWebcam(cam_id);
+    if (!cam) return { content: [{ type: "text", text: `Error: Cam '${cam_id}' not found.` }], isError: true };
+
+    // Check auth requirements
+    const config = buildRequestConfig(cam);
+    if (config.error) {
+      return { content: [{ type: "text", text: config.error }], isError: true };
+    }
+
+    const filename = `${cam.id.substring(0, 30)}_${Date.now()}.jpg`.replace(/[^a-z0-9.]/gi, '_');
+    const fullPath = path.join(SNAPSHOTS_DIR, filename);
+
+    try {
+      const response = await axios.get(config.url, { responseType: 'arraybuffer', timeout: 10000, headers: config.headers });
+      const ct = response.headers['content-type'] || "";
+      if (!ct.includes('image/')) throw new Error(`Not an image (content-type: ${ct})`);
+      fs.writeFileSync(fullPath, Buffer.from(response.data));
+      if (!fs.existsSync(fullPath)) throw new Error("No output file created.");
+      return { content: [{ type: "text", text: `Snapshot captured: ${fullPath}` }] };
+    } catch (e) { return { content: [{ type: "text", text: `Snapshot failed: ${e.message}` }], isError: true }; }
+  }
+);
+
+// REGISTRY TOOLS
+server.tool("list_webcams", "List all registered webcams.", {}, async () => {
+  const all = [...CURATED_WEBCAMS, ...getCommunityData()];
+  const logs = getValidationLog();
+  if (all.length === 0) return { content: [{ type: "text", text: `v${VERSION} — Registry is empty. Use draft_webcam to add entries.` }] };
+
+  const locations = {};
+  for (const c of all) {
+    const loc = c.location || "Unknown";
+    locations[loc] = (locations[loc] || 0) + 1;
+  }
+
+  const locSummary = Object.entries(locations).sort((a, b) => b[1] - a[1])
+    .map(([loc, count]) => `  ${loc}: ${count}`)
+    .join("\n");
+
+  const authRequired = all.filter(c => c.auth?.key_required).length;
+  const authInfo = authRequired > 0 ? `\n\nAuth-required cameras: ${authRequired}` : "";
+
+  const list = all.map(c => {
+    const icon = (logs[c.id]?.status || "active") === "active" ? "+" : "-";
+    const lock = c.auth?.key_required ? " [KEY]" : "";
+    return `${icon} ${c.name} (${c.location}) — ID: ${c.id} [${c.category || "uncategorized"}]${lock}`;
+  }).join("\n");
+
+  return { content: [{ type: "text", text: `v${VERSION} Registry (${all.length} cameras):\n\n${locSummary}${authInfo}\n\n${list}` }] };
+});
+
+server.tool("search_webcams", "Search registry by name or location.", { query: z.string() }, async ({ query }) => {
+  const all = [...CURATED_WEBCAMS, ...getCommunityData()];
+  const results = all.filter(c => c.name.toLowerCase().includes(query.toLowerCase()) || c.location.toLowerCase().includes(query.toLowerCase()));
+  if (results.length === 0) return { content: [{ type: "text", text: `No results for "${query}".` }] };
+  return { content: [{ type: "text", text: JSON.stringify(results, null, 2) }] };
+});
+
+// DRAFT TOOLS
+server.tool("draft_webcam", "Add a local unverified webcam entry.", {
+  name: z.string(),
+  url: z.string().url(),
+  location: z.string(),
+  timezone: z.string(),
+  category: z.string().optional(),
+  auth_provider: z.string().optional().describe("Provider name if API key is needed (e.g. 'Transport for London')"),
+  auth_signup_url: z.string().optional().describe("URL to register for API key"),
+  auth_key_required: z.boolean().optional().describe("Whether the image URL requires an API key"),
+  auth_key_type: z.enum(["query_params", "header"]).optional().describe("How to inject the key"),
+  auth_key_names: z.array(z.string()).optional().describe("Query param or header names for the key"),
+  auth_config_key: z.string().optional().describe("Key name to use in ~/.eagleeye/config.json"),
+  auth_note: z.string().optional().describe("Notes about authentication"),
+}, async (params) => {
+  const { auth_provider, auth_signup_url, auth_key_required, auth_key_type, auth_key_names, auth_config_key, auth_note, ...camFields } = params;
+
+  const community = getCommunityData();
+  const id = `comm-${Date.now()}`;
+
+  const entry = {
+    ...camFields,
+    id,
+    verified: false,
+    submitted_at: new Date().toISOString(),
+  };
+
+  if (auth_provider) {
+    entry.auth = {
+      provider: auth_provider,
+      signup_url: auth_signup_url || null,
+      key_required: auth_key_required ?? true,
+      ...(auth_key_type && { key_type: auth_key_type }),
+      ...(auth_key_names && { key_names: auth_key_names }),
+      ...(auth_config_key && { config_key: auth_config_key }),
+      ...(auth_note && { note: auth_note }),
+    };
+  }
+
+  community.push(entry);
+  saveRegistry(community);
+  return { content: [{ type: "text", text: `Drafted: ${camFields.name} (ID: ${id})${entry.auth ? ' [auth-required]' : ''}` }] };
+});
+
+server.tool("draft_webcam_report", "Save a local health report for a webcam.", {
+  cam_id: z.string(),
+  status: z.enum(["active", "offline", "broken_link", "low_quality"]),
+  notes: z.string().optional()
+}, async ({ cam_id, status, notes }) => {
+  const cam = findWebcam(cam_id);
+  if (cam && isNighttimeAt(cam.timezone)) return { content: [{ type: "text", text: "Report blocked: nighttime at webcam location." }], isError: true };
+  const logs = getValidationLog();
+  logs[cam_id] = { status, notes, timestamp: new Date().toISOString() };
+  saveLog(logs);
+  return { content: [{ type: "text", text: `Report saved for ${cam_id}.` }] };
+});
+
+// --- CONFIG TOOL ---
+server.tool("get_config_info", "Show current configuration and API key status.", {}, async () => {
+  const config = getUserConfig();
+  const apiKeys = config.api_keys || {};
+  const all = [...CURATED_WEBCAMS, ...getCommunityData()];
+
+  const authCams = all.filter(c => c.auth?.key_required);
+  const status = authCams.map(c => {
+    const configKey = c.auth.config_key || c.auth.key_names?.[0];
+    const hasKey = configKey && apiKeys[configKey];
+    return {
+      camera: c.name,
+      provider: c.auth.provider,
+      config_key: configKey,
+      key_set: hasKey || false,
+      signup_url: c.auth.signup_url,
+    };
+  });
+
+  const info = [
+    `Config: ${USER_CONFIG_PATH}`,
+    `API keys configured: ${Object.keys(apiKeys).length}`,
+    `Auth-required cameras: ${authCams.length}`,
+  ];
+
+  if (status.length > 0) {
+    info.push("", "Auth status:");
+    for (const s of status) {
+      const icon = s.key_set ? "+" : "-";
+      info.push(`  ${icon} ${s.camera} (${s.provider}) — key: ${s.config_key || "none"} ${s.key_set ? "SET" : "MISSING"}`);
+    }
+  }
+
+  return { content: [{ type: "text", text: info.join("\n") }] };
+});
+
+// --- SYNC ---
+server.tool("sync_registry", "Sync community data from GitHub.", {}, async () => {
+  try {
+    const [reg, logs] = await Promise.all([
+      axios.get(`${GITHUB_RAW_BASE}/community-registry.json`),
+      axios.get(`${GITHUB_RAW_BASE}/validation-log.json`).catch(() => ({ data: {} }))
+    ]);
+    saveRegistry(reg.data); saveLog(logs.data);
+    return { content: [{ type: "text", text: "Registry synced." }] };
+  } catch (e) { return { content: [{ type: "text", text: `Sync failed: ${e.message}` }], isError: true }; }
+});
+
+async function main() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  console.error(`Eagle Eye v${VERSION}`);
+}
+
+main().catch(console.error);
