@@ -30,26 +30,29 @@ List all webcams in the registry with status indicators.
 Search the registry by name or location (case-insensitive).
 
 ### `draft_webcam`
-Add a webcam entry to the local community registry. Unverified — no URL validation.
+Add a webcam entry to the local community registry. Enforces schema (name, url, location, timezone, category). No URL validation — use `get_webcam_snapshot` to verify before pushing.
 
 ### `draft_webcam_report`
 Save a local health report for a webcam. Blocks reports during nighttime at the webcam's location.
 
-### `submit_new_webcam_to_github`
-Submit a webcam via GitHub issue. Validates that the URL returns an image before submitting.
-
-### `submit_report_to_github`
-Report a broken webcam via GitHub issue.
-
 ### `sync_registry`
 Pull latest community registry and validation data from GitHub.
+
+## Contributing Webcams
+
+1. Use `draft_webcam` to add entries locally — the tool enforces the required schema
+2. Verify with `get_webcam_snapshot` that each URL returns a live image
+3. Push or open a PR — a GitHub Action automatically validates all new entries
+4. The Action checks: schema compliance, URL returns an image, and optionally uses vision AI to confirm it's a real webcam
+
+Changes to other files (code, docs, etc.) follow normal open-source PR review.
 
 ## Registry
 
 Webcams live in two places:
 
 - **Curated list** (in `index.js`) — verified, ships with the server
-- **Community registry** (`community-registry.json`) — user-submitted, synced via GitHub
+- **Community registry** (`community-registry.json`) — user-submitted, validated by GitHub Action
 
 ### Webcam schema
 

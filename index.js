@@ -3,7 +3,6 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import axios from "axios";
-import { spawnSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -161,41 +160,6 @@ server.tool("draft_webcam_report", "Save a local health report for a webcam.", {
   logs[cam_id] = { status, notes, timestamp: new Date().toISOString() };
   saveLog(logs);
   return { content: [{ type: "text", text: `Report saved for ${cam_id}.` }] };
-});
-
-// Check for gh CLI availability
-function getGhPath() {
-  try { return execSync("which gh", { encoding: 'utf8', timeout: 5000 }).trim() || null; }
-  catch (_) { return null; }
-}
-const GH_PATH = getGhPath();
-const GH_MISSING_MSG = "gh CLI not found. To submit webcams or reports to GitHub:\n1. Install: https://cli.github.com/\n2. Authenticate: gh auth login\n3. Retry this tool.\n\nAll other tools (snapshot, list, search, draft, sync) work without gh.";
-
-// GITHUB SUBMISSION TOOLS
-server.tool("submit_new_webcam_to_github", "Submit a verified webcam via GitHub issue.", {
-  name: z.string(), url: z.string().url(), location: z.string(), timezone: z.string(), category: z.string().optional()
-}, async (sub) => {
-  if (!GH_PATH) return { content: [{ type: "text", text: GH_MISSING_MSG }], isError: true };
-  if (!(await validateImageUrl(sub.url))) return { content: [{ type: "text", text: "Error: URL validation failed (did not return an image)." }], isError: true };
-  try {
-    const body = `Location: ${sub.location}\nTimezone: ${sub.timezone}\nURL: ${sub.url}`;
-    const result = spawnSync(GH_PATH, ["issue", "create", "--title", `[webcam] ${sub.name}`, "--body", body, "--label", "webcam-submission"], { encoding: 'utf8', timeout: 15000 });
-    if (result.status !== 0) throw new Error(result.stderr || "gh command failed");
-    return { content: [{ type: "text", text: `Submitted: ${result.stdout.trim()}` }] };
-  } catch (e) { return { content: [{ type: "text", text: `Error: ${e.message}` }], isError: true }; }
-});
-
-server.tool("submit_report_to_github", "Report a webcam issue via GitHub issue.", {
-  cam_id: z.string(), status: z.enum(["offline", "broken_link", "low_quality"]), notes: z.string().optional()
-}, async ({ cam_id, status, notes }) => {
-  if (!GH_PATH) return { content: [{ type: "text", text: GH_MISSING_MSG }], isError: true };
-  const cam = findWebcam(cam_id);
-  if (cam && isNighttimeAt(cam.timezone)) return { content: [{ type: "text", text: "Report blocked: nighttime at webcam location." }], isError: true };
-  try {
-    const body = `Status: ${status}\nNotes: ${notes || "None"}\nTime: ${new Date().toISOString()}`;
-    const result = spawnSync(GH_PATH, ["issue", "create", "--title", `[report] ${status}: ${cam_id}`, "--body", body, "--label", "webcam-report"], { encoding: 'utf8', timeout: 15000 });
-    return { content: [{ type: "text", text: `Reported: ${result.stdout.trim()}` }] };
-  } catch (e) { return { content: [{ type: "text", text: `Error: ${e.message}` }], isError: true }; }
 });
 
 // SYNC
