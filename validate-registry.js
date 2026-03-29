@@ -3,12 +3,11 @@
  * validate-registry.js — Registry validation for GitHub Actions
  *
  * Modes:
- *   push:    Validate new/changed community entries. Auto-remove invalid ones.
- *   pr:      Validate PR changes, post comment with results, fail if rejected.
+ *   push:    Validate all cameras. Auto-remove invalid ones.
+ *   pr:      Validate changes, post comment with results, fail if rejected.
  *   cron:    Incremental health-check (suspects + stale + offline). Retry before kill.
  *
- * Validates both curated cameras (parsed from index.js) and community cameras.
- * Curated failures open GitHub issues. Community failures get auto-removed.
+ * All cameras live in cameras.json. Failures open GitHub issues.
  */
 
 import axios from "axios";
@@ -17,9 +16,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const REGISTRY_PATH = path.join(__dirname, "community-registry.json");
-const LOG_PATH = path.join(__dirname, ".registry-state.json");
 const CAMERAS_PATH = path.join(__dirname, "cameras.json");
+const LOG_PATH = path.join(__dirname, ".registry-state.json");
 
 const EVENT_NAME = process.env.EVENT_NAME || "push";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || "";
@@ -29,7 +27,7 @@ const REPO_NAME = process.env.REPO_NAME || "Open-Eagle-Eye";
 
 const VALID_CATEGORIES = ["city", "park", "highway", "airport", "port", "weather", "nature", "landmark", "other"];
 
-// Retry config: fail once → suspect, fail twice → remove/issue
+// Retry config: fail once → suspect, fail twice → remove
 const MAX_CONSECUTIVE_FAILURES = 2;
 // Cron: check cameras not validated in this many days
 const STALE_THRESHOLD_DAYS = 7;
@@ -40,19 +38,13 @@ const FETCH_HEADERS = {
   'Cache-Control': 'no-cache',
 };
 
-// --- Extract curated cameras from cameras.json ---
-function extractCuratedCameras() {
-  const cameras = JSON.parse(fs.readFileSync(CAMERAS_PATH, "utf8"));
-  return cameras.map(c => ({
-    id: c.id,
-    name: c.name,
-    url: c.url,
-    category: c.category,
-    location: c.location,
-    timezone: c.timezone,
-    source: "curated",
-    verified: true,
-  }));
+// --- Load cameras ---
+function loadCameras() {
+  return JSON.parse(fs.readFileSync(CAMERAS_PATH, "utf8"));
+}
+
+function saveCameras(data) {
+  fs.writeFileSync(CAMERAS_PATH, JSON.stringify(data, null, 2));
 }
 
 // --- Schema validation ---
@@ -114,10 +106,8 @@ async function visionCheck(imageBuffer) {
   }
 }
 
-// --- Load/save ---
-function loadRegistry() { try { return JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8")); } catch { return []; } }
+// --- Load/save log ---
 function loadLog() { try { return JSON.parse(fs.readFileSync(LOG_PATH, "utf8")); } catch { return {}; } }
-function saveRegistry(data) { fs.writeFileSync(REGISTRY_PATH, JSON.stringify(data, null, 2)); }
 function saveLog(data) { fs.writeFileSync(LOG_PATH, JSON.stringify(data, null, 2)); }
 
 // --- GitHub API helpers ---
@@ -150,7 +140,7 @@ async function postPRComment(body) {
 }
 
 // --- Determine which cameras to check in cron mode ---
-function getCronTargets(curatedCameras, communityCameras, log) {
+function getCronTargets(allCameras, log) {
   const now = Date.now();
   const staleThreshold = STALE_THRESHOLD_DAYS * 24 * 60 * 60 * 1000;
   const targets = new Map(); // id → camera
@@ -158,22 +148,18 @@ function getCronTargets(curatedCameras, communityCameras, log) {
   // All suspects (one failure already)
   for (const [id, entry] of Object.entries(log)) {
     if (entry.status === "suspect") {
-      const cam = curatedCameras.find(c => c.id === id) || communityCameras.find(c => c.id === id);
+      const cam = allCameras.find(c => c.id === id);
       if (cam) targets.set(id, cam);
     }
-    // Previously offline but not yet removed (shouldn't exist in community, but check anyway)
+    // Previously offline
     if (entry.status === "offline" || entry.status === "broken_link") {
-      const cam = curatedCameras.find(c => c.id === id);
+      const cam = allCameras.find(c => c.id === id);
       if (cam) targets.set(id, cam);
     }
   }
 
   // Stale cameras (not checked in STALE_THRESHOLD_DAYS)
-  const allCams = [
-    ...curatedCameras.map(c => ({ ...c, source: "curated" })),
-    ...communityCameras.map(c => ({ ...c, source: "community" })),
-  ];
-  for (const cam of allCams) {
+  for (const cam of allCameras) {
     const entry = log[cam.id];
     if (!entry || !entry.last_checked) {
       targets.set(cam.id, cam);
@@ -190,7 +176,7 @@ function getCronTargets(curatedCameras, communityCameras, log) {
 
 // --- Validate a single camera ---
 async function validateCamera(cam, log) {
-  const result = { id: cam.id, name: cam.name, url: cam.url, source: cam.source || "community", status: "pending", details: "" };
+  const result = { id: cam.id, name: cam.name, url: cam.url, status: "pending", details: "" };
 
   // URL check
   const urlResult = await checkUrl(cam.url);
@@ -234,32 +220,30 @@ async function validateCamera(cam, log) {
 
 // --- Main ---
 async function main() {
-  const curatedCameras = extractCuratedCameras();
-  const communityCameras = loadRegistry();
+  const allCameras = loadCameras();
   const log = loadLog();
   const results = [];
   let removedCount = 0;
   const issuesToOpen = [];
 
   console.log(`Mode: ${EVENT_NAME}`);
-  console.log(`Curated cameras: ${curatedCameras.length}`);
-  console.log(`Community cameras: ${communityCameras.length}`);
+  console.log(`Cameras: ${allCameras.length}`);
 
   if (EVENT_NAME === "schedule" || EVENT_NAME === "workflow_dispatch") {
     // --- CRON MODE: incremental health check ---
-    const targets = getCronTargets(curatedCameras, communityCameras, log);
+    const targets = getCronTargets(allCameras, log);
     // Limit to prevent excessive runs — prioritize suspects first, then stale
     const suspectIds = new Set();
     for (const [id, entry] of Object.entries(log)) {
       if (entry.status === "suspect") suspectIds.add(id);
     }
-    const suspectList = Array.from(targets.values()).filter(c => suspectIds.has(c.id));
-    const staleList = Array.from(targets.values()).filter(c => !suspectIds.has(c.id));
+    const suspectList = targets.filter(c => suspectIds.has(c.id));
+    const staleList = targets.filter(c => !suspectIds.has(c.id));
     const limitedTargets = [...suspectList, ...staleList].slice(0, 50);
     console.log(`Targets to check: ${limitedTargets.length} (capped at 50)`);
 
     for (const cam of limitedTargets) {
-      console.log(`CHECK ${cam.id} (${cam.source})...`);
+      console.log(`CHECK ${cam.id}...`);
       const result = await validateCamera(cam, log);
       const logEntry = log[cam.id] || {};
       logEntry.last_checked = new Date().toISOString();
@@ -277,20 +261,15 @@ async function main() {
 
         if (logEntry.consecutive_failures >= MAX_CONSECUTIVE_FAILURES) {
           console.log(`  DEAD ${cam.id} — ${logEntry.consecutive_failures} consecutive failures`);
-          if (cam.source === "curated") {
-            logEntry.status = "offline";
-            issuesToOpen.push({ cam, reason: result.details });
-          } else {
-            // Auto-remove from community registry
-            const idx = communityCameras.findIndex(c => c.id === cam.id);
-            if (idx !== -1) {
-              communityCameras.splice(idx, 1);
-              removedCount++;
-            }
-            logEntry.status = "offline";
+          // Remove from cameras.json
+          const idx = allCameras.findIndex(c => c.id === cam.id);
+          if (idx !== -1) {
+            allCameras.splice(idx, 1);
+            removedCount++;
           }
+          logEntry.status = "offline";
+          issuesToOpen.push({ cam, reason: result.details });
         } else {
-          // First failure → mark suspect, don't remove
           logEntry.status = "suspect";
           console.log(`  SUSPECT ${cam.id} — failure ${logEntry.consecutive_failures}/${MAX_CONSECUTIVE_FAILURES}`);
         }
@@ -300,12 +279,12 @@ async function main() {
       results.push(result);
     }
 
-    saveRegistry(communityCameras);
+    saveCameras(allCameras);
 
   } else {
-    // --- PUSH / PR MODE: validate community entries ---
-    for (let i = 0; i < communityCameras.length; i++) {
-      const entry = communityCameras[i];
+    // --- PUSH / PR MODE: validate all cameras ---
+    for (let i = 0; i < allCameras.length; i++) {
+      const entry = allCameras[i];
       const id = entry.id || `entry-${i}`;
       console.log(`CHECK ${id}...`);
 
@@ -313,8 +292,9 @@ async function main() {
       const schemaErrors = validateSchema(entry, i);
       if (schemaErrors.length > 0) {
         results.push({ id, name: entry.name, url: entry.url, status: "reject", details: `Schema: ${schemaErrors.join("; ")}` });
+        log[id] = { status: "offline", notes: `Schema: ${schemaErrors.join("; ")}`, last_checked: new Date().toISOString(), consecutive_failures: MAX_CONSECUTIVE_FAILURES };
         if (EVENT_NAME === "push") {
-          communityCameras.splice(i, 1); i--; removedCount++;
+          allCameras.splice(i, 1); i--; removedCount++;
         }
         continue;
       }
@@ -326,7 +306,7 @@ async function main() {
         results.push(result);
         log[id] = { status: "offline", notes: result.details, last_checked: new Date().toISOString(), consecutive_failures: MAX_CONSECUTIVE_FAILURES, last_failure_reason: result.details };
         if (EVENT_NAME === "push") {
-          communityCameras.splice(i, 1); i--; removedCount++;
+          allCameras.splice(i, 1); i--; removedCount++;
         }
       } else {
         results.push(result);
@@ -334,16 +314,16 @@ async function main() {
       }
     }
 
-    if (EVENT_NAME === "push") saveRegistry(communityCameras);
+    if (EVENT_NAME === "push") saveCameras(allCameras);
   }
 
   saveLog(log);
 
-  // Open issues for dead curated cameras
+  // Open issues for dead cameras
   for (const { cam, reason } of issuesToOpen) {
     await createIssue(
       `[dead-camera] ${cam.name} (${cam.id})`,
-      `**Camera:** ${cam.name}\n**ID:** \`${cam.id}\`\n**Location:** ${cam.location}\n**URL:** ${cam.url}\n**Reason:** ${reason}\n**Checked:** ${new Date().toISOString()}\n\nThis camera failed ${MAX_CONSECUTIVE_FAILURES} consecutive validation checks. It should be removed from the curated list in \`index.js\` or confirmed still operational.`,
+      `**Camera:** ${cam.name}\n**ID:** \`${cam.id}\`\n**Location:** ${cam.location}\n**URL:** ${cam.url}\n**Reason:** ${reason}\n**Checked:** ${new Date().toISOString()}\n\nThis camera failed ${MAX_CONSECUTIVE_FAILURES} consecutive validation checks and was removed from the registry. If it's still operational, it should be re-added.`,
       ["dead-camera", "automated"]
     );
   }

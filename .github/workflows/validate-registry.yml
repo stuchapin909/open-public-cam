@@ -3,9 +3,9 @@ name: Registry Validator
 on:
   push:
     branches: [master]
-    paths: ['community-registry.json', 'cameras.json']
+    paths: ['cameras.json']
   pull_request:
-    paths: ['community-registry.json']
+    paths: ['cameras.json']
   schedule:
     - cron: '0 3 * * *'
   workflow_dispatch:
@@ -45,18 +45,18 @@ jobs:
           REPO_NAME: ${{ github.event.repository.name }}
         run: node validate-registry.js
 
-      - name: Commit community registry fixes (push only)
+      - name: Commit registry fixes (push only)
         if: github.event_name == 'push'
         run: |
           git config --global user.name "registry-bot"
           git config --global user.email "bot@open-public-cam.local"
-          git add community-registry.json .registry-state.json
-          git diff --cached --quiet || (git commit -m "Validator: auto-remove invalid entries" && git push)
+          git add cameras.json .registry-state.json
+          git diff --cached --quiet || (git commit -m "Validator: auto-remove invalid cameras" && git push)
 
       - name: Commit cron results
         if: github.event_name == 'schedule'
         run: |
           git config --global user.name "registry-bot"
           git config --global user.email "bot@open-public-cam.local"
-          git add community-registry.json .registry-state.json
+          git add cameras.json .registry-state.json
           git diff --cached --quiet || (git commit -m "Validator: nightly health check" && git push)

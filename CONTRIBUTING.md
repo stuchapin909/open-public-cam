@@ -16,7 +16,7 @@ The most valuable contribution is new webcam sources. Here's the process:
 
 3. **Check it's a public space** -- streets, parks, landmarks, traffic, weather, nature. No private interiors, security cameras, or password-protected feeds.
 
-4. **Add it** -- edit `community-registry.json` and push, or open a PR. The GitHub Action will:
+4. **Add it** -- edit `cameras.json` and push, or open a PR. The GitHub Action will:
    - Validate the schema (name, url, location, timezone, category)
    - Verify the URL returns an image
    - Use vision AI to confirm it's a real webcam

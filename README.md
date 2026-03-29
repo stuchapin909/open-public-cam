@@ -67,17 +67,13 @@ Every tool returns structured JSON. Snapshots save to disk and return the file p
 - 424 London TfL JamCams (all boroughs)
 - 100 NYC TMC traffic cams (all 5 boroughs)
 
-All verified, all work with zero API keys at fetch time.
-
-Cameras live in two places:
-- **Curated list** (`cameras.json`) — verified cameras shipped with the server
-- **Community registry** (`community-registry.json`) — user-submitted cameras
+All verified, all work with zero API keys at fetch time. Cameras live in `cameras.json` — one file, one source of truth.
 
 ### Self-healing
 
 A GitHub Action runs nightly at 3 AM UTC:
 - Checks cameras not validated in the last 7 days, plus any flagged as suspect
-- First failure marks as suspect, second consecutive failure removes (community) or opens a GitHub issue (curated)
+- First failure marks as suspect, second consecutive failure removes and opens a GitHub issue
 - Vision AI (GPT-4o-mini via GitHub Models) catches cameras returning error pages or placeholders
 - Suspect cameras that recover are cleared automatically
 

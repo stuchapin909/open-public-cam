@@ -9,15 +9,14 @@ import os from "os";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const REGISTRY_PATH = path.join(__dirname, "community-registry.json");
+const CAMERAS_PATH = path.join(__dirname, "cameras.json");
 const LOG_PATH = path.join(__dirname, ".registry-state.json");
 const SNAPSHOTS_DIR = path.join(__dirname, "snapshots");
 const USER_CONFIG_DIR = path.join(os.homedir(), ".openeagleeye");
 const USER_CONFIG_PATH = path.join(USER_CONFIG_DIR, "config.json");
-const CAMERAS_PATH = path.join(__dirname, "cameras.json");
 
 // Renamed to Open Eagle Eye, npm: openeagleeye
-const VERSION = "6.2.0";
+const VERSION = "6.3.0";
 
 // GitHub Constants
 const GITHUB_OWNER = "stuchapin909";
@@ -29,8 +28,8 @@ if (!fs.existsSync(USER_CONFIG_DIR)) fs.mkdirSync(USER_CONFIG_DIR, { recursive: 
 
 const server = new McpServer({ name: "openeagleeye", version: VERSION });
 
-// Load curated cameras from cameras.json
-const CURATED_WEBCAMS = JSON.parse(fs.readFileSync(CAMERAS_PATH, "utf8"));
+// Load cameras from cameras.json
+const cameras = JSON.parse(fs.readFileSync(CAMERAS_PATH, "utf8"));
 
 // --- User Config ---
 function getUserConfig() {
@@ -47,13 +46,11 @@ function getUserApiKeys() {
 }
 
 // --- Helpers ---
-const getCommunityData = () => { try { return JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8")); } catch (e) { return []; } };
 const getValidationLog = () => { try { return JSON.parse(fs.readFileSync(LOG_PATH, "utf8")); } catch (e) { return {}; } };
-const saveRegistry = (data) => fs.writeFileSync(REGISTRY_PATH, JSON.stringify(data, null, 2));
 const saveLog = (data) => fs.writeFileSync(LOG_PATH, JSON.stringify(data, null, 2));
 
 function findWebcam(idOrUrl) {
-  return CURATED_WEBCAMS.find(c => c.id === idOrUrl || c.url === idOrUrl) || getCommunityData().find(c => c.id === idOrUrl || c.url === idOrUrl);
+  return cameras.find(c => c.id === idOrUrl || c.url === idOrUrl);
 }
 
 function isNighttimeAt(timezone) {
@@ -160,15 +157,14 @@ server.tool(
 
 // REGISTRY TOOLS
 server.tool("list_webcams", "List all registered public webcams. Returns cameras as a JSON array with id, name, location, category, and auth status. Use this to discover available cameras before calling get_webcam_snapshot.", { location: z.string().optional().describe("Filter by location (e.g. 'London', 'Manhattan')"), category: z.string().optional().describe("Filter by category: city, park, highway, airport, port, weather, nature, landmark, other") }, async ({ location, category }) => {
-  const all = [...CURATED_WEBCAMS, ...getCommunityData()];
-  if (all.length === 0) return { content: [{ type: "text", text: JSON.stringify({ version: VERSION, total: 0, cameras: [], message: "Registry is empty. Use draft_webcam to add entries." }) }] };
+  if (cameras.length === 0) return { content: [{ type: "text", text: JSON.stringify({ version: VERSION, total: 0, cameras: [], message: "Registry is empty." }) }] };
 
   const logs = getValidationLog();
-  let filtered = all;
+  let filtered = cameras;
   if (location) filtered = filtered.filter(c => (c.location || "").toLowerCase().includes(location.toLowerCase()));
   if (category) filtered = filtered.filter(c => (c.category || "") === category);
 
-  const cameras = filtered.map(c => ({
+  const result = filtered.map(c => ({
     id: c.id,
     name: c.name,
     location: c.location || "Unknown",
@@ -180,21 +176,20 @@ server.tool("list_webcams", "List all registered public webcams. Returns cameras
   }));
 
   const locations = {};
-  for (const c of all) { const loc = c.location || "Unknown"; locations[loc] = (locations[loc] || 0) + 1; }
+  for (const c of cameras) { const loc = c.location || "Unknown"; locations[loc] = (locations[loc] || 0) + 1; }
 
-  return { content: [{ type: "text", text: JSON.stringify({ version: VERSION, total: all.length, shown: cameras.length, locations, cameras }, null, 2) }] };
+  return { content: [{ type: "text", text: JSON.stringify({ version: VERSION, total: cameras.length, shown: result.length, locations, cameras: result }, null, 2) }] };
 });
 
 server.tool("search_webcams", "Search webcams by name, location, or category. Returns matching cameras as a JSON array. Use when the user asks about cameras in a specific place or of a specific type.", { query: z.string().describe("Search term — matches against camera name, location, and category") }, async ({ query }) => {
-  const all = [...CURATED_WEBCAMS, ...getCommunityData()];
   const q = query.toLowerCase();
-  const results = all.filter(c =>
+  const results = cameras.filter(c =>
     c.name.toLowerCase().includes(q) ||
     (c.location || "").toLowerCase().includes(q) ||
     (c.category || "").toLowerCase().includes(q)
   );
   if (results.length === 0) return { content: [{ type: "text", text: JSON.stringify({ query, total: 0, cameras: [] }) }] };
-  const cameras = results.map(c => ({
+  const mapped = results.map(c => ({
     id: c.id,
     name: c.name,
     location: c.location || "Unknown",
@@ -203,11 +198,11 @@ server.tool("search_webcams", "Search webcams by name, location, or category. Re
     verified: c.verified || false,
     auth_required: c.auth?.key_required || false,
   }));
-  return { content: [{ type: "text", text: JSON.stringify({ query, total: cameras.length, cameras }, null, 2) }] };
+  return { content: [{ type: "text", text: JSON.stringify({ query, total: mapped.length, cameras: mapped }, null, 2) }] };
 });
 
-// DRAFT TOOLS
-server.tool("draft_webcam", "Add a new webcam to the local community registry. The webcam URL must return a JPEG or PNG image on a plain HTTP GET. The entry is stored locally and not verified automatically — use get_webcam_snapshot to test it after drafting.", {
+// DRAFT TOOL
+server.tool("draft_webcam", "Add a new webcam to the local camera registry. The webcam URL must return a JPEG or PNG image on a plain HTTP GET. The entry is stored locally in cameras.json — use get_webcam_snapshot to test it after drafting.", {
   name: z.string().describe("Human-readable camera name"),
   url: z.string().url().describe("Direct image URL — must return JPEG or PNG on HTTP GET"),
   location: z.string().describe("Location description (e.g. 'Manhattan, New York, USA')"),
@@ -223,7 +218,6 @@ server.tool("draft_webcam", "Add a new webcam to the local community registry. T
 }, async (params) => {
   const { auth_provider, auth_signup_url, auth_key_required, auth_key_type, auth_key_names, auth_config_key, auth_note, ...camFields } = params;
 
-  const community = getCommunityData();
   const id = `comm-${Date.now()}`;
 
   const entry = {
@@ -245,9 +239,9 @@ server.tool("draft_webcam", "Add a new webcam to the local community registry. T
     };
   }
 
-  community.push(entry);
-  saveRegistry(community);
-  return { content: [{ type: "text", text: JSON.stringify({ success: true, id, name: camFields.name, url: camFields.url, auth_required: entry.auth?.key_required || false, message: "Camera drafted locally. Use get_webcam_snapshot to test." }) }] };
+  cameras.push(entry);
+  fs.writeFileSync(CAMERAS_PATH, JSON.stringify(cameras, null, 2));
+  return { content: [{ type: "text", text: JSON.stringify({ success: true, id, name: camFields.name, url: camFields.url, auth_required: entry.auth?.key_required || false, message: "Camera drafted to cameras.json. Use get_webcam_snapshot to test." }) }] };
 });
 
 server.tool("draft_webcam_report", "Report a webcam issue (broken link, offline, low quality). Saves the report locally. Use when a snapshot fails or shows unexpected content.", {
@@ -267,9 +261,8 @@ server.tool("draft_webcam_report", "Report a webcam issue (broken link, offline,
 server.tool("get_config_info", "Check API key configuration status. Returns which cameras require keys and whether those keys are configured in ~/.openeagleeye/config.json. Use when a snapshot fails with an API key error.", {}, async () => {
   const config = getUserConfig();
   const apiKeys = getUserApiKeys();
-  const all = [...CURATED_WEBCAMS, ...getCommunityData()];
 
-  const authCams = all.filter(c => c.auth?.key_required);
+  const authCams = cameras.filter(c => c.auth?.key_required);
   const status = authCams.map(c => {
     const configKey = c.auth.config_key || c.auth.key_names?.[0];
     const hasKey = configKey && apiKeys[configKey];
@@ -292,19 +285,17 @@ server.tool("get_config_info", "Check API key configuration status. Returns whic
 });
 
 // --- SYNC ---
-server.tool("sync_registry", "Pull the latest camera registry from GitHub. Overwrites local cameras.json, community-registry.json, and .registry-state.json with upstream data. Use to get new cameras added by others.", {}, async () => {
+server.tool("sync_registry", "Pull the latest camera registry from GitHub. Overwrites local cameras.json and .registry-state.json with upstream data. Use to get new cameras added by others.", {}, async () => {
   try {
-    const [cams, reg, logs] = await Promise.all([
+    const [cams, logs] = await Promise.all([
       axios.get(`${GITHUB_RAW_BASE}/cameras.json`),
-      axios.get(`${GITHUB_RAW_BASE}/community-registry.json`),
       axios.get(`${GITHUB_RAW_BASE}/.registry-state.json`).catch(() => ({ data: {} }))
     ]);
     if (!Array.isArray(cams.data)) throw new Error("Invalid cameras data: expected array");
-    if (!Array.isArray(reg.data)) throw new Error("Invalid registry data: expected array");
-    if (typeof logs.data !== "object" || Array.isArray(logs.data)) throw new Error("Invalid log data: expected object");
+    if (typeof logs.data !== "object" || Array.isArray(logs.data)) throw new Error("Invalid state data: expected object");
     fs.writeFileSync(CAMERAS_PATH, JSON.stringify(cams.data, null, 2));
-    saveRegistry(reg.data); saveLog(logs.data);
-    return { content: [{ type: "text", text: JSON.stringify({ success: true, curated_cameras: cams.data.length, community_cameras: reg.data.length, source: GITHUB_RAW_BASE }) }] };
+    saveLog(logs.data);
+    return { content: [{ type: "text", text: JSON.stringify({ success: true, cameras: cams.data.length, source: GITHUB_RAW_BASE }) }] };
   } catch (e) { return { content: [{ type: "text", text: `Sync failed: ${e.message}` }], isError: true }; }
 });
 
