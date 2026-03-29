@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import axios from "axios";
-import { spawnSync, execSync } from "child_process";
+import { spawnSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -13,8 +13,8 @@ const REGISTRY_PATH = path.join(__dirname, "community-registry.json");
 const LOG_PATH = path.join(__dirname, "validation-log.json");
 const SNAPSHOTS_DIR = path.join(__dirname, "snapshots");
 
-// Version 3.0.0 (Direct-only, no yt-dlp)
-const VERSION = "3.0.0";
+// Version 4.0.0 (Direct-image only, no yt-dlp, no ffmpeg)
+const VERSION = "4.0.0";
 
 // GitHub Constants
 const GITHUB_OWNER = "stuchapin909";
@@ -23,61 +23,38 @@ const GITHUB_RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GIT
 
 if (!fs.existsSync(SNAPSHOTS_DIR)) fs.mkdirSync(SNAPSHOTS_DIR, { recursive: true });
 
-// Find ffmpeg — needed for direct_stream captures
-function findCommand(cmd) {
-  try {
-    execSync(`${cmd} --version`, { stdio: 'ignore', timeout: 10000 });
-    return cmd;
-  } catch (e) {
-    // Some builds return non-zero for --version despite working
-    try {
-      const which = execSync(`which ${cmd}`, { encoding: 'utf8', timeout: 5000 }).trim();
-      if (which) return which;
-    } catch (_) {}
-    return null;
-  }
-}
-
-const FFMPEG_PATH = findCommand("ffmpeg");
-if (!FFMPEG_PATH) console.error("Warning: 'ffmpeg' not found. direct_stream captures will fail.");
-
 const server = new McpServer({ name: "open-public-cam", version: VERSION });
 
-// v3.0.0 Curated List — verified direct_image webcams
+// v4.0.0 Curated List — verified direct-image webcams
 const CURATED_WEBCAMS = [
   {
     id: "nyc-fdr-brooklyn-bridge",
     name: "FDR Drive @ Brooklyn Bridge",
     url: "https://nyctmc.org/api/cameras/ecba28cb-ac70-4d25-abcb-6506111ea120/image",
-    access_strategy: { type: "direct_image" },
     category: "city", location: "Manhattan, New York, USA", timezone: "America/New_York", verified: true
   },
   {
     id: "nyc-broadway-45th",
     name: "Broadway @ 45th St (Times Square area)",
     url: "https://nyctmc.org/api/cameras/053e8995-f8cb-4d02-a659-70ac7c7da5db/image",
-    access_strategy: { type: "direct_image" },
     category: "city", location: "Manhattan, New York, USA", timezone: "America/New_York", verified: true
   },
   {
     id: "nyc-central-park-west-65th",
     name: "Central Park West @ 65th St",
     url: "https://nyctmc.org/api/cameras/4f8c2e84-c15a-4474-91fb-7e14554d4c4e/image",
-    access_strategy: { type: "direct_image" },
     category: "park", location: "Manhattan, New York, USA", timezone: "America/New_York", verified: true
   },
   {
     id: "nyc-ave-americas-cps",
     name: "Ave of Americas @ Central Park South",
     url: "https://nyctmc.org/api/cameras/332f161d-47cb-4c8a-b6b6-5ad48a55c978/image",
-    access_strategy: { type: "direct_image" },
     category: "city", location: "Manhattan, New York, USA", timezone: "America/New_York", verified: true
   },
   {
     id: "nyc-park-ave-79th",
     name: "Park Ave @ 79th St",
     url: "https://nyctmc.org/api/cameras/41397b64-d035-4b41-a03e-170fe4103d89/image",
-    access_strategy: { type: "direct_image" },
     category: "city", location: "Manhattan, New York, USA", timezone: "America/New_York", verified: true
   },
 ];
@@ -111,20 +88,12 @@ const HUMAN_HEADERS = {
   'Sec-Fetch-Site': 'cross-site'
 };
 
-async function validateUrl(url, strategyType) {
+async function validateImageUrl(url) {
   try {
-    if (strategyType === "direct_image") {
-      const resp = await axios.get(url, { timeout: 5000, headers: HUMAN_HEADERS, responseType: 'stream' });
-      const ct = resp.headers['content-type'] || "";
-      resp.data.destroy();
-      return ct.includes('image/');
-    }
-    // direct_stream — just check the URL is reachable
-    if (strategyType === "direct_stream") {
-      await axios.head(url, { timeout: 5000, headers: HUMAN_HEADERS });
-      return true;
-    }
-    return false;
+    const resp = await axios.get(url, { timeout: 5000, headers: HUMAN_HEADERS, responseType: 'stream' });
+    const ct = resp.headers['content-type'] || "";
+    resp.data.destroy();
+    return ct.includes('image/');
   } catch (e) { return false; }
 }
 
@@ -137,26 +106,14 @@ server.tool(
     const cam = findWebcam(cam_id);
     if (!cam) return { content: [{ type: "text", text: `Error: Cam '${cam_id}' not found.` }], isError: true };
 
-    const strategy = cam.access_strategy?.type || "direct_image";
     const filename = `${cam.id.substring(0, 30)}_${Date.now()}.jpg`.replace(/[^a-z0-9.]/gi, '_');
     const fullPath = path.join(SNAPSHOTS_DIR, filename);
 
     try {
-      if (strategy === "direct_image") {
-        const response = await axios.get(cam.url, { responseType: 'arraybuffer', timeout: 10000, headers: HUMAN_HEADERS });
-        fs.writeFileSync(fullPath, Buffer.from(response.data));
-      } else if (strategy === "direct_stream") {
-        if (!FFMPEG_PATH) throw new Error("ffmpeg not found on this system.");
-        const capture = spawnSync(FFMPEG_PATH, [
-          "-user_agent", HUMAN_HEADERS['User-Agent'],
-          "-i", cam.url,
-          "-frames:v", "1",
-          "-update", "1",
-          "-q:v", "2",
-          fullPath, "-y"
-        ], { timeout: 15000 });
-        if (capture.status !== 0 && !fs.existsSync(fullPath)) throw new Error(`ffmpeg failed: ${(capture.stderr || "").substring(0, 200)}`);
-      }
+      const response = await axios.get(cam.url, { responseType: 'arraybuffer', timeout: 10000, headers: HUMAN_HEADERS });
+      const ct = response.headers['content-type'] || "";
+      if (!ct.includes('image/')) throw new Error(`Not an image (content-type: ${ct})`);
+      fs.writeFileSync(fullPath, Buffer.from(response.data));
       if (!fs.existsSync(fullPath)) throw new Error("No output file created.");
       return { content: [{ type: "text", text: `Snapshot captured: ${fullPath}` }] };
     } catch (e) { return { content: [{ type: "text", text: `Snapshot failed: ${e.message}` }], isError: true }; }
@@ -170,8 +127,7 @@ server.tool("list_webcams", "List all registered webcams.", {}, async () => {
   if (all.length === 0) return { content: [{ type: "text", text: `v${VERSION} — Registry is empty. Use draft_webcam to add entries.` }] };
   const list = all.map(c => {
     const icon = (logs[c.id]?.status || "active") === "active" ? "+" : "-";
-    const strategy = c.access_strategy?.type || "unknown";
-    return `${icon} ${c.name} (${c.location}) — ID: ${c.id} [${strategy}]`;
+    return `${icon} ${c.name} (${c.location}) — ID: ${c.id} [${c.category || "uncategorized"}]`;
   }).join("\n");
   return { content: [{ type: "text", text: `v${VERSION} Registry:\n\n${list}` }] };
 });
@@ -207,11 +163,11 @@ server.tool("discover_webcams_by_location", "Find webcams via OpenStreetMap.", {
 
 // DRAFT TOOLS
 server.tool("draft_webcam", "Add a local unverified webcam entry.", {
-  name: z.string(), url: z.string().url(), location: z.string(), timezone: z.string(), strategy: z.enum(["direct_image", "direct_stream"]), category: z.string().optional()
+  name: z.string(), url: z.string().url(), location: z.string(), timezone: z.string(), category: z.string().optional()
 }, async (cam) => {
   const community = getCommunityData();
   const id = `comm-${Date.now()}`;
-  community.push({ ...cam, id, access_strategy: { type: cam.strategy }, verified: false, submitted_at: new Date().toISOString() });
+  community.push({ ...cam, id, verified: false, submitted_at: new Date().toISOString() });
   saveRegistry(community);
   return { content: [{ type: "text", text: `Drafted: ${cam.name} (ID: ${id})` }] };
 });
@@ -231,11 +187,11 @@ server.tool("draft_webcam_report", "Save a local health report for a webcam.", {
 
 // GITHUB SUBMISSION TOOLS
 server.tool("submit_new_webcam_to_github", "Submit a verified webcam via GitHub issue.", {
-  name: z.string(), url: z.string().url(), location: z.string(), timezone: z.string(), type: z.enum(["direct_image", "direct_stream"]), category: z.string().optional()
+  name: z.string(), url: z.string().url(), location: z.string(), timezone: z.string(), category: z.string().optional()
 }, async (sub) => {
-  if (!(await validateUrl(sub.url, sub.type))) return { content: [{ type: "text", text: "Error: URL validation failed." }], isError: true };
+  if (!(await validateImageUrl(sub.url))) return { content: [{ type: "text", text: "Error: URL validation failed (did not return an image)." }], isError: true };
   try {
-    const body = `Strategy: ${sub.type}\nLocation: ${sub.location}\nTimezone: ${sub.timezone}\nURL: ${sub.url}`;
+    const body = `Location: ${sub.location}\nTimezone: ${sub.timezone}\nURL: ${sub.url}`;
     const result = spawnSync("gh", ["issue", "create", "--title", `[webcam] ${sub.name}`, "--body", body, "--label", "webcam-submission"], { encoding: 'utf8', timeout: 15000 });
     if (result.status !== 0) throw new Error(result.stderr || "gh command failed");
     return { content: [{ type: "text", text: `Submitted: ${result.stdout.trim()}` }] };
@@ -257,7 +213,10 @@ server.tool("submit_report_to_github", "Report a webcam issue via GitHub issue."
 // SYNC
 server.tool("sync_registry", "Sync community data from GitHub.", {}, async () => {
   try {
-    const [reg, logs] = await Promise.all([axios.get(`${GITHUB_RAW_BASE}/community-registry.json`), axios.get(`${GITHUB_RAW_BASE}/validation-log.json`)]);
+    const [reg, logs] = await Promise.all([
+      axios.get(`${GITHUB_RAW_BASE}/community-registry.json`),
+      axios.get(`${GITHUB_RAW_BASE}/validation-log.json`).catch(() => ({ data: {} }))
+    ]);
     saveRegistry(reg.data); saveLog(logs.data);
     return { content: [{ type: "text", text: "Registry synced." }] };
   } catch (e) { return { content: [{ type: "text", text: `Sync failed: ${e.message}` }], isError: true }; }
