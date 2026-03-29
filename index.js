@@ -219,29 +219,32 @@ server.tool(
 );
 
 // REGISTRY TOOLS
-server.tool("list_webcams", "List all registered public webcams. Returns cameras as a JSON array with id, name, location, category, and auth status. Use this to discover available cameras before calling get_webcam_snapshot.", { location: z.string().optional().describe("Filter by location (e.g. 'London', 'Manhattan')"), category: z.string().optional().describe("Filter by category: city, park, highway, airport, port, weather, nature, landmark, other") }, async ({ location, category }) => {
+server.tool("list_webcams", "List all registered public webcams. Returns cameras as a JSON array with id, name, location, category, and auth status. Use this to discover available cameras before calling get_webcam_snapshot. Use the 'city' filter to get a shorter, focused list instead of all cameras.", { city: z.string().optional().describe("Filter by city name (e.g. 'London', 'New York', 'Sydney')"), location: z.string().optional().describe("Filter by location string (e.g. 'Manhattan', 'Borough')"), category: z.string().optional().describe("Filter by category: city, park, highway, airport, port, weather, nature, landmark, other") }, async ({ city, location, category }) => {
   if (cameras.length === 0) return { content: [{ type: "text", text: JSON.stringify({ version: VERSION, total: 0, cameras: [], message: "Registry is empty." }) }] };
 
   const logs = getValidationLog();
   let filtered = cameras;
+  if (city) filtered = filtered.filter(c => (c.city || "").toLowerCase() === city.toLowerCase());
   if (location) filtered = filtered.filter(c => (c.location || "").toLowerCase().includes(location.toLowerCase()));
   if (category) filtered = filtered.filter(c => (c.category || "") === category);
 
   const result = filtered.map(c => ({
     id: c.id,
     name: c.name,
+    city: c.city || null,
     location: c.location || "Unknown",
     category: c.category || "other",
     timezone: c.timezone || null,
+    coordinates: c.coordinates || null,
     verified: c.verified || false,
     status: logs[c.id]?.status || "active",
     auth_required: c.auth?.key_required || false,
   }));
 
-  const locations = {};
-  for (const c of cameras) { const loc = c.location || "Unknown"; locations[loc] = (locations[loc] || 0) + 1; }
+  const cities = {};
+  for (const c of cameras) { const city = c.city || "Unknown"; cities[city] = (cities[city] || 0) + 1; }
 
-  return { content: [{ type: "text", text: JSON.stringify({ version: VERSION, total: cameras.length, shown: result.length, locations, cameras: result }, null, 2) }] };
+  return { content: [{ type: "text", text: JSON.stringify({ version: VERSION, total: cameras.length, shown: result.length, cities, cameras: result }, null, 2) }] };
 });
 
 server.tool("search_webcams", "Search webcams by name, location, or category. Returns matching cameras as a JSON array. Use when the user asks about cameras in a specific place or of a specific type.", { query: z.string().describe("Search term — matches against camera name, location, and category") }, async ({ query }) => {
@@ -255,9 +258,11 @@ server.tool("search_webcams", "Search webcams by name, location, or category. Re
   const mapped = results.map(c => ({
     id: c.id,
     name: c.name,
+    city: c.city || null,
     location: c.location || "Unknown",
     category: c.category || "other",
     timezone: c.timezone || null,
+    coordinates: c.coordinates || null,
     verified: c.verified || false,
     auth_required: c.auth?.key_required || false,
   }));
@@ -268,9 +273,12 @@ server.tool("search_webcams", "Search webcams by name, location, or category. Re
 server.tool("draft_webcam", "Add a new webcam to the local camera registry. The webcam URL must return a JPEG or PNG image on a plain HTTP GET. The entry is stored locally in cameras.json — use get_webcam_snapshot to test it after drafting.", {
   name: z.string().describe("Human-readable camera name"),
   url: z.string().url().describe("Direct image URL — must return JPEG or PNG on HTTP GET"),
+  city: z.string().describe("City name (e.g. 'London', 'New York', 'Sydney')"),
   location: z.string().describe("Location description (e.g. 'Manhattan, New York, USA')"),
   timezone: z.string().describe("IANA timezone (e.g. 'America/New_York', 'Europe/London')"),
   category: z.enum(["city", "park", "highway", "airport", "port", "weather", "nature", "landmark", "other"]).optional().describe("Camera category"),
+  lat: z.number().min(-90).max(90).optional().describe("Latitude of the camera"),
+  lng: z.number().min(-180).max(180).optional().describe("Longitude of the camera"),
   auth_provider: z.string().optional().describe("Provider name if API key is needed (e.g. 'Transport for London')"),
   auth_signup_url: z.string().optional().describe("URL to register for API key"),
   auth_key_required: z.boolean().optional().describe("Whether the image URL requires an API key at fetch time"),
@@ -279,7 +287,7 @@ server.tool("draft_webcam", "Add a new webcam to the local camera registry. The 
   auth_config_key: z.string().optional().describe("Key name to use in ~/.openeagleeye/config.json"),
   auth_note: z.string().optional().describe("Notes about authentication"),
 }, async (params) => {
-  const { auth_provider, auth_signup_url, auth_key_required, auth_key_type, auth_key_names, auth_config_key, auth_note, ...camFields } = params;
+  const { auth_provider, auth_signup_url, auth_key_required, auth_key_type, auth_key_names, auth_config_key, auth_note, lat, lng, ...camFields } = params;
 
   const id = `comm-${Date.now()}`;
 
@@ -289,6 +297,10 @@ server.tool("draft_webcam", "Add a new webcam to the local camera registry. The 
     verified: false,
     submitted_at: new Date().toISOString(),
   };
+
+  if (lat !== undefined && lng !== undefined) {
+    entry.coordinates = { lat, lng };
+  }
 
   if (auth_provider) {
     entry.auth = {

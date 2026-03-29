@@ -154,8 +154,15 @@ function validateSchema(entry, index) {
   if (!entry.url || typeof entry.url !== "string") errors.push(`Missing 'url'`);
   else { try { new URL(entry.url); } catch { errors.push(`Invalid URL: ${entry.url}`); } }
   if (!entry.location || typeof entry.location !== "string") errors.push(`Missing 'location'`);
+  if (!entry.city || typeof entry.city !== "string") errors.push(`Missing 'city'`);
   if (!entry.timezone || typeof entry.timezone !== "string") errors.push(`Missing 'timezone'`);
   if (entry.category && !VALID_CATEGORIES.includes(entry.category)) errors.push(`Invalid category: ${entry.category}`);
+  if (entry.coordinates) {
+    const { lat, lng } = entry.coordinates;
+    if (typeof lat !== "number" || typeof lng !== "number" || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      errors.push(`Invalid coordinates: lat must be -90..90, lng must be -180..180`);
+    }
+  }
   return errors;
 }
 

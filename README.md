@@ -63,9 +63,10 @@ Every tool returns structured JSON. Snapshots save to disk and return the file p
 
 ## Registry
 
-**524 cameras** across two cities:
+**721 cameras** across three cities:
 - 424 London TfL JamCams (all boroughs)
 - 100 NYC TMC traffic cams (all 5 boroughs)
+- 197 NSW traffic cams (Sydney metro + regional New South Wales)
 
 All verified, all work with zero API keys at fetch time. Cameras live in `cameras.json` — one file, one source of truth.
 
