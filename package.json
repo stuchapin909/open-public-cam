@@ -1,6 +1,6 @@
 {
   "name": "eagleeye",
-  "version": "5.1.2",
+  "version": "5.1.3",
   "description": "Instant webcam snapshots from public cameras worldwide via MCP",
   "type": "module",
   "bin": {
