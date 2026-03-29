@@ -8,14 +8,12 @@ on:
   schedule:
     - cron: '0 3 * * *' # Nightly at 3 AM UTC
 
-# SERIAL QUEUE: Prevent race conditions by ensuring only one worker runs at a time
 concurrency:
   group: webcam-registry-update
   cancel-in-progress: false
 
 jobs:
   worker:
-    # Build on push, but only run verify on schedule or specific issues
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -59,8 +57,6 @@ jobs:
             git add validation-log.json
             git commit -m "Worker: Nightly Batch Validation Complete"
             git push origin master
-          else
-            echo "No changes to commit"
           fi
 
       - name: Extract JSON from Issue
@@ -85,11 +81,9 @@ jobs:
           INPUT_DATA: ${{ steps.extract_json.outputs.DATA }}
         run: |
           set +e
-          # Pass --issue flag to capture visual evidence
           node worker-verify.js --issue ${{ github.event.issue.number }} "$INPUT_DATA" > worker-stdout.log 2>&1
           EXIT_CODE=$?
           set -e
-          
           {
             echo "RESULTS<<EOF"
             if [ -f worker-results.txt ]; then
@@ -100,7 +94,6 @@ jobs:
             echo "EOF"
             echo "EXIT_CODE=$EXIT_CODE"
           } >> "$GITHUB_OUTPUT"
-          
           cat worker-stdout.log
 
       - name: Commit Verified Changes and Evidence
@@ -108,20 +101,13 @@ jobs:
         run: |
           git config --global user.name "Webcam-Worker-Bot"
           git config --global user.email "bot@open-public-cam.local"
-          
-          # Always add evidence snapshots
           git add verification-evidence/ || true
-          
-          # Add registry changes only on success
           if [ "${{ steps.verify.outputs.EXIT_CODE }}" == "0" ]; then
             git add community-registry.json validation-log.json
           fi
-          
           if [ -n "$(git status --porcelain)" ]; then
             git commit -m "Worker: Evidence and Registry updates for Issue #${{ github.event.issue.number }}"
             git push origin master
-          else
-            echo "No changes detected."
           fi
 
       - name: Finalize Issue Comment (Always)
@@ -134,33 +120,17 @@ jobs:
             const isSuccess = exitCode === "0";
             const issueNumber = context.issue.number;
             const repo = context.repo.owner + "/" + context.repo.repo;
-            
             let statusEmoji = isSuccess ? "✅" : "❌";
             let statusText = isSuccess ? "Worker Verified" : "Worker Check Failed";
-            
-            // Build visual evidence links
             const img1 = `https://raw.githubusercontent.com/${repo}/master/verification-evidence/issue-${issueNumber}-shot1.jpg`;
             const img2 = `https://raw.githubusercontent.com/${repo}/master/verification-evidence/issue-${issueNumber}-shot2.jpg`;
-            
-            const commentBody = `${statusEmoji} **${statusText}**: The deterministic verification process is complete.
-
-    ### 📸 Visual Evidence
-    | Shot 1 (T+0s) | Shot 2 (T+5s) |
-    | :---: | :---: |
-    | ![](${img1}) | ![](${img2}) |
-
-    ### 🛠 Technical Findings
-    \`\`\`
-    ${results.trim()}
-    \`\`\``;
-            
+            const commentBody = `${statusEmoji} **${statusText}**: The deterministic verification process is complete.\n\n### 📸 Visual Evidence\n| Shot 1 (T+0s) | Shot 2 (T+5s) |\n| :---: | :---: |\n| ![](${img1}) | ![](${img2}) |\n\n### 🛠 Technical Findings\n\`\`\`\n${results.trim()}\n\`\`\``;
             github.rest.issues.createComment({
               issue_number: issueNumber,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: commentBody
             });
-            
             github.rest.issues.update({
               issue_number: issueNumber,
               owner: context.repo.owner,
