@@ -15,12 +15,12 @@ const SNAPSHOTS_DIR = path.join(__dirname, "snapshots");
 const USER_CONFIG_DIR = path.join(os.homedir(), ".openeagleeye");
 const USER_CONFIG_PATH = path.join(USER_CONFIG_DIR, "config.json");
 
-// Version 5.0.0 — Auth metadata, TfL cameras, user config for API keys
-const VERSION = "5.0.0";
+// Version 6.0.0 — Renamed to Open Eagle Eye, npm: openeagleeye
+const VERSION = "6.0.0";
 
 // GitHub Constants
 const GITHUB_OWNER = "stuchapin909";
-const GITHUB_REPO = "Eagle-Eye";
+const GITHUB_REPO = "Open-Eagle-Eye";
 const GITHUB_RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/master`;
 
 if (!fs.existsSync(SNAPSHOTS_DIR)) fs.mkdirSync(SNAPSHOTS_DIR, { recursive: true });
