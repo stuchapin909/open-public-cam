@@ -3,9 +3,9 @@ name: Registry Validator
 on:
   push:
     branches: [master]
-    paths: ['community-registry.json']
+    paths: ['community-registry.json', 'validation-log.json', '.github/workflows/validate-registry.yml']
   pull_request:
-    paths: ['community-registry.json']
+    paths: ['community-registry.json', 'validation-log.json', '.github/workflows/validate-registry.yml']
   schedule:
     - cron: '0 3 * * *'
 
