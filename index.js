@@ -53,6 +53,7 @@ const WEBCAMS = [
     },
     category: "city",
     location: "New York, USA",
+    timezone: "America/New_York",
     verified: true
   },
   {
@@ -66,6 +67,7 @@ const WEBCAMS = [
     },
     category: "city",
     location: "New York, USA",
+    timezone: "America/New_York",
     verified: true
   },
   {
@@ -79,6 +81,7 @@ const WEBCAMS = [
     },
     category: "landmark",
     location: "London, UK",
+    timezone: "Europe/London",
     verified: true
   },
   {
@@ -92,6 +95,7 @@ const WEBCAMS = [
     },
     category: "city",
     location: "Venice, Italy",
+    timezone: "Europe/Rome",
     verified: true
   },
   {
@@ -105,6 +109,7 @@ const WEBCAMS = [
     },
     category: "landmark",
     location: "Toronto, Canada",
+    timezone: "America/Toronto",
     verified: true
   },
   {
@@ -118,6 +123,7 @@ const WEBCAMS = [
     },
     category: "city",
     location: "Amsterdam, Netherlands",
+    timezone: "Europe/Amsterdam",
     verified: true
   },
   {
@@ -131,6 +137,7 @@ const WEBCAMS = [
     },
     category: "city",
     location: "Chicago, USA",
+    timezone: "America/Chicago",
     verified: true
   },
   {
@@ -144,6 +151,7 @@ const WEBCAMS = [
     },
     category: "city",
     location: "Edmonton, Canada",
+    timezone: "America/Edmonton",
     verified: true
   },
   {
@@ -157,6 +165,7 @@ const WEBCAMS = [
     },
     category: "nature",
     location: "Fujikawaguchiko, Japan",
+    timezone: "Asia/Tokyo",
     verified: true
   },
   {
@@ -170,6 +179,7 @@ const WEBCAMS = [
     },
     category: "nature",
     location: "Fujikawaguchiko, Japan",
+    timezone: "Asia/Tokyo",
     verified: true
   },
   {
@@ -183,6 +193,7 @@ const WEBCAMS = [
     },
     category: "city",
     location: "Tokyo, Japan",
+    timezone: "Asia/Tokyo",
     verified: true
   },
   {
@@ -196,6 +207,7 @@ const WEBCAMS = [
     },
     category: "city",
     location: "Tokyo, Japan",
+    timezone: "Asia/Tokyo",
     verified: true
   },
   {
@@ -209,6 +221,7 @@ const WEBCAMS = [
     },
     category: "city",
     location: "Tokyo, Japan",
+    timezone: "Asia/Tokyo",
     verified: true
   },
   {
@@ -222,6 +235,7 @@ const WEBCAMS = [
     },
     category: "city",
     location: "Kyoto, Japan",
+    timezone: "Asia/Tokyo",
     verified: true
   },
   {
@@ -235,6 +249,7 @@ const WEBCAMS = [
     },
     category: "city",
     location: "Osaka, Japan",
+    timezone: "Asia/Tokyo",
     verified: true
   },
   {
@@ -248,6 +263,7 @@ const WEBCAMS = [
     },
     category: "city",
     location: "Sapporo, Japan",
+    timezone: "Asia/Tokyo",
     verified: true
   },
   {
@@ -261,6 +277,7 @@ const WEBCAMS = [
     },
     category: "landmark",
     location: "Tokyo, Japan",
+    timezone: "Asia/Tokyo",
     verified: true
   },
   {
@@ -274,6 +291,7 @@ const WEBCAMS = [
     },
     category: "nature",
     location: "Maui, USA",
+    timezone: "Pacific/Honolulu",
     verified: true
   },
   {
@@ -287,9 +305,28 @@ const WEBCAMS = [
     },
     category: "nature",
     location: "Tenerife, Spain",
+    timezone: "Atlantic/Canary",
     verified: true
   }
 ];
+
+// Nighttime check: returns true if it's currently between 8pm and 6am in the given IANA timezone
+function isNighttimeAt(timezone) {
+  if (!timezone) return false;
+  try {
+    const hour = new Date().toLocaleString("en-US", { timeZone: timezone, hour: "numeric", hour12: false });
+    const h = parseInt(hour, 10);
+    return h >= 20 || h < 6;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Look up a webcam by id or url across both curated and community lists
+function findWebcam(camId) {
+  return WEBCAMS.find(c => c.id === camId || c.url === camId)
+    || getCommunityData().find(c => c.id === camId || c.url === camId);
+}
 
 // Helper to load/save data
 const getCommunityData = () => {
@@ -331,6 +368,15 @@ server.tool(
     notes: z.string().optional().describe("Additional details for the worker")
   },
   async ({ cam_id, status, notes }) => {
+    // Block reports during local nighttime to prevent false positives
+    const cam = findWebcam(cam_id);
+    if (cam && isNighttimeAt(cam.timezone)) {
+      return {
+        content: [{ type: "text", text: `Report blocked: It is currently nighttime at this webcam's location (${cam.location}, timezone: ${cam.timezone}). Reports filed during nighttime are unreliable since low light causes false static/offline readings. Please retry during local daytime hours (6am-8pm local time).` }],
+        isError: true
+      };
+    }
+
     try {
       const issueBody = {
         cam_id,
@@ -452,6 +498,15 @@ server.tool(
     notes: z.string().optional().describe("Additional details")
   },
   async ({ cam_id, status, notes }) => {
+    // Block reports during local nighttime to prevent false positives
+    const cam = findWebcam(cam_id);
+    if (cam && isNighttimeAt(cam.timezone)) {
+      return {
+        content: [{ type: "text", text: `Report blocked: It is currently nighttime at this webcam's location (${cam.location}, timezone: ${cam.timezone}). Draft reports filed during nighttime are unreliable since low light causes false static/offline readings. Please retry during local daytime hours (6am-8pm local time).` }],
+        isError: true
+      };
+    }
+
     const update = await checkForUpdates();
     if (update.updateAvailable) {
       return {
