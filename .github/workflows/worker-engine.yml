@@ -99,15 +99,17 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Commit Registry Changes (Master)
-        if: github.event_name == 'issues' && steps.verify.outputs.EXIT_CODE == '0'
+        if: github.event_name == 'issues'
         run: |
           cd master-branch
-          git config --global user.name "Webcam-Worker-Bot"
-          git config --global user.email "bot@open-public-cam.local"
-          git add community-registry.json validation-log.json
-          if [ -n "$(git status --porcelain community-registry.json validation-log.json)" ]; then
-            git commit -m "Worker: Verified and updated registry for Issue #${{ github.event.issue.number }}"
-            git push origin master
+          if [ "${{ steps.verify.outputs.EXIT_CODE }}" == "0" ]; then
+            git config --global user.name "Webcam-Worker-Bot"
+            git config --global user.email "bot@open-public-cam.local"
+            git add community-registry.json validation-log.json
+            if [ -n "$(git status --porcelain community-registry.json validation-log.json)" ]; then
+              git commit -m "Worker: Verified and updated registry for Issue #${{ github.event.issue.number }}"
+              git push origin master
+            fi
           fi
 
       - name: Commit Evidence (Ghost Branch)
@@ -151,11 +153,9 @@ jobs:
             let statusEmoji = isSuccess ? "✅" : "❌";
             let statusText = isSuccess ? "Worker Verified" : "Worker Check Failed";
             
-            // Link to the GHOST branch
             const img1 = `https://raw.githubusercontent.com/${repo}/gh-evidence/verification-evidence/issue-${issueNumber}-shot1.jpg`;
             const img2 = `https://raw.githubusercontent.com/${repo}/gh-evidence/verification-evidence/issue-${issueNumber}-shot2.jpg`;
             
-            // Build dynamic decision logic description
             let decisionMsg = "";
             if (isSuccess) {
               decisionMsg = isSubmission 
@@ -177,7 +177,7 @@ jobs:
     4. Performs an **Entropy-Based Motion Check**: Captures two frames 5 seconds apart and calculates the pixel difference ratio to distinguish live video from static placeholders.
 
     ### 📸 Visual Evidence
-    *(Images stored on isolated `gh-evidence` branch)*
+    *(Images stored on isolated \`gh-evidence\` branch)*
     | Shot 1 (T+0s) | Shot 2 (T+5s) |
     | :---: | :---: |
     | ![](${img1}) | ![](${img2}) |
