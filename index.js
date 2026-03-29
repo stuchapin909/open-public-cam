@@ -5291,10 +5291,12 @@ server.tool(
     const fullPath = path.join(SNAPSHOTS_DIR, filename);
 
     try {
-      const response = await axios.get(config.url, { responseType: 'arraybuffer', timeout: 10000, headers: config.headers });
+      const response = await axios.get(config.url, { responseType: 'arraybuffer', timeout: 10000, headers: config.headers, maxContentLength: 5 * 1024 * 1024, maxBodyLength: 5 * 1024 * 1024 });
       const ct = response.headers['content-type'] || "";
       if (!ct.includes('image/')) throw new Error(`Not an image (content-type: ${ct})`);
-      fs.writeFileSync(fullPath, Buffer.from(response.data));
+      const buf = Buffer.from(response.data);
+      if (buf.length > 5 * 1024 * 1024) throw new Error(`Response too large (${(buf.length / 1024 / 1024).toFixed(1)}MB, max 5MB)`);
+      fs.writeFileSync(fullPath, buf);
       if (!fs.existsSync(fullPath)) throw new Error("No output file created.");
       return { content: [{ type: "text", text: `Snapshot captured: ${fullPath}` }] };
     } catch (e) { return { content: [{ type: "text", text: `Snapshot failed: ${e.message}` }], isError: true }; }
@@ -5436,6 +5438,8 @@ server.tool("sync_registry", "Sync community data from GitHub.", {}, async () =>
       axios.get(`${GITHUB_RAW_BASE}/community-registry.json`),
       axios.get(`${GITHUB_RAW_BASE}/validation-log.json`).catch(() => ({ data: {} }))
     ]);
+    if (!Array.isArray(reg.data)) throw new Error("Invalid registry data: expected array");
+    if (typeof logs.data !== "object" || Array.isArray(logs.data)) throw new Error("Invalid log data: expected object");
     saveRegistry(reg.data); saveLog(logs.data);
     return { content: [{ type: "text", text: "Registry synced." }] };
   } catch (e) { return { content: [{ type: "text", text: `Sync failed: ${e.message}` }], isError: true }; }
