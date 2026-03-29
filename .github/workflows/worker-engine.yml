@@ -65,7 +65,7 @@ jobs:
           git config --global user.name "Webcam-Worker-Bot"
           git config --global user.email "bot@open-public-cam.local"
           git add community-registry.json validation-log.json
-          git commit -m "Worker: Verified and updated registry for ${{ github.event.issue.title }}"
+          git commit -m "Worker: Verified and updated registry for ${{ github.event.issue.title }}" || echo "No changes to commit"
           git pull --rebase || true
           git push
 
