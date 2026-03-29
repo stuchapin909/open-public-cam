@@ -1,5 +1,14 @@
 [
   {
+    "id": "pipeline-test-dead",
+    "name": "Pipeline Test Dead",
+    "url": "https://thisurldoesnotexist.invalid/image.jpg",
+    "category": "city",
+    "location": "Nowhere, Test",
+    "timezone": "UTC",
+    "verified": false
+  },
+  {
     "id": "nyc-bb-21-north-rdwy-at-above-south-st",
     "name": "BB-21 North Rdwy @ Above South St",
     "url": "https://nyctmc.org/api/cameras/30bcfac8-ebd1-40c7-ae4c-1d93113bd465/image",
