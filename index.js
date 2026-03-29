@@ -34,7 +34,7 @@ const GITHUB_RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GIT
 
 const server = new McpServer({
   name: "open-public-cam",
-  version: "1.4.0",
+  version: "1.5.0",
 });
 
 // Cache for Discovery (to be a good API citizen)
@@ -46,6 +46,19 @@ const WEBCAMS = [
     id: "times-square",
     name: "Times Square, New York City",
     url: "https://www.earthcam.com/usa/newyork/timessquare/?cam=tsstreet",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "video",
+      wait_for_ms: 5000
+    },
+    category: "city",
+    location: "New York, USA",
+    verified: true
+  },
+  {
+    id: "times-square-4k",
+    name: "Times Square 4K, New York City",
+    url: "https://www.earthcam.com/usa/newyork/timessquare/?cam=tsrobo1",
     access_strategy: {
       type: "browser_capture",
       selector: "video",
@@ -79,6 +92,201 @@ const WEBCAMS = [
     },
     category: "city",
     location: "Venice, Italy",
+    verified: true
+  },
+  {
+    id: "cn-tower-toronto",
+    name: "CN Tower, Toronto",
+    url: "https://www.earthcam.com/world/canada/toronto/cntower/?cam=cntower1",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "video",
+      wait_for_ms: 5000
+    },
+    category: "landmark",
+    location: "Toronto, Canada",
+    verified: true
+  },
+  {
+    id: "amsterdam-hotel-nes",
+    name: "Amsterdam Hotel Nes",
+    url: "https://www.earthcam.com/world/netherlands/amsterdam/",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "video",
+      wait_for_ms: 5000
+    },
+    category: "city",
+    location: "Amsterdam, Netherlands",
+    verified: true
+  },
+  {
+    id: "chicago-skydeck",
+    name: "Chicago Skydeck",
+    url: "https://www.earthcam.com/usa/illinois/chicago/skydeck/?cam=chicagoskydeck",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "video",
+      wait_for_ms: 5000
+    },
+    category: "city",
+    location: "Chicago, USA",
+    verified: true
+  },
+  {
+    id: "edmonton-canada",
+    name: "Edmonton, Alberta",
+    url: "https://www.earthcam.com/world/canada/alberta/edmonton/",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "video",
+      wait_for_ms: 5000
+    },
+    category: "city",
+    location: "Edmonton, Canada",
+    verified: true
+  },
+  {
+    id: "mount-fuji-japan",
+    name: "Mount Fuji",
+    url: "https://www.skylinewebcams.com/en/webcam/japan/yamanashi-prefecture/fujikawaguchiko/mount-fuji.html",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "img",
+      wait_for_ms: 5000
+    },
+    category: "nature",
+    location: "Fujikawaguchiko, Japan",
+    verified: true
+  },
+  {
+    id: "lake-kawaguchiko-fuji",
+    name: "Lake Kawaguchiko, Mount Fuji",
+    url: "https://www.skylinewebcams.com/en/webcam/japan/chubu/fujikawaguchiko/fujikawaguchiko.html",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "video",
+      wait_for_ms: 5000
+    },
+    category: "nature",
+    location: "Fujikawaguchiko, Japan",
+    verified: true
+  },
+  {
+    id: "shibuya-scramble-crossing",
+    name: "Shibuya Scramble Crossing",
+    url: "https://www.skylinewebcams.com/en/webcam/japan/kanto/tokyo/tokyo-shibuya-scramble-crossing.html",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "img",
+      wait_for_ms: 5000
+    },
+    category: "city",
+    location: "Tokyo, Japan",
+    verified: true
+  },
+  {
+    id: "tokyo-skyline",
+    name: "Tokyo Skyline",
+    url: "https://www.skylinewebcams.com/en/webcam/japan/kanto/tokyo/tokyo-skyline.html",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "img",
+      wait_for_ms: 5000
+    },
+    category: "city",
+    location: "Tokyo, Japan",
+    verified: true
+  },
+  {
+    id: "tokyo-tower",
+    name: "Tokyo Tower",
+    url: "https://www.skylinewebcams.com/en/webcam/japan/kanto/tokyo/tokyo-tower.html",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "video",
+      wait_for_ms: 5000
+    },
+    category: "city",
+    location: "Tokyo, Japan",
+    verified: true
+  },
+  {
+    id: "hanamikoji-kyoto",
+    name: "Hanamikoji Street, Kyoto",
+    url: "https://www.skylinewebcams.com/en/webcam/japan/kansai/kyoto/hanamikoji-street.html",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "video",
+      wait_for_ms: 5000
+    },
+    category: "city",
+    location: "Kyoto, Japan",
+    verified: true
+  },
+  {
+    id: "osaka-japan",
+    name: "Osaka Skyline",
+    url: "https://www.skylinewebcams.com/en/webcam/japan/kansai/osaka/osaka.html",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "img",
+      wait_for_ms: 5000
+    },
+    category: "city",
+    location: "Osaka, Japan",
+    verified: true
+  },
+  {
+    id: "sapporo-japan",
+    name: "Sapporo",
+    url: "https://www.skylinewebcams.com/en/webcam/japan/prefecture-of-hokkaido/sapporo/sapporo-city.html",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "img",
+      wait_for_ms: 5000
+    },
+    category: "city",
+    location: "Sapporo, Japan",
+    verified: true
+  },
+  {
+    id: "hozomon-gate-asakusa",
+    name: "Hozomon Gate, Asakusa",
+    url: "https://www.skylinewebcams.com/en/webcam/japan/kanto/tokyo/hozomon-gate-asakusa.html",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "img",
+      wait_for_ms: 5000
+    },
+    category: "landmark",
+    location: "Tokyo, Japan",
+    verified: true
+  },
+  {
+    id: "kahului-maui",
+    name: "Kahului, Maui",
+    url: "https://www.skylinewebcams.com/en/webcam/united-states/hawaii/maui/kahului.html",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "video",
+      wait_for_ms: 5000
+    },
+    category: "nature",
+    location: "Maui, USA",
+    verified: true
+  },
+  {
+    id: "playa-los-cristianos-tenerife",
+    name: "Playa de Los Cristianos, Tenerife",
+    url: "https://www.skylinewebcams.com/en/webcam/espana/canarias/santa-cruz-de-tenerife/playa-los-cristianos.html",
+    access_strategy: {
+      type: "browser_capture",
+      selector: "video",
+      wait_for_ms: 5000
+    },
+    category: "nature",
+    location: "Tenerife, Spain",
     verified: true
   }
 ];
