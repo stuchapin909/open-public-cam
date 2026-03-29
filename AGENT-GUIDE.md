@@ -74,9 +74,18 @@ Do NOT add these — they will not work:
    - `timezone`: IANA timezone (e.g. "America/New_York")
    - `category`: one of `city`, `park`, `highway`, `airport`, `port`, `weather`, `nature`, `landmark`, `other`
 
-4. **Optionally, test it with `get_webcam_snapshot`** using the returned ID to confirm the capture works end-to-end.
+4. **Test it with `get_webcam_snapshot`** using the returned ID to confirm the capture works end-to-end.
 
-5. **Optionally, submit upstream** using `submit_new_webcam_to_github` if the webcam is high-quality and publicly reliable.
+5. **Contribute upstream** by pushing the change or opening a PR. A GitHub Action automatically validates all new entries in `community-registry.json` — it checks schema, verifies URLs return live images, and optionally uses vision AI to confirm real webcam content. Invalid entries are rejected with feedback.
+
+## How to Report a Broken Webcam
+
+Use `draft_webcam_report` with:
+- `cam_id`: the webcam's ID
+- `status`: `offline`, `broken_link`, or `low_quality`
+- `notes`: optional description of the problem
+
+Reports are blocked during nighttime at the webcam's timezone (8pm–6am) to avoid false negatives from dark images.
 
 ## Tips for Discovery
 
