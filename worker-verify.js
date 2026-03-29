@@ -29,7 +29,6 @@ async function verifyCam(url, isSubmission = false) {
     const context = await browser.newContext({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' });
     const page = await context.newPage();
 
-    // 1. Network-Level Ad Blocking
     await page.route('**/*', (route) => {
       const url = route.request().url();
       if (AD_DOMAINS.some(domain => url.includes(domain))) {
@@ -39,20 +38,18 @@ async function verifyCam(url, isSubmission = false) {
       }
     });
     
-    // Smart Strategy: YouTube Detection
     const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
 
-    // 2. Keyword Shield
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
     const title = await page.title();
     const spamKeywords = ['crypto', 'casino', 'pharmacy', 'viagra', 'ads', 'marketing', 'earn money', 'security', 'cctv', 'private', 'login', 'admin', 'password', 'protected'];
     if (spamKeywords.some(k => title.toLowerCase().includes(k))) {
-      console.log("REJECTED: Spam or Privacy keywords detected in title");
+      const reason = "spam_or_privacy_keywords";
+      fs.writeFileSync("worker-results.txt", `REASON: ${reason}\nTITLE: ${title}`);
       await browser.close();
-      return { active: false, reason: "spam_or_privacy_keywords" };
+      return { active: false, reason };
     }
 
-    // 3. Handle Cookie Consents / Overlays
     try {
       const consentSelectors = ['button:has-text("Accept all")', 'button:has-text("AGREE")', '#accept-choices', '.yt-spec-button-shape-next--filled'];
       for (const sel of consentSelectors) {
@@ -63,7 +60,6 @@ async function verifyCam(url, isSubmission = false) {
       }
     } catch (e) {}
 
-    // 4. CSS Cloaking
     await page.addStyleTag({
       content: `
         #ad_container, .ad-overlay, .video-ads, .ytp-ad-module, .ytp-ad-overlay-container, [id*="ad-"], [class*="ad-"] { 
@@ -72,7 +68,6 @@ async function verifyCam(url, isSubmission = false) {
       `
     });
 
-    // 5. Platform-Specific Tweaks
     let selector = 'video, img, canvas';
     if (isYouTube) {
       try {
@@ -89,11 +84,10 @@ async function verifyCam(url, isSubmission = false) {
       selector = 'video.video-stream.html5-main-video';
     }
 
-    // 6. Motion Detection
-    await page.waitForTimeout(5000); // Wait for stream
+    await page.waitForTimeout(5000);
     const shot1 = await page.screenshot({ type: 'jpeg', quality: 10 });
     
-    await page.waitForTimeout(5000); // Wait for motion
+    await page.waitForTimeout(5000);
     const shot2 = await page.screenshot({ type: 'jpeg', quality: 10 });
     
     let diffs = 0;
@@ -105,15 +99,18 @@ async function verifyCam(url, isSubmission = false) {
     const sizeRatio = Math.abs(shot1.length - shot2.length) / Math.max(shot1.length, shot2.length);
 
     if (diffRatio < 0.005 && sizeRatio < 0.01) {
-      console.log(`REJECTED: Static image detected (Diff Ratio: ${(diffRatio * 100).toFixed(4)}%)`);
+      const reason = "static_image";
+      fs.writeFileSync("worker-results.txt", `REASON: ${reason}\nDIFF_RATIO: ${(diffRatio * 100).toFixed(4)}%\nSIZE_RATIO: ${(sizeRatio * 100).toFixed(4)}%`);
       await browser.close();
-      return { active: false, reason: "static_image" };
+      return { active: false, reason };
     }
 
     const exists = await page.$(selector) || await page.$('video, img, canvas');
+    fs.writeFileSync("worker-results.txt", `REASON: verified_active\nDIFF_RATIO: ${(diffRatio * 100).toFixed(4)}%`);
     await browser.close();
     return { active: !!exists };
   } catch (e) {
+    fs.writeFileSync("worker-results.txt", `REASON: error\nERROR: ${e.message}`);
     if (browser) await browser.close();
     return { active: false, reason: "timeout_or_error" };
   }
@@ -153,6 +150,7 @@ if (args[0] === "--batch") {
     const isDupLoc = registry.some(c => c.location === issueData.location && c.name === issueData.name);
     
     if (isDupUrl || isDupLoc) {
+      fs.writeFileSync("worker-results.txt", `REASON: duplicate_entry`);
       console.log("REJECTED: Duplicate entry detected");
       process.exit(1);
     }
