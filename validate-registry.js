@@ -8,9 +8,15 @@
  *   cron:    Incremental health-check (suspects + stale + offline). Retry before kill.
  *
  * All cameras live in cameras.json. Failures open GitHub issues.
+ *
+ * Security:
+ *   - SSRF protection: rejects private IPs, link-local, loopback, cloud metadata
+ *   - Content-type whitelist: only image/jpeg and image/png accepted
+ *   - Issue spam protection: dedup check, max 5 issues per run
  */
 
 import axios from "axios";
+import dns from "dns/promises";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -26,17 +32,109 @@ const REPO_OWNER = process.env.REPO_OWNER || "stuchapin909";
 const REPO_NAME = process.env.REPO_NAME || "Open-Eagle-Eye";
 
 const VALID_CATEGORIES = ["city", "park", "highway", "airport", "port", "weather", "nature", "landmark", "other"];
+const ALLOWED_CONTENT_TYPES = ["image/jpeg", "image/png"];
 
 // Retry config: fail once → suspect, fail twice → remove
 const MAX_CONSECUTIVE_FAILURES = 2;
 // Cron: check cameras not validated in this many days
 const STALE_THRESHOLD_DAYS = 7;
+// Max issues per run (spam protection)
+const MAX_ISSUES_PER_RUN = 5;
 
 const FETCH_HEADERS = {
   'User-Agent': 'open-public-cam-validator',
-  'Accept': 'image/*,*/*;q=0.8',
+  'Accept': 'image/jpeg,image/png,image/*;q=0.8,*/*;q=0.1',
   'Cache-Control': 'no-cache',
 };
+
+// --- SSRF protection ---
+const BLOCKED_HOSTNAMES = [
+  'metadata.google.internal',
+  'metadata.goog',
+  '169.254.169.254',
+  'metadata.amazonaws.com',
+  '100.100.100.200',     // GCP metadata
+  'fd00:ec2::254',       // AWS IPv6 metadata
+];
+
+function isPrivateIP(ip) {
+  if (!ip) return true;
+  // Strip brackets from IPv6 addresses
+  const clean = ip.replace(/^\[|\]$/g, '');
+  const v4 = clean.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (v4) {
+    const [, a, b] = v4.map(Number);
+    if (a === 10) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 127) return true;
+    if (a === 0) return true;
+    if (a === 169 && b === 254) return true;
+    if (a === 100 && b >= 64 && b <= 127) return true;
+    if (a === 198 && b === 18) return true;
+    if (a === 192 && b === 0 && v4[3] >= 0 && v4[3] <= 2) return true;
+  }
+  if (clean === '::1' || clean === '::') return true;
+  if (clean.startsWith('fc') || clean.startsWith('fd') || clean.startsWith('fe80')) return true;
+  if (clean.startsWith('::ffff:127.') || clean.startsWith('::ffff:10.') || clean.startsWith('::ffff:192.168.')) return true;
+  return false;
+}
+
+async function isSafeUrl(urlStr) {
+  let url;
+  try {
+    url = new URL(urlStr);
+  } catch {
+    return { safe: false, reason: "Invalid URL" };
+  }
+
+  // Only allow http and https
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    return { safe: false, reason: `Blocked protocol: ${url.protocol}` };
+  }
+
+  // Block known metadata hostnames
+  const hostname = url.hostname.toLowerCase();
+  if (BLOCKED_HOSTNAMES.some(h => hostname === h || hostname.endsWith('.' + h))) {
+    return { safe: false, reason: "Blocked: cloud metadata endpoint" };
+  }
+
+  // Block localhost variants
+  if (hostname === 'localhost' || hostname === 'localhost.localdomain') {
+    return { safe: false, reason: "Blocked: localhost" };
+  }
+
+  // DNS resolution to check for private IPs
+  try {
+    // For IP addresses, check directly
+    const rawHost = hostname.replace(/^\[|\]$/g, '');
+    if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(rawHost) || rawHost.includes(':')) {
+      if (isPrivateIP(rawHost)) {
+        return { safe: false, reason: `Blocked: private/reserved IP ${hostname}` };
+      }
+      return { safe: true };
+    }
+
+    // For hostnames, resolve and check all IPs
+    const addresses = await dns.resolve4(hostname).catch(() => []);
+    const addresses6 = await dns.resolve6(hostname).catch(() => []);
+    const allAddresses = [...addresses, ...addresses6];
+
+    if (allAddresses.length === 0) {
+      return { safe: false, reason: `Cannot resolve hostname: ${hostname}` };
+    }
+
+    for (const ip of allAddresses) {
+      if (isPrivateIP(ip)) {
+        return { safe: false, reason: `Blocked: ${hostname} resolves to private IP ${ip}` };
+      }
+    }
+
+    return { safe: true };
+  } catch (e) {
+    return { safe: false, reason: `DNS resolution error: ${e.message.substring(0, 80)}` };
+  }
+}
 
 // --- Load cameras ---
 function loadCameras() {
@@ -60,9 +158,15 @@ function validateSchema(entry, index) {
 }
 
 // --- URL liveness check ---
-async function checkUrl(url) {
+async function checkUrl(urlStr) {
+  // SSRF check first
+  const safety = await isSafeUrl(urlStr);
+  if (!safety.safe) {
+    return { ok: false, status: 0, error: `Security: ${safety.reason}` };
+  }
+
   try {
-    const resp = await axios.get(url, {
+    const resp = await axios.get(urlStr, {
       timeout: 10000,
       headers: FETCH_HEADERS,
       responseType: 'arraybuffer',
@@ -71,7 +175,9 @@ async function checkUrl(url) {
     });
     const ct = resp.headers['content-type'] || "";
     const data = Buffer.from(resp.data);
-    return { ok: true, isImage: ct.includes('image/'), contentType: ct, size: data.length, status: resp.status, data };
+    // Strict content-type check: only jpeg and png
+    const isAllowedImage = ALLOWED_CONTENT_TYPES.some(t => ct.includes(t));
+    return { ok: true, isImage: isAllowedImage, contentType: ct, size: data.length, status: resp.status, data };
   } catch (e) {
     return { ok: false, status: e.response?.status || 0, error: e.message.substring(0, 100) };
   }
@@ -111,8 +217,29 @@ function loadLog() { try { return JSON.parse(fs.readFileSync(LOG_PATH, "utf8"));
 function saveLog(data) { fs.writeFileSync(LOG_PATH, JSON.stringify(data, null, 2)); }
 
 // --- GitHub API helpers ---
+async function hasOpenIssue(cameraId) {
+  if (!GITHUB_TOKEN) return false;
+  try {
+    const resp = await axios.get(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`,
+      {
+        params: {
+          labels: 'dead-camera',
+          state: 'open',
+          per_page: 100,
+        },
+        headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, "User-Agent": "registry-bot" }
+      }
+    );
+    const issues = resp.data || [];
+    return issues.some(i => i.title.includes(cameraId));
+  } catch {
+    return false; // If API fails, proceed cautiously
+  }
+}
+
 async function createIssue(title, body, labels = []) {
-  if (!GITHUB_TOKEN) { console.log(`Would open issue: ${title}`); return; }
+  if (!GITHUB_TOKEN) { console.log(`Would open issue: ${title}`); return true; }
   try {
     await axios.post(
       `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`,
@@ -120,8 +247,10 @@ async function createIssue(title, body, labels = []) {
       { headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, "User-Agent": "registry-bot" } }
     );
     console.log(`Issue opened: ${title}`);
+    return true;
   } catch (e) {
     console.log(`Failed to open issue: ${e.message.substring(0, 100)}`);
+    return false;
   }
 }
 
@@ -143,22 +272,19 @@ async function postPRComment(body) {
 function getCronTargets(allCameras, log) {
   const now = Date.now();
   const staleThreshold = STALE_THRESHOLD_DAYS * 24 * 60 * 60 * 1000;
-  const targets = new Map(); // id → camera
+  const targets = new Map();
 
-  // All suspects (one failure already)
   for (const [id, entry] of Object.entries(log)) {
     if (entry.status === "suspect") {
       const cam = allCameras.find(c => c.id === id);
       if (cam) targets.set(id, cam);
     }
-    // Previously offline
     if (entry.status === "offline" || entry.status === "broken_link") {
       const cam = allCameras.find(c => c.id === id);
       if (cam) targets.set(id, cam);
     }
   }
 
-  // Stale cameras (not checked in STALE_THRESHOLD_DAYS)
   for (const cam of allCameras) {
     const entry = log[cam.id];
     if (!entry || !entry.last_checked) {
@@ -178,7 +304,6 @@ function getCronTargets(allCameras, log) {
 async function validateCamera(cam, log) {
   const result = { id: cam.id, name: cam.name, url: cam.url, status: "pending", details: "" };
 
-  // URL check
   const urlResult = await checkUrl(cam.url);
   if (!urlResult.ok) {
     result.status = "fail";
@@ -188,18 +313,16 @@ async function validateCamera(cam, log) {
 
   if (!urlResult.isImage) {
     result.status = "fail";
-    result.details = `Not an image (content-type: ${urlResult.contentType}, ${urlResult.size} bytes)`;
+    result.details = `Rejected content-type: ${urlResult.contentType} (only image/jpeg and image/png allowed)`;
     return result;
   }
 
-  // Tiny image = likely error placeholder
   if (urlResult.size < 1024) {
     result.status = "fail";
     result.details = `Image too small (${urlResult.size} bytes), likely placeholder`;
     return result;
   }
 
-  // Vision AI check
   if (GITHUB_TOKEN) {
     console.log(`  VISION ${cam.id}...`);
     const vision = await visionCheck(urlResult.data);
@@ -230,9 +353,7 @@ async function main() {
   console.log(`Cameras: ${allCameras.length}`);
 
   if (EVENT_NAME === "schedule" || EVENT_NAME === "workflow_dispatch") {
-    // --- CRON MODE: incremental health check ---
     const targets = getCronTargets(allCameras, log);
-    // Limit to prevent excessive runs — prioritize suspects first, then stale
     const suspectIds = new Set();
     for (const [id, entry] of Object.entries(log)) {
       if (entry.status === "suspect") suspectIds.add(id);
@@ -261,7 +382,6 @@ async function main() {
 
         if (logEntry.consecutive_failures >= MAX_CONSECUTIVE_FAILURES) {
           console.log(`  DEAD ${cam.id} — ${logEntry.consecutive_failures} consecutive failures`);
-          // Remove from cameras.json
           const idx = allCameras.findIndex(c => c.id === cam.id);
           if (idx !== -1) {
             allCameras.splice(idx, 1);
@@ -282,13 +402,11 @@ async function main() {
     saveCameras(allCameras);
 
   } else {
-    // --- PUSH / PR MODE: validate all cameras ---
     for (let i = 0; i < allCameras.length; i++) {
       const entry = allCameras[i];
       const id = entry.id || `entry-${i}`;
       console.log(`CHECK ${id}...`);
 
-      // Schema check
       const schemaErrors = validateSchema(entry, i);
       if (schemaErrors.length > 0) {
         results.push({ id, name: entry.name, url: entry.url, status: "reject", details: `Schema: ${schemaErrors.join("; ")}` });
@@ -319,13 +437,27 @@ async function main() {
 
   saveLog(log);
 
-  // Open issues for dead cameras
+  // Open issues for dead cameras (with spam protection)
+  let issuesOpened = 0;
   for (const { cam, reason } of issuesToOpen) {
-    await createIssue(
+    if (issuesOpened >= MAX_ISSUES_PER_RUN) {
+      console.log(`Issue cap reached (${MAX_ISSUES_PER_RUN}). Skipping remaining ${issuesToOpen.length - issuesOpened} cameras.`);
+      break;
+    }
+
+    // Check for existing open issue to avoid duplicates
+    const alreadyOpen = await hasOpenIssue(cam.id);
+    if (alreadyOpen) {
+      console.log(`Skipping issue for ${cam.id} — already open`);
+      continue;
+    }
+
+    const opened = await createIssue(
       `[dead-camera] ${cam.name} (${cam.id})`,
       `**Camera:** ${cam.name}\n**ID:** \`${cam.id}\`\n**Location:** ${cam.location}\n**URL:** ${cam.url}\n**Reason:** ${reason}\n**Checked:** ${new Date().toISOString()}\n\nThis camera failed ${MAX_CONSECUTIVE_FAILURES} consecutive validation checks and was removed from the registry. If it's still operational, it should be re-added.`,
       ["dead-camera", "automated"]
     );
+    if (opened) issuesOpened++;
   }
 
   // Generate report
@@ -338,7 +470,7 @@ async function main() {
   report += `- **Passed:** ${passed}\n`;
   report += `- **Failed:** ${failed}\n`;
   if (removedCount > 0) report += `- **Removed:** ${removedCount}\n`;
-  if (issuesToOpen.length > 0) report += `- **Issues opened:** ${issuesToOpen.length}\n`;
+  if (issuesOpened > 0) report += `- **Issues opened:** ${issuesOpened}\n`;
   report += `\n`;
 
   if (failed > 0) {
@@ -358,7 +490,6 @@ async function main() {
 
   console.log(`\n${report}`);
 
-  // Post PR comment
   if (EVENT_NAME === "pull_request") {
     await postPRComment(report);
     if (failed > 0) {
