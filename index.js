@@ -139,28 +139,6 @@ server.tool("search_webcams", "Search registry by name or location.", { query: z
   return { content: [{ type: "text", text: JSON.stringify(results, null, 2) }] };
 });
 
-// DISCOVERY
-server.tool("discover_webcams_by_location", "Find webcams via OpenStreetMap.", { city: z.string().optional(), bbox: z.array(z.number()).length(4).optional() }, async ({ city, bbox }) => {
-  let finalBbox = bbox;
-  if (city && !finalBbox) {
-    try {
-      const geoRes = await axios.get(`https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(city)}&format=json&limit=1`, { headers: { 'User-Agent': 'open-public-cam' } });
-      if (geoRes.data.length > 0) {
-        const b = geoRes.data[0].boundingbox.map(Number);
-        finalBbox = [b[0], b[2], b[1], b[3]];
-      }
-    } catch (e) {}
-  }
-  if (!finalBbox) return { content: [{ type: "text", text: "Error: No area specified or found." }], isError: true };
-  try {
-    const res = await axios.post("https://overpass-api.de/api/interpreter", `[out:json][timeout:25];(nwr["man_made"="webcam"](${finalBbox.join(",")});nwr["contact:webcam"](${finalBbox.join(",")}););out body;`);
-    const cams = res.data.elements.map(el => ({
-      id: `osm-${el.id}`, name: el.tags.name || "Unnamed", url: el.tags["contact:webcam"] || el.tags.url || el.tags.website || "No URL", location: `${el.lat}, ${el.lon}`
-    })).filter(c => c.url !== "No URL");
-    return { content: [{ type: "text", text: `Found ${cams.length} webcams:\n\n${JSON.stringify(cams, null, 2)}` }] };
-  } catch (e) { return { content: [{ type: "text", text: `Error: ${e.message}` }], isError: true }; }
-});
-
 // DRAFT TOOLS
 server.tool("draft_webcam", "Add a local unverified webcam entry.", {
   name: z.string(), url: z.string().url(), location: z.string(), timezone: z.string(), category: z.string().optional()
