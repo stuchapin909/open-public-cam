@@ -3,5 +3,5 @@ node_modules
 .DS_Store
 config.json
 snapshots/
-validation-log.json
 verification-evidence/
+node_modules.bad/
