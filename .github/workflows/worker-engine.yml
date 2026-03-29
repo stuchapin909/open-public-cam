@@ -142,7 +142,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const exitCode = "${{ steps.verify.outputs.EXIT_CODE }}";
+            const exitCode = process.env.VERIFY_EXIT_CODE;
             const results = process.env.WORKER_RESULTS || "No details available.";
             const isSuccess = exitCode === "0";
             const issueNumber = context.issue.number;
@@ -187,7 +187,7 @@ jobs:
 
     **Technical Details:**
     \`\`\`
-    ${results.trim()}
+    ${results.trim()}\nExit Code: ${exitCode}
     \`\`\``;
             
             github.rest.issues.createComment({
@@ -205,3 +205,4 @@ jobs:
             });
         env:
           WORKER_RESULTS: ${{ steps.verify.outputs.RESULTS }}
+          VERIFY_EXIT_CODE: ${{ steps.verify.outputs.EXIT_CODE }}
