@@ -1,7 +1,9 @@
 node_modules
+node_modules.bad
 .env
 .DS_Store
 config.json
 snapshots/
 verification-evidence/
-node_modules.bad/
+stderr.log
+validation-results.md
