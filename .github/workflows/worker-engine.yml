@@ -169,28 +169,30 @@ jobs:
                 : "The health report was refuted. The camera appears to be active and healthy.";
             }
 
-            const commentBody = `${statusEmoji} **${statusText}**: The deterministic verification process is complete.
-
-    ### 🕵️ Methodology
-    To maintain a high-quality, autonomous registry, the worker:
-    1. Orchestrates a headless Chromium instance to the target URL.
-    2. Executes a **Multi-Layered Anti-Ad Strategy** (Network blocking + CSS Cloaking).
-    3. Bypasses common cookie and GDPR consent barriers.
-    4. Performs an **Entropy-Based Motion Check**: Captures two frames 5 seconds apart and calculates the pixel difference ratio to distinguish live video from static placeholders.
-
-    ### 📸 Visual Evidence
-    *(Images stored on isolated \`gh-evidence\` branch)*
-    | Shot 1 (T+0s) | Shot 2 (T+5s) |
-    | :---: | :---: |
-    | ![](${img1}) | ![](${img2}) |
-
-    ### 🛠 Decision & Findings
-    > **${decisionMsg}**
-
-    **Technical Details:**
-    \`\`\`
-    ${RESULTS ? RESULTS.trim() : "No detailed results captured."}\nExit Code: ${EXIT_CODE}
-    \`\`\``;
+            const commentBody = [
+              `${statusEmoji} **${statusText}**: The deterministic verification process is complete.`,
+              ``,
+              `### 🕵️ Methodology`,
+              `To maintain a high-quality, autonomous registry, the worker:`,
+              `1. Orchestrates a headless Chromium instance to the target URL.`,
+              `2. Executes a **Multi-Layered Anti-Ad Strategy** (Network blocking + CSS Cloaking).`,
+              `3. Bypasses common cookie and GDPR consent barriers.`,
+              `4. Performs an **Entropy-Based Motion Check**: Captures two frames 5 seconds apart.`,
+              ``,
+              `### 📸 Visual Evidence`,
+              `*(Images stored on isolated \`gh-evidence\` branch)*`,
+              `| Shot 1 (T+0s) | Shot 2 (T+5s) |`,
+              `| :---: | :---: |`,
+              `| ![](${img1}) | ![](${img2}) |`,
+              ``,
+              `### 🛠 Decision & Findings`,
+              `> **${decisionMsg}**`,
+              ``,
+              `**Technical Details:**`,
+              `\`\`\``,
+              `${RESULTS ? RESULTS.trim() : 'No detailed results captured.'}\nExit Code: ${EXIT_CODE}`,
+              `\`\`\``
+            ].join('\n');
             
             github.rest.issues.createComment({
               issue_number: issueNumber,
