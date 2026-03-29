@@ -6,7 +6,6 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LOG_FILE = "worker-results.txt";
 
-// Synchronous logging for reliable capture in CI
 function logResult(msg) {
   fs.appendFileSync(LOG_FILE, msg + "\n");
   console.log(msg);
@@ -32,8 +31,6 @@ function normalizeUrl(url) {
 async function verifyCam(url, isSubmission = false) {
   let browser;
   try {
-    if (fs.existsSync(LOG_FILE)) fs.unlinkSync(LOG_FILE);
-    
     browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' });
     const page = await context.newPage();
@@ -125,56 +122,45 @@ async function verifyCam(url, isSubmission = false) {
   }
 }
 
-const args = process.argv.slice(2);
+async function main() {
+  const args = process.argv.slice(2);
+  if (fs.existsSync(LOG_FILE)) fs.unlinkSync(LOG_FILE);
 
-if (args[0] === "--batch") {
-  (async () => {
+  if (args[0] === "--batch") {
     console.log("Starting Nightly Batch Validation...");
     const registry = JSON.parse(fs.readFileSync(path.join(__dirname, "community-registry.json"), "utf8"));
     const log = JSON.parse(fs.readFileSync(path.join(__dirname, "validation-log.json"), "utf8"));
-    
     const toCheck = registry.sort(() => 0.5 - Math.random()).slice(0, 20);
     
     for (const cam of toCheck) {
       console.log(`Checking ${cam.name}...`);
       const result = await verifyCam(cam.url);
       if (!result.active) {
-        console.log(`-> Reported OFFLINE: ${cam.name} (${result.reason})`);
         log[cam.id] = { status: "offline", reason: result.reason, timestamp: new Date().toISOString(), reported_by: "nightly_worker" };
       } else if (log[cam.id] && log[cam.id].status === "offline") {
         delete log[cam.id];
       }
     }
     fs.writeFileSync(path.join(__dirname, "validation-log.json"), JSON.stringify(log, null, 2));
-    process.exit(0);
-  })();
-} else {
-  const issueData = JSON.parse(args[0]);
-  const isSubmission = !!issueData.name;
-  const registry = JSON.parse(fs.readFileSync(path.join(__dirname, "community-registry.json"), "utf8"));
+  } else {
+    const issueData = JSON.parse(args[0]);
+    const isSubmission = !!issueData.name;
+    const registry = JSON.parse(fs.readFileSync(path.join(__dirname, "community-registry.json"), "utf8"));
 
-  if (isSubmission) {
-    const normalizedNew = normalizeUrl(issueData.url);
-    const isDupUrl = registry.some(c => normalizeUrl(c.url) === normalizedNew);
-    const isDupLoc = registry.some(c => c.location === issueData.location && c.name === issueData.name);
-    
-    if (isDupUrl || isDupLoc) {
-      logResult("WORKER_RESULT: REASON=duplicate_entry");
-      process.exit(1);
+    if (isSubmission) {
+      const normalizedNew = normalizeUrl(issueData.url);
+      if (registry.some(c => normalizeUrl(c.url) === normalizedNew)) {
+        logResult("WORKER_RESULT: REASON=duplicate_entry");
+        process.exit(1);
+      }
     }
-  }
 
-  verifyCam(issueData.url || issueData.cam_id, isSubmission).then(result => {
+    const result = await verifyCam(issueData.url || issueData.cam_id, isSubmission);
     if (isSubmission) {
       if (result.active) {
         logResult("WORKER_LOG: Verified active submission.");
-        registry.push({
-          id: `comm-${Date.now()}`,
-          ...issueData,
-          verified: true
-        });
+        registry.push({ id: `comm-${Date.now()}`, ...issueData, verified: true });
         fs.writeFileSync(path.join(__dirname, "community-registry.json"), JSON.stringify(registry, null, 2));
-        process.exit(0);
       } else {
         logResult(`WORKER_LOG: Submission failed verification: ${result.reason}`);
         process.exit(1);
@@ -185,11 +171,15 @@ if (args[0] === "--batch") {
         const log = JSON.parse(fs.readFileSync(path.join(__dirname, "validation-log.json"), "utf8"));
         log[issueData.cam_id] = { status: issueData.status, reason: result.reason, timestamp: new Date().toISOString(), reported_by: "worker_verified" };
         fs.writeFileSync(path.join(__dirname, "validation-log.json"), JSON.stringify(log, null, 2));
-        process.exit(0);
       } else {
         logResult("WORKER_LOG: Report failed verification (cam is active).");
         process.exit(1);
       }
     }
-  });
+  }
 }
+
+main().catch(err => {
+  logResult(`WORKER_RESULT: REASON=unhandled_error ERROR=${err.message}`);
+  process.exit(1);
+});
