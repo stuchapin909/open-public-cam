@@ -113,12 +113,10 @@ jobs:
       - name: Commit Evidence (Ghost Branch)
         if: github.event_name == 'issues'
         run: |
-          # Checkout the evidence branch in a separate folder
           git clone --branch gh-evidence https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} evidence-branch || \
           git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} evidence-branch
           
           cd evidence-branch
-          # If branch doesn't exist, create it as an orphan
           if ! git show-ref --verify --quiet refs/remotes/origin/gh-evidence; then
             git checkout --orphan gh-evidence
             git rm -rf .
@@ -126,7 +124,6 @@ jobs:
             git checkout gh-evidence
           fi
           
-          # Copy images from worker run
           mkdir -p verification-evidence
           cp ../master-branch/verification-evidence/*.jpg verification-evidence/ || true
           
@@ -148,34 +145,17 @@ jobs:
             const isSuccess = exitCode === "0";
             const issueNumber = context.issue.number;
             const repo = context.repo.owner + "/" + context.repo.repo;
-            
             let statusEmoji = isSuccess ? "✅" : "❌";
             let statusText = isSuccess ? "Worker Verified" : "Worker Check Failed";
-            
-            // Link to the GHOST branch
             const img1 = `https://raw.githubusercontent.com/${repo}/gh-evidence/verification-evidence/issue-${issueNumber}-shot1.jpg`;
             const img2 = `https://raw.githubusercontent.com/${repo}/gh-evidence/verification-evidence/issue-${issueNumber}-shot2.jpg`;
-            
-            const commentBody = `${statusEmoji} **${statusText}**: The deterministic verification process is complete.
-
-    ### 📸 Visual Evidence
-    *(Evidence stored on isolated branch to keep master clean)*
-    | Shot 1 (T+0s) | Shot 2 (T+5s) |
-    | :---: | :---: |
-    | ![](${img1}) | ![](${img2}) |
-
-    ### 🛠 Technical Findings
-    \`\`\`
-    ${results.trim()}
-    \`\`\``;
-            
+            const commentBody = `${statusEmoji} **${statusText}**: The deterministic verification process is complete.\n\n### 📸 Visual Evidence\n*(Stored on isolated branch)*\n| Shot 1 (T+0s) | Shot 2 (T+5s) |\n| :---: | :---: |\n| ![](${img1}) | ![](${img2}) |\n\n### 🛠 Technical Findings\n\`\`\`\n${results.trim()}\n\`\`\``;
             github.rest.issues.createComment({
               issue_number: issueNumber,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: commentBody
             });
-            
             github.rest.issues.update({
               issue_number: issueNumber,
               owner: context.repo.owner,
