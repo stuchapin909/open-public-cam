@@ -1,125 +1,109 @@
-# open-public-cam (Keyless & Agent-Maintained)
+# open-public-cam
 
-An open-source Model Context Protocol (MCP) server for a global, community-validated directory of **exterior webcams in public spaces**. **No API keys required.**
+An open-source MCP server for discovering and capturing snapshots from publicly accessible webcams. No API keys, no browser automation -- just yt-dlp, ffmpeg, and direct image fetching.
 
-## 🌍 The Vision
-**open-public-cam** is a living, agent-maintained ecosystem. It empowers AI agents to see the world through public webcams—specifically those looking at streets, landmarks, and nature—while giving them the tools to discover, report, and maintain the global directory autonomously.
+## How it works
 
----
+The server maintains a curated registry of webcam streams, all accessed via direct URLs:
 
-## 🚀 Key Features
+- **YouTube live streams** -- extracted with yt-dlp, single frame captured with ffmpeg
+- **Direct image URLs** -- fetched via HTTP with standard headers
 
-- **Autonomous Growth**: Agents can submit new webcams; a worker verifies them and merges them automatically.
-- **Self-Cleaning Registry**: A nightly worker re-verifies the directory to prune dead or static feeds.
-- **Anti-Garbage Filters**: Motion detection, keyword shields, and **public-space checks** prevent spam and private feeds.
-- **Global Sync**: Stay updated with the community's latest findings via the `sync_registry` tool.
-- **Lean Vision Capture**: High-quality JPEG snapshots saved locally to prevent AI context bloat.
-- **Smart Strategy**: Specialized handling for YouTube and complex players (muted autoplay, UI hiding).
+No Playwright, no browser, no headless Chrome. Fast and lightweight.
 
----
-
-## 🛠 Installation
+## Installation
 
 ```bash
 git clone https://github.com/stuchapin909/open-public-cam
 cd open-public-cam
 npm install
-npx playwright install chromium
 ```
 
----
+### External dependencies
 
-## 🤖 MCP Tools
+You need yt-dlp and ffmpeg on your PATH:
+
+```bash
+# macOS
+brew install yt-dlp ffmpeg
+
+# Ubuntu/Debian
+sudo apt install ffmpeg
+pip install yt-dlp
+
+# Windows (via pip)
+pip install yt-dlp ffmpeg-python
+# or download ffmpeg from https://ffmpeg.org/
+```
+
+The server detects these tools at startup. If either is missing, YouTube stream capture will fail (direct image URLs still work).
+
+## MCP Tools
 
 ### `get_webcam_snapshot`
-- **Purpose**: Returns a local file path to a live webcam snapshot.
-- **Context Protection**: To prevent AI "context bloat," this tool converts raw image data into a local `.jpg` file and returns only the file path.
-- **Smart Strategies**: Automatically handles complex players (like YouTube) by muting, triggering autoplay, and hiding UI overlays for a clean capture.
-- **Universal Bypassing**: Automatically attempts to click through cookie consents and GDPR overlays.
+Capture a live JPEG snapshot from any registered webcam. Returns a local file path.
+
+### `list_webcams`
+List all webcams in the registry with status indicators.
+
+### `search_webcams`
+Search the registry by name or location.
+
+### `discover_webcams_by_location`
+Find potential webcams near a city using OpenStreetMap's Overpass API.
+
+### `draft_webcam`
+Create a local unverified webcam entry for testing.
+
+### `draft_webcam_report`
+Save a local health report for a webcam (with nighttime protection).
 
 ### `submit_new_webcam_to_github`
-- **Purpose**: Contributes a new discovery to the global registry.
-- **Gatekeeper**: Triggers a worker that MUST see motion, pass keyword filters, and confirm the feed is a public-space exterior view before merging.
+Submit a verified webcam to the global registry via GitHub issue.
 
 ### `submit_report_to_github`
-- **Purpose**: Reports a broken or offline camera.
-- **Verification**: A worker independently confirms the failure before updating the global status.
+Report a broken or offline camera via GitHub issue.
 
 ### `sync_registry`
-- **Purpose**: Pulls the latest `community-registry.json` and `validation-log.json` from GitHub.
-- **Requirement**: You must be synced before you can contribute new data or reports.
+Pull the latest community registry and validation logs from GitHub.
 
----
+## Registry
 
-## 🏗 Autonomous Quality Control (Anti-Garbage)
+Webcams live in two places:
 
-To ensure the registry remains high-quality without manual oversight, the **Worker Engine** employs:
+- **Curated list** (`CURATED_WEBCAMS` in index.js) -- hand-verified, ships with the server
+- **Community registry** (`community-registry.json`) -- user/agent-submitted entries synced via GitHub
 
-1. **Motion Detection**: The worker takes two snapshots 5 seconds apart. If 0.5% pixel change and 1% file size change is not detected, the camera is rejected as a "static image" or "dead feed."
-2. **Keyword Shield**: Automatic rejection of URLs containing spam keywords or privacy-sensitive terms (e.g., 'security', 'cctv', 'private') in the page title or metadata.
-3. **Public Space Enforcement**: Rejects feeds that appear to be indoor, private, or security-focused rather than scenic or informational.
-4. **Smart Verification**: Uses the same browser automation as the snapshot tool to verify "difficult" feeds like YouTube.
-5. **Nightly Batch Validation**: Every 24 hours, the worker randomly tests batches of the registry to mark dead links as `offline`.
-6. **Strict De-duplication**: Prevents flooding by checking for duplicate URLs and geographical clashes.
+### Adding a curated webcam
 
----
+Edit `CURATED_WEBCAMS` in index.js:
 
-## 🛡️ Validation: Confirming "Public & Exterior"
+```js
+{
+  id: "my-cam",
+  name: "My Webcam Name",
+  url: "https://youtube.com/watch?v=...",
+  access_strategy: { type: "direct_stream", extractor: "yt-dlp" },
+  category: "city",
+  location: "City, Country",
+  timezone: "Europe/London",
+  verified: true
+}
+```
 
-To maintain a directory focused exclusively on public scenic views, the system uses a multi-layered validation approach:
+Strategy types:
+- `direct_stream` + `yt-dlp` -- YouTube or other streaming URLs
+- `direct_image` -- URLs that return a JPEG/PNG directly
 
-### 1. Keyword Shield (Negative Filtering)
-The `worker-verify.js` engine inspects the page title and metadata *before* accepting any submission. It automatically rejects cameras that contain privacy-sensitive or interior-focused terms:
-*   **Privacy terms**: `private`, `security`, `cctv`, `protected`.
-*   **Administrative terms**: `login`, `admin`, `password`, `dashboard`.
-*   **Commercial terms**: `casino`, `viagra`, `earn money`.
+## Ethical guidelines
 
-If a page is titled *"Office Security Camera"* or *"Admin Login - Hallway,"* it is rejected instantly.
+This project is for publicly published webcams in public spaces only:
 
-### 2. OpenStreetMap Tags (Source Trust)
-The `discover_webcams_by_location` tool specifically searches the **Overpass API** for nodes tagged with `man_made=webcam`. 
-*   In the OSM community, `man_made=webcam` is the standard tag for cameras intended for public viewing (weather, traffic, tourism).
-*   By scoping discovery to these tags, we inherit the manual verification already performed by the global OSM mapping community.
+- Streets, landmarks, beaches, nature, transit
+- No private property, interiors, or security cameras
+- No password-protected or hidden feeds
+- All sources must be publicly accessible without authentication
 
-### 3. Tool Instruction & Agent Scoping
-The MCP tool descriptions in `index.js` act as "programming" for the AI agents that use this server. By explicitly defining the scope as:
-> *"Submit a newly discovered exterior public webcam (streets, landmarks, nature)..."*
+## License
 
-We leverage the LLM's internal reasoning to filter discoveries *before* they are even submitted to the worker, creating a high-quality "human-in-the-loop" effect without the human.
-
----
-
-## ⚖️ Ethical Guidelines & Abuse Policy
-
-**open-public-cam** is built on the principle of radical transparency for public spaces. To ensure the project remains a benefit to the community and respects individual privacy, all contributors (human and agent) must adhere to the following:
-
-### 🚫 Zero-Tolerance for Private Content
-- **Public Spaces Only**: Submissions must be of exterior, public areas (e.g., public beaches, city squares, national parks). 
-- **No Private Property**: Feeds that primarily view private homes, backyards, or interior private spaces are strictly prohibited.
-- **No Unauthorized Access**: This tool is for *publicly published* webcams only. Attempting to use this tool to access private, password-protected, or hidden feeds is considered abuse.
-
-### 🛡️ Abuse Prevention & Enforcement
-- **Automated Rejection**: Our worker engine automatically rejects feeds that trigger privacy keywords or appear to be security-focused.
-- **Community Reporting**: Users are encouraged to use the `submit_report_to_github` tool to flag any feed that violates these guidelines.
-- **Registry Pruning**: Verified reports of privacy violations result in immediate and permanent removal from the global registry.
-- **Rate Limiting**: To prevent flooding and automated abuse, submissions are subject to rate-limiting and audit-logging.
-
-**Misuse of this project to infringe on privacy or harass individuals is a violation of the license and the spirit of the project.**
-
----
-
-## 🤝 How to Participate
-
-### For Humans:
-- **Fork & Improve**: Help us refine the `worker-verify.js` logic to handle more complex video players and improve public-space detection.
-- **Curate**: Add famous landmarks or scenic public views to the core `WEBCAMS` list in `index.js` via Pull Request.
-
-### For AI Agents:
-- **Discover**: Use `discover_webcams_by_location` to find new public-space feeds.
-- **Contribute**: Use `submit_new_webcam_to_github` to grow the global registry of public views.
-- **Maintain**: Use `submit_report_to_github` to flag broken links for the community.
-
----
-
-## 📄 License
 MIT
