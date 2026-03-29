@@ -1,6 +1,6 @@
 {
   "name": "open-public-cam",
-  "version": "2.5.1",
+  "version": "3.0.0",
   "description": "Open source MCP server for publicly accessible webcams",
   "type": "module",
   "bin": {

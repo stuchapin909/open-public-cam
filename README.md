@@ -1,15 +1,15 @@
 # open-public-cam
 
-An open-source MCP server for discovering and capturing snapshots from publicly accessible webcams. No API keys, no browser automation -- just yt-dlp, ffmpeg, and direct image fetching.
+An open-source MCP server for discovering and capturing snapshots from publicly accessible webcams. No API keys, no browser automation.
 
 ## How it works
 
-The server maintains a curated registry of webcam streams, all accessed via direct URLs:
+Two capture strategies, both fast:
 
-- **YouTube live streams** -- extracted with yt-dlp, single frame captured with ffmpeg
-- **Direct image URLs** -- fetched via HTTP with standard headers
+- **direct_image** -- the URL returns a JPEG/PNG directly. One HTTP GET, sub-second.
+- **direct_stream** -- the URL is a stream (HLS, RTSP). ffmpeg grabs a single frame, a few seconds.
 
-No Playwright, no browser, no headless Chrome. Fast and lightweight.
+No yt-dlp, no browser, no headless Chrome.
 
 ## Installation
 
@@ -21,69 +21,64 @@ npm install
 
 ### External dependencies
 
-You need yt-dlp and ffmpeg on your PATH:
+Only ffmpeg is needed (for direct_stream captures):
 
 ```bash
 # macOS
-brew install yt-dlp ffmpeg
+brew install ffmpeg
 
 # Ubuntu/Debian
 sudo apt install ffmpeg
-pip install yt-dlp
 
-# Windows (via pip)
-pip install yt-dlp ffmpeg-python
-# or download ffmpeg from https://ffmpeg.org/
+# Windows — download from https://ffmpeg.org/
 ```
 
-The server detects these tools at startup. If either is missing, YouTube stream capture will fail (direct image URLs still work).
+The server detects ffmpeg at startup. If missing, direct_stream captures will fail but direct_image still works.
 
 ## MCP Tools
 
 ### `get_webcam_snapshot`
-Capture a live JPEG snapshot from any registered webcam. Returns a local file path.
+Capture a live JPEG snapshot. Returns a local file path.
 
 ### `list_webcams`
-List all webcams in the registry with status indicators.
+List all webcams in the registry with status.
 
 ### `search_webcams`
-Search the registry by name or location.
+Search registry by name or location.
 
 ### `discover_webcams_by_location`
-Find potential webcams near a city using OpenStreetMap's Overpass API.
+Find webcams near a city using OpenStreetMap's Overpass API.
 
 ### `draft_webcam`
-Create a local unverified webcam entry for testing.
+Create a local unverified webcam entry.
 
 ### `draft_webcam_report`
-Save a local health report for a webcam (with nighttime protection).
+Save a local health report (blocks at nighttime).
 
 ### `submit_new_webcam_to_github`
-Submit a verified webcam to the global registry via GitHub issue.
+Submit a webcam via GitHub issue (validates URL first).
 
 ### `submit_report_to_github`
-Report a broken or offline camera via GitHub issue.
+Report a broken webcam via GitHub issue.
 
 ### `sync_registry`
-Pull the latest community registry and validation logs from GitHub.
+Pull latest community data from GitHub.
 
 ## Registry
 
 Webcams live in two places:
 
-- **Curated list** (`CURATED_WEBCAMS` in index.js) -- hand-verified, ships with the server
-- **Community registry** (`community-registry.json`) -- user/agent-submitted entries synced via GitHub
+- **Curated list** (`CURATED_WEBCAMS` in index.js) -- verified, ships with the server
+- **Community registry** (`community-registry.json`) -- user-submitted, synced via GitHub
 
-### Adding a curated webcam
-
-Edit `CURATED_WEBCAMS` in index.js:
+### Adding a webcam
 
 ```js
 {
   id: "my-cam",
-  name: "My Webcam Name",
-  url: "https://youtube.com/watch?v=...",
-  access_strategy: { type: "direct_stream", extractor: "yt-dlp" },
+  name: "My Webcam",
+  url: "https://example.com/webcam.jpg",  // direct JPEG URL
+  access_strategy: { type: "direct_image" },
   category: "city",
   location: "City, Country",
   timezone: "Europe/London",
@@ -92,14 +87,12 @@ Edit `CURATED_WEBCAMS` in index.js:
 ```
 
 Strategy types:
-- `direct_stream` + `yt-dlp` -- YouTube or other streaming URLs
-- `direct_image` -- URLs that return a JPEG/PNG directly
+- `direct_image` -- URL returns a JPEG/PNG image directly
+- `direct_stream` -- URL is a stream (HLS .m3u8, RTSP, etc.)
 
 ## Ethical guidelines
 
-This project is for publicly published webcams in public spaces only:
-
-- Streets, landmarks, beaches, nature, transit
+- Public spaces only: streets, landmarks, beaches, nature, transit
 - No private property, interiors, or security cameras
 - No password-protected or hidden feeds
 - All sources must be publicly accessible without authentication
