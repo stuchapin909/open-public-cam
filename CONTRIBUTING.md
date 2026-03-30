@@ -82,6 +82,7 @@ Current sources in the registry:
 | Pennsylvania | PennDOT 511PA API (PennDOT + PTC + RWIS) | 1,445 | None |
 | Arizona | ADOT az511.com API | 604 | None |
 | Oregon | ODOT TripCheck camera inventory | 1,120 | None |
+| Nevada | NDOT nvroads.com API (LV, Reno, Elko) | 643 | None |
 | New York | NYC TMC API | 100 | None |
 
 ## Code contributions

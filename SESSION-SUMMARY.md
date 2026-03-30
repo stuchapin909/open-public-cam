@@ -6,11 +6,11 @@
 - **Package:** openeagleeye v7.0.0 (npm, MCP server)
 - **License:** MIT
 
-## Current Registry: 19,950 cameras across 9 countries
+## Current Registry: 20,593 cameras across 9 countries
 
 | Country | Count | Sources |
 |---------|-------|---------|
-| US | 16,550 | NYC DOT (100), WSDOT (1,654), Caltrans CWWP2 (3,430), CDOT CoTrip (1,023), VDOT 511 (1,695), FDOT FL511 (4,700), NCDOT (779), PennDOT 511PA (1,445), Arizona ADOT (604), Oregon ODOT (1,120) |
+| US | 17,193 | NYC DOT (100), WSDOT (1,654), Caltrans CWWP2 (3,430), CDOT CoTrip (1,023), VDOT 511 (1,695), FDOT FL511 (4,700), NCDOT (779), PennDOT 511PA (1,445), Arizona ADOT (604), Oregon ODOT (1,120), Nevada NDOT (643) |
 | CA | 1,292 | Ontario MTO (923), Alberta 511 (369) |
 | HK | 995 | Hong Kong Transport Department |
 | UK | 424 | London TfL JamCams |
@@ -51,6 +51,8 @@ This session (March 29):
 
 8. **Oregon ODOT** (+1,120) — Camera inventory JSON at `tripcheck.com/Scripts/map/data/cctvinventory.js` (ESRI JSON with features array). Direct JPEG from `tripcheck.com/roadcams/cams/{filename}`. 765 highway + 355 city cameras. Covers I-5, I-84, I-205, I-405, I-82, US20, US26, US30, US395, US95, US97, US101, US199, US197, US730, OR18, OR22, OR126, OR140, OR217, OR219, OR221, and many state routes plus city/county cameras. GPS coordinates included (WGS84). No auth. 12/12 validation samples returned valid JPEG (10-32KB). Top cities: Portland (259), Vancouver WA (137), Oregon City (78), Eugene (53), Salem (33), Bend (31), Medford (22).
 
+9. **Nevada NDOT** (+643) — DataTables POST API at `nvroads.com/List/GetData/Cameras` (pagination, 100/page, 643 total). Direct JPEG/PNG from `nvroads.com/map/Cctv/{id}`. Covers three regions: Las Vegas metro (367), Reno-Sparks (184), Elko (90). Highways include I-15, I-80, I-580, I-11, I-215, I-515, US-395, US-50, US-95, US-6, SR-227 and many local arterials. GPS coords in WKT format. No auth. 12/12 validation samples returned valid images (mix of JPEG 4-33KB and PNG 27KB).
+
 ### Validation method
 For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG magic bytes (`\xff\xd8`) or PNG (`\x89PNG`) + reasonable file size (>500B-1KB). Send screenshots to user for visual confirmation.
 
@@ -62,6 +64,7 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 - `d10f1b7` — Add 995 Hong Kong Transport Department cameras (9 countries)
 - `7082b56` — Add 1,445 Pennsylvania PennDOT 511PA cameras
 - `ce9f670` — Add 1,120 Oregon ODOT TripCheck cameras
+- `PENDING` — Add 643 Nevada NDOT cameras
 - Plus CONTRIBUTING.md and README.md updates interleaved
 
 ## Failed sources (do not retry without new approach)
@@ -88,7 +91,7 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 ### US states (high probability of success)
 1. ~~**Arizona ADOT**~~ — DONE. 604 cameras from az511.com.
 2. ~~**Oregon ODOT**~~ — DONE. 1,120 cameras from tripcheck.com.
-3. **Nevada NDOT** — Check nvroads.com for camera feeds.
+3. ~~**Nevada NDOT**~~ — DONE. 643 cameras from nvroads.com.
 4. **Georgia** — Retry if GDOT launches a new public API.
 
 ### International (mixed probability)
@@ -105,7 +108,7 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 
 ## Key files
 
-- `cameras.json` — The registry (~5.2MB, 19,950 entries, JSON array)
+- `cameras.json` — The registry (~5.5MB, 20,593 entries, JSON array)
 - `index.js` — MCP server (main package entry point)
 - `validate-registry.js` — GitHub Action validator
 - `merge_validate.mjs` — Local merge + validation script
@@ -133,7 +136,7 @@ The registry is a JSON array. Each entry:
 }
 ```
 
-ID naming convention: `{country_code}-{descriptive-slug}` (e.g., `co-i-70-...`, `va-nrocctvi66e00501`, `fl-1-0517n-...`, `nc-5-i-40-exit-270`, `td-H429F`, `az-635`, `or-i-5-at-roseburg-mp120-pid676`).
+ID naming convention: `{country_code}-{descriptive-slug}` (e.g., `co-i-70-...`, `va-nrocctvi66e00501`, `fl-1-0517n-...`, `nc-5-i-40-exit-270`, `td-H429F`, `az-635`, `or-i-5-at-roseburg-mp120-pid676`, `nv-mccarran-caughlin-cashill-2`).
 
 ## Workflow for adding a new source
 
