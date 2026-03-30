@@ -65,6 +65,7 @@ Current sources in the registry:
 |---|---|---|---|
 | California | Caltrans CWWP2 JSON API (all 12 districts) | 3,430 | None |
 | Washington | WSDOT KML feed | 1,654 | None |
+| Colorado | CDOT CoTrip CARS Program API | 1,023 | None |
 | Ontario | MTO 511 API | 923 | None |
 | London | TfL JamCam API | 424 | API key for discovery only, images public |
 | New Zealand | NZTA cameras.json API | 251 | None |
