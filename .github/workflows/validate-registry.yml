@@ -6,9 +6,6 @@ on:
     paths: ['cameras.json']
   pull_request:
     paths: ['cameras.json']
-  schedule:
-    - cron: '0 3 * * *'
-  workflow_dispatch:
 
 concurrency:
   group: registry-validation
@@ -53,11 +50,3 @@ jobs:
           git config --global user.email "bot@open-public-cam.local"
           git add cameras.json .registry-state.json
           git diff --cached --quiet || (git commit -m "Validator: auto-remove invalid cameras" && git push)
-
-      - name: Commit cron results
-        if: github.event_name == 'schedule'
-        run: |
-          git config --global user.name "registry-bot"
-          git config --global user.email "bot@open-public-cam.local"
-          git add cameras.json .registry-state.json
-          git diff --cached --quiet || (git commit -m "Validator: nightly health check" && git push)

@@ -1,0 +1,101 @@
+name: Parallel Nightly Validation
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      total_shards:
+        description: 'Number of parallel shards'
+        required: false
+        default: '8'
+
+concurrency:
+  group: parallel-validation
+  cancel-in-progress: false
+
+jobs:
+  # Phase 1: Validate cameras in parallel shards
+  validate-shard:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+      fail-fast: false
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Validate shard ${{ matrix.shard }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHARD_INDEX: ${{ matrix.shard }}
+          TOTAL_SHARDS: ${{ github.event.inputs.total_shards || 8 }}
+        run: node validate-shard.js
+
+      - name: Upload shard results
+        uses: actions/upload-artifact@v4
+        with:
+          name: shard-${{ matrix.shard }}
+          path: .shard-results/shard-${{ matrix.shard }}.json
+          retention-days: 1
+
+  # Phase 2: Merge all shard results and commit
+  merge-and-commit:
+    if: github.actor != 'github-actions[bot]'
+    needs: validate-shard
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Download all shard results
+        uses: actions/download-artifact@v4
+        with:
+          path: .shard-results
+          pattern: shard-*
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Merge shard results
+        env:
+          MAX_CONSECUTIVE_FAILURES: 2
+        run: node merge-shards.js
+
+      - name: Read summary
+        id: summary
+        run: |
+          SUMMARY=$(cat .validation-summary.json)
+          echo "summary=$SUMMARY" >> "$GITHUB_OUTPUT"
+          echo "$SUMMARY"
+
+      - name: Commit results
+        run: |
+          git config --global user.name "registry-bot"
+          git config --global user.email "bot@open-public-cam.local"
+          git add cameras.json .registry-state.json
+          git diff --cached --quiet || git commit -m "Validator: parallel nightly check (${{ fromJson(steps.summary.outputs.summary).removed }} removed, ${{ fromJson(steps.summary.outputs.summary).passed }}/${{ fromJson(steps.summary.outputs.summary).total_checked }} passed)"
+          git push
