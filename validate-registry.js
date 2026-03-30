@@ -296,7 +296,7 @@ async function main() {
         timeout: 45000,
         maxContentLength: 50 * 1024 * 1024
       });
-      const upstreamCameras = resp.data;
+      const upstreamCameras = typeof resp.data === 'string' ? JSON.parse(resp.data) : resp.data;
       const upstreamMap = new Map();
       if (Array.isArray(upstreamCameras)) {
         for (const c of upstreamCameras) upstreamMap.set(c.id, c);
