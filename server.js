@@ -7,9 +7,9 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import crypto from "crypto";
-import dns from "dns/promises";
-import { execSync } from "child_process";
 import { fileURLToPath } from "url";
+import { isSafeUrl, getHeadersForUrl, detectImageType } from "./src/security.js";
+import { ghIssueCreate, classifyGhError, checkGhAuth, checkDuplicateUrls } from "./src/github.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const VERSION = JSON.parse(fs.readFileSync(path.join(__dirname, "package.json"), "utf8")).version;
@@ -19,108 +19,6 @@ const LOCAL_CAMERAS_PATH = path.join(CACHE_DIR, "local-cameras.json");
 const LOG_PATH = path.join(CACHE_DIR, ".registry-state.json");
 const SNAPSHOTS_DIR = path.join(CACHE_DIR, "snapshots");
 const USER_CONFIG_PATH = path.join(CACHE_DIR, "config.json");
-
-// Helper: create a temp file, pass to gh --body-file, then clean up
-function ghIssueCreate(title, body, label) {
-  const tmpFile = path.join(os.tmpdir(), `oee-${crypto.randomBytes(4).toString('hex')}.md`);
-  fs.writeFileSync(tmpFile, body, 'utf8');
-  try {
-    const result = execSync(
-      `gh issue create --repo ${GITHUB_REPO} --title ${JSON.stringify(title)} --body-file ${JSON.stringify(tmpFile)} --label ${JSON.stringify(label)}`,
-      { encoding: "utf8", timeout: 30000 }
-    ).trim();
-    return result;
-  } finally {
-    try { fs.unlinkSync(tmpFile); } catch {}
-  }
-}
-
-// Helper: classify gh CLI errors into specific types
-function classifyGhError(err) {
-  const msg = err.stderr?.toString() || err.message || "";
-  if (msg.includes("not found") && msg.includes("gh")) return { type: "gh_not_installed", message: "gh CLI is not installed", fix: "Install: https://cli.github.com/" };
-  if (msg.includes("not authenticated") || msg.includes("authentication") || msg.includes("auth")) return { type: "not_authenticated", message: "gh CLI is not authenticated", fix: "Run: gh auth login" };
-  if (msg.includes("not found") && msg.includes("label")) return { type: "label_missing", message: "GitHub label not found on repo", fix: "Create the label on GitHub first" };
-  if (msg.includes("rate limit") || msg.includes("rate-limit") || msg.includes("secondary rate")) return { type: "rate_limited", message: "GitHub API rate limit hit", fix: "Wait a few minutes and retry" };
-  if (msg.includes("timed out") || msg.includes("ETIMEDOUT") || msg.includes("ECONNREFUSED")) return { type: "network_error", message: "Network error contacting GitHub", fix: "Check your internet connection" };
-  if (msg.includes("permission") || msg.includes("403") || msg.includes("Forbidden")) return { type: "permission_denied", message: "Permission denied — token may lack 'issues' scope", fix: "Run: gh auth refresh -s repo,write:issues" };
-  if (msg.includes("could not add label")) return { type: "label_missing", message: msg.trim(), fix: "Label does not exist on the repo" };
-  return { type: "unknown", message: msg.substring(0, 300), fix: "Check gh CLI configuration" };
-}
-
-// Helper: check gh auth status
-function checkGhAuth() {
-  try {
-    execSync("gh auth status", { stdio: "pipe", timeout: 5000 });
-    return { ok: true };
-  } catch (e) {
-    return { ok: false, ...classifyGhError(e) };
-  }
-}
-
-// Helper: fetch a camera image and return { buffer, contentType, error }
-async function fetchCameraImage(url) {
-  try {
-    const safety = await isSafeUrl(url);
-    if (!safety.safe) return { error: `Blocked: ${safety.reason}` };
-
-    const response = await axios.get(url, {
-      responseType: 'arraybuffer', timeout: 10000,
-      headers: getHeadersForUrl(url),
-      maxContentLength: 5 * 1024 * 1024, maxBodyLength: 5 * 1024 * 1024, maxRedirects: 1
-    });
-
-    let ct = response.headers['content-type'] || "";
-    let isAllowed = ALLOWED_CONTENT_TYPES.some(t => ct.includes(t));
-    const buf = Buffer.from(response.data);
-
-    if (!isAllowed) {
-      const detected = detectImageType(buf);
-      if (detected) { isAllowed = true; ct = detected; }
-    }
-    if (!isAllowed) return { error: `Invalid content-type: ${ct}` };
-    if (buf.length > 5 * 1024 * 1024) return { error: `Image too large: ${(buf.length / 1024 / 1024).toFixed(1)}MB` };
-    if (buf.length < 500) return { error: `Image too small: ${buf.length} bytes (likely a placeholder or error page)` };
-
-    return { buffer: buf, contentType: ct.includes('png') ? 'image/png' : 'image/jpeg', size: buf.length };
-  } catch (e) {
-    return { error: e.message.substring(0, 200) };
-  }
-}
-
-// Helper: validate a camera URL returns a real image
-async function validateCameraUrl(cam) {
-  const result = await fetchCameraImage(cam.url);
-  if (result.error) return { valid: false, reason: result.error };
-  return { valid: true, size: result.size, content_type: result.contentType };
-}
-
-// Helper: check for duplicate open submission issues with the same URL
-function checkDuplicateUrls(cameraUrls) {
-  try {
-    const output = execSync(
-      `gh issue list --repo ${GITHUB_REPO} --label webcam-submission --state open --json number,body,title --limit 50`,
-      { encoding: "utf8", timeout: 15000 }
-    );
-    const issues = JSON.parse(output);
-    const duplicates = [];
-    for (const issue of issues) {
-      const body = issue.body || "";
-      for (const url of cameraUrls) {
-        if (body.includes(url)) {
-          duplicates.push({ url, issue_number: issue.number, issue_title: issue.title });
-        }
-      }
-    }
-    return duplicates;
-  } catch (e) {
-    // If we can't check, don't block the submission
-    return [];
-  }
-}
-
-// GitHub repo for issue submissions
-const GITHUB_REPO = "stuchapin909/Open-Eagle-Eye";
 
 if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR, { recursive: true });
 if (!fs.existsSync(SNAPSHOTS_DIR)) fs.mkdirSync(SNAPSHOTS_DIR, { recursive: true });
@@ -174,57 +72,6 @@ function findWebcam(idOrUrl) {
 }
 
 const ALLOWED_CONTENT_TYPES = ["image/jpeg", "image/png"];
-const BLOCKED_HOSTNAMES = [
-  'metadata.google.internal', 'metadata.goog',
-  '169.254.169.254', 'metadata.amazonaws.com',
-  '100.100.100.200', 'fd00:ec2::254',
-];
-
-function isPrivateIP(ip) {
-  if (!ip) return true;
-  // Strip brackets from IPv6 addresses
-  const clean = ip.replace(/^\[|\]$/g, '');
-  const v4 = clean.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
-  if (v4) {
-    const [, a, b] = v4.map(Number);
-    if (a === 10) return true;
-    if (a === 172 && b >= 16 && b <= 31) return true;
-    if (a === 192 && b === 168) return true;
-    if (a === 127) return true;
-    if (a === 0) return true;
-    if (a === 169 && b === 254) return true;
-    if (a === 100 && b >= 64 && b <= 127) return true;
-    if (a === 198 && b === 18) return true;
-    if (a === 192 && b === 0 && Number(v4[4]) <= 2) return true;
-  }
-  if (clean === '::1' || clean === '::') return true;
-  if (clean.startsWith('fc') || clean.startsWith('fd') || clean.startsWith('fe80')) return true;
-  if (clean.startsWith('::ffff:127.') || clean.startsWith('::ffff:10.') || clean.startsWith('::ffff:192.168.')) return true;
-  return false;
-}
-
-async function isSafeUrl(urlStr) {
-  let url;
-  try { url = new URL(urlStr); } catch { return { safe: false, reason: "Invalid URL" }; }
-  if (url.protocol !== 'http:' && url.protocol !== 'https:') return { safe: false, reason: `Blocked protocol: ${url.protocol}` };
-  const hostname = url.hostname.toLowerCase();
-  if (hostname === 'localhost' || hostname === 'localhost.localdomain') return { safe: false, reason: "Blocked: localhost" };
-  if (BLOCKED_HOSTNAMES.some(h => hostname === h || hostname.endsWith('.' + h))) return { safe: false, reason: "Blocked: cloud metadata endpoint" };
-  try {
-    const rawHost = hostname.replace(/^\[|\]$/g, '');
-    if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(rawHost) || rawHost.includes(':')) {
-      if (isPrivateIP(rawHost)) return { safe: false, reason: `Blocked: private/reserved IP ${hostname}` };
-      return { safe: true };
-    }
-    const addrs4 = await dns.resolve4(hostname).catch(() => []);
-    const addrs6 = await dns.resolve6(hostname).catch(() => []);
-    if (addrs4.length === 0 && addrs6.length === 0) return { safe: false, reason: `Cannot resolve: ${hostname}` };
-    for (const ip of [...addrs4, ...addrs6]) {
-      if (isPrivateIP(ip)) return { safe: false, reason: `Blocked: ${hostname} resolves to private IP ${ip}` };
-    }
-    return { safe: true };
-  } catch (e) { return { safe: false, reason: `DNS error: ${e.message.substring(0, 80)}` }; }
-}
 
 function isNighttimeAt(timezone) {
   if (!timezone) return false;
@@ -234,37 +81,41 @@ function isNighttimeAt(timezone) {
   } catch (e) { return false; }
 }
 
-const HUMAN_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-  'Accept': 'image/jpeg,image/png,image/*;q=0.5,*/*;q=0.1',
-  'Accept-Language': 'en-US,en;q=0.9',
-  'Cache-Control': 'no-cache',
-  'Pragma': 'no-cache',
-  'Sec-Fetch-Dest': 'image',
-  'Sec-Fetch-Mode': 'no-cors',
-  'Sec-Fetch-Site': 'cross-site'
-};
-
-// Per-domain extra headers for hosts that require Referer or other special headers
-const DOMAIN_HEADERS = {
-  'webcams.transport.nsw.gov.au': { 'Referer': 'https://www.livetraffic.com/traffic-cameras' },
-};
-
-function getHeadersForUrl(urlStr) {
+// Helper: fetch a camera image and return { buffer, contentType, error }
+async function fetchCameraImage(url) {
   try {
-    const hostname = new URL(urlStr).hostname;
-    return { ...HUMAN_HEADERS, ...(DOMAIN_HEADERS[hostname] || {}) };
-  } catch {
-    return HUMAN_HEADERS;
+    const safety = await isSafeUrl(url);
+    if (!safety.safe) return { error: `Blocked: ${safety.reason}` };
+
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer', timeout: 10000,
+      headers: getHeadersForUrl(url),
+      maxContentLength: 5 * 1024 * 1024, maxBodyLength: 5 * 1024 * 1024, maxRedirects: 1
+    });
+
+    let ct = response.headers['content-type'] || "";
+    let isAllowed = ALLOWED_CONTENT_TYPES.some(t => ct.includes(t));
+    const buf = Buffer.from(response.data);
+
+    if (!isAllowed) {
+      const detected = detectImageType(buf);
+      if (detected) { isAllowed = true; ct = detected; }
+    }
+    if (!isAllowed) return { error: `Invalid content-type: ${ct}` };
+    if (buf.length > 5 * 1024 * 1024) return { error: `Image too large: ${(buf.length / 1024 / 1024).toFixed(1)}MB` };
+    if (buf.length < 500) return { error: `Image too small: ${buf.length} bytes (likely a placeholder or error page)` };
+
+    return { buffer: buf, contentType: ct.includes('png') ? 'image/png' : 'image/jpeg', size: buf.length };
+  } catch (e) {
+    return { error: e.message.substring(0, 200) };
   }
 }
 
-// --- Magic byte detection for CDNs that return wrong content-type ---
-function detectImageType(buffer) {
-  if (buffer.length < 4) return null;
-  if (buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF) return "image/jpeg";
-  if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47) return "image/png";
-  return null;
+// Helper: validate a camera URL returns a real image
+async function validateCameraUrl(cam) {
+  const result = await fetchCameraImage(cam.url);
+  if (result.error) return { valid: false, reason: result.error };
+  return { valid: true, size: result.size, content_type: result.contentType };
 }
 
 /**
