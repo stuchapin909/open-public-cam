@@ -56,7 +56,7 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 - `2d170ec` — Add 4,700 Florida FDOT cameras
 - `286135d` — Add 779 North Carolina NCDOT cameras
 - `d10f1b7` — Add 995 Hong Kong Transport Department cameras (9 countries)
-- `pending` — Add 1,445 Pennsylvania PennDOT 511PA cameras
+- `7082b56` — Add 1,445 Pennsylvania PennDOT 511PA cameras
 - Plus CONTRIBUTING.md and README.md updates interleaved
 
 ## Failed sources (do not retry without new approach)
