@@ -12,7 +12,7 @@ import { execSync } from "child_process";
 
 const CACHE_DIR = path.join(os.homedir(), ".openeagleeye");
 const CAMERAS_PATH = path.join(CACHE_DIR, "cameras.json");
-const DRAFTS_PATH = path.join(CACHE_DIR, "drafts.json");
+const LOCAL_CAMERAS_PATH = path.join(CACHE_DIR, "local-cameras.json");
 const LOG_PATH = path.join(CACHE_DIR, ".registry-state.json");
 const SNAPSHOTS_DIR = path.join(CACHE_DIR, "snapshots");
 const USER_CONFIG_PATH = path.join(CACHE_DIR, "config.json");
@@ -27,7 +27,7 @@ if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR, { recursive: true });
 
 const server = new McpServer({ name: "openeagleeye", version: VERSION });
 
-// --- Load cameras (upstream) + drafts (local) ---
+// --- Load cameras (upstream) + local ---
 let cameras = [];
 try {
   cameras = JSON.parse(fs.readFileSync(CAMERAS_PATH, "utf8"));
@@ -36,19 +36,19 @@ try {
   console.error(`[server] Warning: Could not load ${CAMERAS_PATH}: ${e.message}`);
 }
 
-let drafts = [];
+let localCameras = [];
 try {
-  drafts = JSON.parse(fs.readFileSync(DRAFTS_PATH, "utf8"));
-  if (!Array.isArray(drafts)) drafts = [];
+  localCameras = JSON.parse(fs.readFileSync(LOCAL_CAMERAS_PATH, "utf8"));
+  if (!Array.isArray(localCameras)) localCameras = [];
 } catch (e) {
-  // No drafts file yet — that's fine
+  // No local cameras file yet — that's fine
 }
 
-// Merged view: upstream + drafts (drafts tagged with source: "draft")
-const allCameras = [...cameras, ...drafts.map(d => ({ ...d, source: "draft" }))];
+// Merged view: upstream + local
+const allCameras = [...cameras, ...localCameras.map(c => ({ ...c, source: "local" }))];
 
-function saveDrafts() {
-  fs.writeFileSync(DRAFTS_PATH, JSON.stringify(drafts, null, 2));
+function saveLocalCameras() {
+  fs.writeFileSync(LOCAL_CAMERAS_PATH, JSON.stringify(localCameras, null, 2));
 }
 
 // --- User Config ---
@@ -217,7 +217,7 @@ function buildRequestConfig(cam) {
 // --- SNAPSHOT ---
 server.tool(
   "get_snapshot",
-  "Fetch a live image from a camera. Downloads the image to disk and returns the file path. Works on both upstream registry cameras and local drafts. Use list_cameras or search_cameras first to find IDs.",
+  "Fetch a live image from a camera. Downloads the image to disk and returns the file path. Works on both upstream registry cameras and locally-added cameras. Use list_cameras or search_cameras first to find IDs.",
   { cam_id: z.string().describe("Camera ID (from list_cameras/search_cameras), or a direct image URL") },
   async ({ cam_id }) => {
     const cam = findWebcam(cam_id);
@@ -268,7 +268,7 @@ server.tool(
 );
 
 // --- REGISTRY ---
-server.tool("list_cameras", "Browse the camera registry. Returns cameras with id, name, city, location, category, coordinates, and source (upstream or draft). Use the city filter to narrow results — the full registry is large.", { city: z.string().optional().describe("Filter by city name (e.g. 'London', 'New York', 'Sydney')"),
+server.tool("list_cameras",  "Browse the camera registry. Returns cameras with id, name, city, location, category, coordinates, and source (upstream or local). Use the city filter to narrow results — the full registry is large.",{ city: z.string().optional().describe("Filter by city name (e.g. 'London', 'New York', 'Sydney')"),
   location: z.string().optional().describe("Filter by location string (e.g. 'Manhattan', 'Borough')"),
   category: z.string().optional().describe("Filter by category: city, park, highway, airport, port, weather, nature, landmark, other") }, async ({ city, location, category }) => {
   if (allCameras.length === 0) return { content: [{ type: "text", text: JSON.stringify({ version: VERSION, total: 0, cameras: [], message: "Registry is empty." }) }] };
@@ -322,8 +322,8 @@ server.tool("search_cameras", "Search cameras by text. Matches against name, loc
   return { content: [{ type: "text", text: JSON.stringify({ query, total: mapped.length, cameras: mapped }, null, 2) }] };
 });
 
-// --- DRAFTS ---
-server.tool("draft_camera", "Add a camera to your local draft registry. Drafts persist in ~/.openeagleeye/drafts.json and survive server restarts and registry updates. Test with get_snapshot, then submit_drafts when ready.", {
+// --- LOCAL CAMERAS ---
+server.tool("add_local_camera", "Add a camera to your local collection. Local cameras persist in ~/.openeagleeye/local-cameras.json and survive restarts and registry updates. They appear in list_cameras and search_cameras with source 'local'. Share upstream anytime with submit_local.", {
   name: z.string().describe("Human-readable camera name"),
   url: z.string().url().describe("Direct image URL — must return JPEG or PNG on HTTP GET"),
   city: z.string().describe("City name (e.g. 'London', 'New York', 'Sydney')"),
@@ -342,13 +342,13 @@ server.tool("draft_camera", "Add a camera to your local draft registry. Drafts p
 }, async (params) => {
   const { auth_provider, auth_signup_url, auth_key_required, auth_key_type, auth_key_names, auth_config_key, auth_note, lat, lng, ...camFields } = params;
 
-  const id = `draft-${Date.now()}`;
+  const id = `local-${Date.now()}`;
 
   const entry = {
     ...camFields,
     id,
     verified: false,
-    drafted_at: new Date().toISOString(),
+    added_at: new Date().toISOString(),
   };
 
   if (lat !== undefined && lng !== undefined) {
@@ -367,48 +367,47 @@ server.tool("draft_camera", "Add a camera to your local draft registry. Drafts p
     };
   }
 
-  drafts.push(entry);
-  allCameras.push({ ...entry, source: "draft" });
-  saveDrafts();
-  return { content: [{ type: "text", text: JSON.stringify({ success: true, id, name: camFields.name, url: camFields.url,    source: "draft", auth_required: entry.auth?.key_required || false, message: "Camera drafted locally. Test with get_snapshot, then submit_drafts when ready." }) }] };
+  localCameras.push(entry);
+  allCameras.push({ ...entry, source: "local" });
+  saveLocalCameras();
+  return { content: [{ type: "text", text: JSON.stringify({ success: true, id, name: camFields.name, url: camFields.url, source: "local", auth_required: entry.auth?.key_required || false, message: "Camera added locally. Test with get_snapshot, share upstream with submit_local." }) }] };
 });
 
-// LIST DRAFTS
-server.tool("list_drafts", "Show your local draft cameras — cameras added via draft_camera but not yet submitted to the upstream registry.", {}, async () => {
-  if (drafts.length === 0) return { content: [{ type: "text", text: JSON.stringify({ total: 0, drafts: [], message: "No local drafts. Use draft_camera to add cameras." }) }] };
-  const result = drafts.map(d => ({
-    id: d.id,
-    name: d.name,
-    url: d.url,
-    city: d.city || null,
-    location: d.location || "Unknown",
-    category: d.category || "other",
-    timezone: d.timezone || null,
-    coordinates: d.coordinates || null,
-    auth_required: d.auth?.key_required || false,
-    drafted_at: d.drafted_at || null,
+// LIST LOCAL
+server.tool("list_local", "Show your locally-added cameras. These are cameras you added via add_local_camera that are not in the upstream registry.", {}, async () => {
+  if (localCameras.length === 0) return { content: [{ type: "text", text: JSON.stringify({ total: 0, cameras: [], message: "No local cameras. Use add_local_camera to add cameras." }) }] };
+  const result = localCameras.map(c => ({
+    id: c.id,
+    name: c.name,
+    url: c.url,
+    city: c.city || null,
+    location: c.location || "Unknown",
+    category: c.category || "other",
+    timezone: c.timezone || null,
+    coordinates: c.coordinates || null,
+    auth_required: c.auth?.key_required || false,
+    added_at: c.added_at || null,
   }));
-  return { content: [{ type: "text", text: JSON.stringify({ total: drafts.length, drafts: result }, null, 2) }] };
+  return { content: [{ type: "text", text: JSON.stringify({ total: localCameras.length, cameras: result }, null, 2) }] };
 });
 
-// REMOVE DRAFT
-server.tool("remove_draft", "Delete a local draft camera. Use after submitting via submit_drafts, or if the camera URL doesn't work.", {
-  cam_id: z.string().describe("Draft camera ID (starts with 'draft-')")
+// REMOVE LOCAL
+server.tool("remove_local", "Delete a locally-added camera. Use if the camera URL no longer works, or after sharing it upstream.", {
+  cam_id: z.string().describe("Local camera ID (starts with 'local-')")
 }, async ({ cam_id }) => {
-  const idx = drafts.findIndex(d => d.id === cam_id);
-  if (idx === -1) return { content: [{ type: "text", text: JSON.stringify({ error: "Draft not found", cam_id }) }], isError: true };
+  const idx = localCameras.findIndex(c => c.id === cam_id);
+  if (idx === -1) return { content: [{ type: "text", text: JSON.stringify({ error: "Local camera not found", cam_id }) }], isError: true };
 
-  const removed = drafts.splice(idx, 1)[0];
-  // Also remove from allCameras
+  const removed = localCameras.splice(idx, 1)[0];
   const mergedIdx = allCameras.findIndex(c => c.id === cam_id);
   if (mergedIdx !== -1) allCameras.splice(mergedIdx, 1);
-  saveDrafts();
+  saveLocalCameras();
   return { content: [{ type: "text", text: JSON.stringify({ success: true, removed: { id: removed.id, name: removed.name } }) }] };
 });
 
-// SUBMIT DRAFTS
-server.tool("submit_drafts", "Submit all local draft cameras to the upstream Open Eagle Eye repository as a GitHub issue. Requires the 'gh' CLI installed and authenticated (gh auth login). Drafts remain local after submission — use remove_draft to clean up.", {}, async () => {
-  if (drafts.length === 0) return { content: [{ type: "text", text: JSON.stringify({ error: "No drafts to submit. Use draft_camera to add cameras first." }) }], isError: true };
+// SUBMIT LOCAL
+server.tool("submit_local", "Share your locally-added cameras with the upstream Open Eagle Eye registry by filing a GitHub issue. Requires the 'gh' CLI installed and authenticated (gh auth login). Your local cameras are not removed — use remove_local after they are accepted.", {}, async () => {
+  if (localCameras.length === 0) return { content: [{ type: "text", text: JSON.stringify({ error: "No local cameras to submit. Use add_local_camera to add cameras first." }) }], isError: true };
 
   try {
     execSync("gh auth status", { stdio: "pipe", timeout: 5000 });
@@ -416,30 +415,30 @@ server.tool("submit_drafts", "Submit all local draft cameras to the upstream Ope
     return { content: [{ type: "text", text: JSON.stringify({
       error: "gh CLI not found or not authenticated",
       fix: "Install: https://cli.github.com/ — then run: gh auth login",
-      message: "Drafts are saved locally. Install gh and authenticate, then retry."
+      message: "Local cameras are saved. Install gh and authenticate, then retry."
     }) }], isError: true };
   }
 
-  // Format drafts as clean JSON (strip draft-internal fields)
-  const cleanDrafts = drafts.map(d => {
-    const { drafted_at, ...clean } = d;
+  // Strip local-internal fields for submission
+  const cleanCameras = localCameras.map(c => {
+    const { added_at, ...clean } = c;
     return clean;
   });
 
   const body = [
     "## New Camera Submission",
     "",
-    `${cleanDrafts.length} camera(s) submitted via Open Eagle Eye MCP server.`,
+    `${cleanCameras.length} camera(s) submitted via Open Eagle Eye MCP server.`,
     "",
     "```json",
-    JSON.stringify(cleanDrafts, null, 2),
+    JSON.stringify(cleanCameras, null, 2),
     "```",
     "",
     "---",
     "*Submitted automatically from openeagleeye v" + VERSION + "*"
   ].join("\n");
 
-  const title = `New camera submission: ${cleanDrafts.length} camera(s) from ${cleanDrafts[0]?.city || "unknown"}`;
+  const title = `New camera submission: ${cleanCameras.length} camera(s) from ${cleanCameras[0]?.city || "unknown"}`;
 
   try {
     const result = execSync(
@@ -449,9 +448,9 @@ server.tool("submit_drafts", "Submit all local draft cameras to the upstream Ope
 
     return { content: [{ type: "text", text: JSON.stringify({
       success: true,
-      submitted: cleanDrafts.length,
+      submitted: cleanCameras.length,
       issue_url: result,
-      message: `Submitted ${cleanDrafts.length} camera(s). Your drafts are still local — use remove_draft to clean up after the issue is processed.`
+      message: `Submitted ${cleanCameras.length} camera(s). Your local cameras are unchanged — use remove_local after they are accepted upstream.`
     }) }] };
   } catch (e) {
     return { content: [{ type: "text", text: JSON.stringify({ error: "Failed to create GitHub issue", details: e.message.substring(0, 200) }) }], isError: true };
@@ -459,28 +458,28 @@ server.tool("submit_drafts", "Submit all local draft cameras to the upstream Ope
 });
 
 // REPORT CAMERA
-server.tool("report_camera", "Report a broken or low-quality camera. Files a GitHub issue and saves the report locally. If the camera is a draft with a broken link, it is automatically removed. Requires 'gh' CLI for GitHub issue creation.", {
+server.tool("report_camera", "Report a broken or low-quality camera. Files a GitHub issue and saves the report locally. If the camera is local with a broken link, it is automatically removed. Requires 'gh' CLI for GitHub issue creation.", {
   cam_id: z.string().describe("Camera ID to report"),
   status: z.enum(["offline", "broken_link", "low_quality"]).describe("Type of issue"),
   notes: z.string().optional().describe("Additional details about the issue")
 }, async ({ cam_id, status, notes }) => {
   const cam = findWebcam(cam_id);
   if (!cam) return { content: [{ type: "text", text: JSON.stringify({ error: "Camera not found", cam_id }) }], isError: true };
-  if (cam.source === "draft" && isNighttimeAt(cam.timezone)) return { content: [{ type: "text", text: JSON.stringify({ error: "Report blocked: nighttime at webcam location", camera: cam.name, timezone: cam.timezone }) }], isError: true };
+  if (cam.source === "local" && isNighttimeAt(cam.timezone)) return { content: [{ type: "text", text: JSON.stringify({ error: "Report blocked: nighttime at camera location", camera: cam.name, timezone: cam.timezone }) }], isError: true };
 
   // Save locally regardless
   const logs = getValidationLog();
   logs[cam_id] = { status, notes, timestamp: new Date().toISOString() };
   saveLog(logs);
 
-  // If it's a draft marked broken_link, auto-remove
-  if (cam.source === "draft" && status === "broken_link") {
-    const idx = drafts.findIndex(d => d.id === cam_id);
+  // If it's a local camera marked broken_link, auto-remove
+  if (cam.source === "local" && status === "broken_link") {
+    const idx = localCameras.findIndex(c => c.id === cam_id);
     if (idx !== -1) {
-      drafts.splice(idx, 1);
+      localCameras.splice(idx, 1);
       const mergedIdx = allCameras.findIndex(c => c.id === cam_id);
       if (mergedIdx !== -1) allCameras.splice(mergedIdx, 1);
-      saveDrafts();
+      saveLocalCameras();
     }
   }
 
