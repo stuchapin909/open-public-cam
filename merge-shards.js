@@ -104,11 +104,8 @@ function main() {
   fs.writeFileSync(CAMERAS_PATH, JSON.stringify(allCameras, null, 2));
   fs.writeFileSync(LOG_PATH, JSON.stringify(log, null, 2));
 
-  // Clean up shard results
-  for (const file of shardFiles) {
-    fs.unlinkSync(path.join(SHARD_RESULTS_DIR, file));
-  }
-  fs.rmdirSync(SHARD_RESULTS_DIR);
+  // Clean up shard results (recursively — artifact download creates subdirs)
+  fs.rmSync(SHARD_RESULTS_DIR, { recursive: true, force: true });
 
   // Report
   console.log(`\n=== Merge Summary ===`);
