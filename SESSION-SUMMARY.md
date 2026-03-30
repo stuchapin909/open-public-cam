@@ -6,11 +6,11 @@
 - **Package:** openeagleeye v7.0.0 (npm, MCP server)
 - **License:** MIT
 
-## Current Registry: 25,435 cameras across 11 countries
+## Current Registry: 25,843 cameras across 11 countries
 
 | Country | Count | Sources |
 |---------|-------|---------|
-| US | 19,655 | NYC DOT, WSDOT, Caltrans CWWP2, CDOT CoTrip, VDOT 511, FDOT FL511, NCDOT, PennDOT 511PA, Arizona ADOT, Oregon ODOT, Nevada NDOT, Utah UDOT, Wisconsin WisDOT |
+| US | 20,063 | NYC DOT, WSDOT, Caltrans CWWP2, CDOT CoTrip, VDOT 511, FDOT FL511, NCDOT, PennDOT 511PA, Arizona ADOT, Oregon ODOT, Nevada NDOT, Utah UDOT, Wisconsin WisDOT, New England 511 |
 | FI | 2,223 | Digitraffic weather cameras (Fintraffic) |
 | CA | 1,292 | Ontario MTO, Alberta 511 |
 | HK | 995 | Hong Kong Transport Department |
@@ -64,6 +64,8 @@ March 30:
 12. **Utah UDOT** (+2,026) — DataTables POST API at `udottraffic.utah.gov/List/GetData/Cameras` (pagination, 100/page, 2,026 total). Direct PNG/JPEG from `udottraffic.utah.gov/map/Cctv/{id}`. Source: ADX. Covers I-15, I-80, I-70, I-84, I-215, US-89, US-40, US-6, US-191, US-189, US-285 and many state routes plus city cameras. GPS coords in WKT format. No auth. 49/50 validation samples returned valid images (1 GIF placeholder for offline camera). 6/7 vision checks confirmed real webcam feeds. Top cities: Salt Lake City (186), St. George (92), Provo (90), Orem (73), Lehi (72).
 13. **Wisconsin WisDOT** (+448) — DataTables POST API at `511wi.gov/List/GetData/Cameras` (pagination, 100/page, 448 valid out of 482 API records). Direct PNG from `511wi.gov/map/Cctv/{id}`. Source: ATMS. Covers I-41, I-43, I-90, I-94, US-41, US-51, US-151, US-14, US-18, WIS-29 and state routes plus Milwaukee metro. GPS coords in WKT format (34 cameras had null coords excluded). No auth. 50/50 validation samples returned valid PNG. 2/2 vision checks confirmed real webcam feeds. Top counties: Milwaukee (136), Dane (53), Waukesha (42), Brown (31).
 
+14. **New England 511** (+408) — DataTables POST API at `newengland511.org/List/GetData/Cameras` (pagination, 100/page, 408 total). Direct JPEG from `newengland511.org/map/Cctv/{id}`. Covers three New England states: New Hampshire (185), Maine (134), Vermont (89). Highways include I-89, I-91, I-93, I-95, I-295, I-395, I-293, US-2, US-3, US-4, US-5, US-7, US-302, NH-101, NH-16, VT-9, VT-100, F.E. Everett Turnpike, Spaulding Turnpike, and many state routes. GPS coords in WKT format. No auth. 55/55 validation samples returned valid JPEG (4-470KB). 6/6 vision checks confirmed real webcam feeds (NHDOT, MaineDOT, VTrans).
+
 ### Infrastructure work (March 30)
 
 12. **Registry-wide validation** — Validated all 30 image sources. 8 samples each from the 8 largest domains, 6 samples each from the 22 smaller domains. Results: all sources at 100% except `cam.pangbornairport.com` (1 camera offline). Total: 29/30 sources fully healthy. Key finding: NSW cameras require `Referer: https://www.livetraffic.com/traffic-cameras` header — the S3 bucket at `webcams.transport.nsw.gov.au` has hotlink protection. Without Referer, returns a 307-byte HTML error page ("camera image temporarily unavailable"). With Referer, all images serve correctly (46-134KB JPEG). NSW listing data still available via `www.livetraffic.com/datajson/all-feeds-web.json` (197 cameras, GeoJSON with GPS coords). Validator should be updated to send Referer for `webcams.transport.nsw.gov.au` URLs.
@@ -84,6 +86,7 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 - `53079be` — Add 2,223 Finland Digitraffic weather cameras (11 countries)
 - Add 2,026 Utah UDOT cameras
 - Add 448 Wisconsin WisDOT cameras
+- Add 408 New England 511 cameras (NH, ME, VT)
 - Plus CONTRIBUTING.md and README.md updates interleaved
 
 ## Failed sources (do not retry without new approach)
@@ -117,7 +120,7 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 3. ~~**Nevada NDOT**~~ — DONE. 643 cameras from nvroads.com.
 4. **Georgia** — Retry if GDOT launches a new public API.
 5. ~~**Wisconsin**~~ — DONE. 448 cameras from 511wi.gov (34 excluded for null coords).
-6. **New England 511** — 408 cameras from newengland511.org (DataTables API, covers ME/NH/VT/RI).
+6. ~~**New England 511**~~ — DONE. 408 cameras from newengland511.org (NH: 185, ME: 134, VT: 89).
 7. **Louisiana** — 336 cameras from 511la.org (DataTables API, source: LADOTD).
 
 ### International (mixed probability)
@@ -162,7 +165,7 @@ The registry is a JSON array. Each entry:
 }
 ```
 
-ID naming convention: `{country_code}-{descriptive-slug}` (e.g., `co-i-70-...`, `va-nrocctvi66e00501`, `fl-1-0517n-...`, `nc-5-i-40-exit-270`, `td-H429F`, `az-635`, `or-i-5-at-roseburg-mp120-pid676`, `nv-mccarran-caughlin-cashill-2`, `br-cet-225`).
+ID naming convention: `{country_code}-{descriptive-slug}` (e.g., `co-i-70-...`, `va-nrocctvi66e00501`, `fl-1-0517n-...`, `nc-5-i-40-exit-270`, `td-H429F`, `az-635`, `or-i-5-at-roseburg-mp120-pid676`, `nv-mccarran-caughlin-cashill-2`, `br-cet-225`, `ne-nh-i-93-n-21-2-1234`).
 
 ## Workflow for adding a new source
 
