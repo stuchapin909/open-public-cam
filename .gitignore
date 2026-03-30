@@ -7,3 +7,7 @@ snapshots/
 verification-evidence/
 stderr.log
 validation-results.md
+
+# Test scripts
+test-*.mjs
+debug-*.mjs
