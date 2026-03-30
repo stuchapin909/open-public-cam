@@ -89,6 +89,7 @@ Current sources in the registry:
 | Wisconsin | WisDOT 511wi.gov API (ATMS) | 448 | None |
 | New England | 511 newengland511.org API (NH, ME, VT) | 408 | None |
 | Louisiana | LADOTD 511la.org API | 296 | None |
+| Georgia | Georgia 511 (Navigator) DataTables API | 3,861 | None |
 
 ## Source documentation
 
