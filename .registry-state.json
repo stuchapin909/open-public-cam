@@ -14,22 +14,22 @@
   "nyc-6-ave-at-58-st": {
     "status": "offline",
     "notes": "HTTP 404 — Request failed with status code 404",
-    "last_checked": "2026-03-30T03:45:33.028Z",
-    "consecutive_failures": 2,
+    "last_checked": "2026-03-30T05:19:13.621Z",
+    "consecutive_failures": 3,
     "last_failure_reason": "HTTP 404 — Request failed with status code 404"
   },
   "nyc-3-ave-at-34-st": {
     "status": "offline",
     "notes": "HTTP 404 — Request failed with status code 404",
-    "last_checked": "2026-03-30T03:45:37.257Z",
-    "consecutive_failures": 2,
+    "last_checked": "2026-03-30T05:19:13.862Z",
+    "consecutive_failures": 3,
     "last_failure_reason": "HTTP 404 — Request failed with status code 404"
   },
   "nyc-50-st-btwn8-ave-broadway": {
     "status": "offline",
     "notes": "HTTP 404 — Request failed with status code 404",
-    "last_checked": "2026-03-30T03:45:37.320Z",
-    "consecutive_failures": 2,
+    "last_checked": "2026-03-30T05:19:13.878Z",
+    "consecutive_failures": 3,
     "last_failure_reason": "HTTP 404 — Request failed with status code 404"
   },
   "nyc-mhb-23-manh-lrdwy-at-twr": {
@@ -60,8 +60,8 @@
   "nyc-3-ave-at-14-st": {
     "status": "offline",
     "notes": "HTTP 404 — Request failed with status code 404",
-    "last_checked": "2026-03-30T03:45:37.893Z",
-    "consecutive_failures": 2,
+    "last_checked": "2026-03-30T05:19:14.092Z",
+    "consecutive_failures": 3,
     "last_failure_reason": "HTTP 404 — Request failed with status code 404"
   },
   "nyc-lincoln-tun-approachbet-9av-10av-at-w-33-st-350": {
@@ -72,8 +72,8 @@
   "nyc-1-ave-at-57-st": {
     "status": "offline",
     "notes": "HTTP 404 — Request failed with status code 404",
-    "last_checked": "2026-03-30T03:45:37.939Z",
-    "consecutive_failures": 2,
+    "last_checked": "2026-03-30T05:19:14.220Z",
+    "consecutive_failures": 3,
     "last_failure_reason": "HTTP 404 — Request failed with status code 404"
   },
   "nyc-worth-street-at-lafayette-street": {
@@ -104,15 +104,15 @@
   "nyc-12-ave-at-22-st": {
     "status": "offline",
     "notes": "HTTP 404 — Request failed with status code 404",
-    "last_checked": "2026-03-30T03:45:38.558Z",
-    "consecutive_failures": 2,
+    "last_checked": "2026-03-30T05:19:14.496Z",
+    "consecutive_failures": 3,
     "last_failure_reason": "HTTP 404 — Request failed with status code 404"
   },
   "nyc-11-ave-at-57-st": {
     "status": "offline",
     "notes": "HTTP 404 — Request failed with status code 404",
-    "last_checked": "2026-03-30T03:45:38.579Z",
-    "consecutive_failures": 2,
+    "last_checked": "2026-03-30T05:19:14.520Z",
+    "consecutive_failures": 3,
     "last_failure_reason": "HTTP 404 — Request failed with status code 404"
   },
   "nyc-7-ave-at-40-st": {
@@ -158,8 +158,8 @@
   "nyc-6-ave-at-39-st": {
     "status": "offline",
     "notes": "HTTP 404 — Request failed with status code 404",
-    "last_checked": "2026-03-30T03:45:39.192Z",
-    "consecutive_failures": 2,
+    "last_checked": "2026-03-30T05:19:14.536Z",
+    "consecutive_failures": 3,
     "last_failure_reason": "HTTP 404 — Request failed with status code 404"
   },
   "nyc-audobon-ave-at-w-181-st": {
@@ -180,8 +180,8 @@
   "nyc-62-st-at-qbb-upper-level-exit-ramp": {
     "status": "offline",
     "notes": "HTTP 404 — Request failed with status code 404",
-    "last_checked": "2026-03-30T03:45:39.730Z",
-    "consecutive_failures": 2,
+    "last_checked": "2026-03-30T05:19:14.599Z",
+    "consecutive_failures": 3,
     "last_failure_reason": "HTTP 404 — Request failed with status code 404"
   },
   "nyc-worth-st-at-centre-st": {
@@ -227,15 +227,15 @@
   "nyc-3-ave-at-65-st-ent-eb-bqegowanus": {
     "status": "offline",
     "notes": "HTTP 404 — Request failed with status code 404",
-    "last_checked": "2026-03-30T03:45:40.436Z",
-    "consecutive_failures": 2,
+    "last_checked": "2026-03-30T05:19:14.615Z",
+    "consecutive_failures": 3,
     "last_failure_reason": "HTTP 404 — Request failed with status code 404"
   },
   "nyc-4-ave-at-38-st-17990": {
     "status": "offline",
     "notes": "HTTP 404 — Request failed with status code 404",
-    "last_checked": "2026-03-30T03:45:40.659Z",
-    "consecutive_failures": 2,
+    "last_checked": "2026-03-30T05:19:14.646Z",
+    "consecutive_failures": 3,
     "last_failure_reason": "HTTP 404 — Request failed with status code 404"
   },
   "nyc-c2-bqe-25-wb-at-s5th-st-ex32": {
@@ -266,8 +266,8 @@
   "nyc-3-ave-at-60-st": {
     "status": "offline",
     "notes": "HTTP 404 — Request failed with status code 404",
-    "last_checked": "2026-03-30T03:45:40.805Z",
-    "consecutive_failures": 2,
+    "last_checked": "2026-03-30T05:19:14.662Z",
+    "consecutive_failures": 3,
     "last_failure_reason": "HTTP 404 — Request failed with status code 404"
   },
   "nyc-wbb-2-nor-at-above-bedford-ave-s-5-st": {
@@ -2649,5 +2649,233 @@
     "status": "active",
     "last_checked": "2026-03-29T21:38:36.080Z",
     "consecutive_failures": 0
+  },
+  "nsw-5-ways-miranda": {
+    "last_checked": "2026-03-30T05:19:16.061Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-airport-drive-mascot": {
+    "last_checked": "2026-03-30T05:19:16.280Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-alison-road-randwick": {
+    "last_checked": "2026-03-30T05:19:16.536Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-anzac-bridge-eastbound": {
+    "last_checked": "2026-03-30T05:19:16.814Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-anzac-bridge-westbound": {
+    "last_checked": "2026-03-30T05:19:17.093Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-anzac-parade-kensington": {
+    "last_checked": "2026-03-30T05:19:17.426Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-anzac-parade-kingsford": {
+    "last_checked": "2026-03-30T05:19:17.652Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-anzac-parade-moore-park": {
+    "last_checked": "2026-03-30T05:19:17.665Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-audley-road-audley-weir": {
+    "last_checked": "2026-03-30T05:19:17.962Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-audley-weir-east": {
+    "last_checked": "2026-03-30T05:19:18.014Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-audley-weir-south": {
+    "last_checked": "2026-03-30T05:19:18.245Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-bells-line-of-road-bell": {
+    "last_checked": "2026-03-30T05:19:18.257Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-bexley-road-bexley-north": {
+    "last_checked": "2026-03-30T05:19:18.557Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-botany-road-matraville": {
+    "last_checked": "2026-03-30T05:19:18.569Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-bunnerong-road-matraville": {
+    "last_checked": "2026-03-30T05:19:18.820Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-burnt-bridge-creek-balgowlah": {
+    "last_checked": "2026-03-30T05:19:19.287Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-camden-bypass-narellan": {
+    "last_checked": "2026-03-30T05:19:19.299Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-campbell-rd-and-euston-rd-st-peters": {
+    "last_checked": "2026-03-30T05:19:19.599Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-carlingford-road-epping": {
+    "last_checked": "2026-03-30T05:19:19.611Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-city-road-newtown": {
+    "last_checked": "2026-03-30T05:19:19.904Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-city-west-link": {
+    "last_checked": "2026-03-30T05:19:20.149Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-city-west-link-lilyfield": {
+    "last_checked": "2026-03-30T05:19:20.390Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-cleveland-street-surry-hills": {
+    "last_checked": "2026-03-30T05:19:20.416Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-cumberland-highway-carlingford": {
+    "last_checked": "2026-03-30T05:19:20.428Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-cumberland-highway-merrylands": {
+    "last_checked": "2026-03-30T05:19:20.671Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-eastern-distributor-woolloomooloo": {
+    "last_checked": "2026-03-30T05:19:20.685Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-eastern-distributor-zetland": {
+    "last_checked": "2026-03-30T05:19:20.697Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-echuca-moama-bridge-moama": {
+    "last_checked": "2026-03-30T05:19:20.707Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-epping-road-lane-cove": {
+    "last_checked": "2026-03-30T05:19:20.718Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-epping-road-macquarie-park": {
+    "last_checked": "2026-03-30T05:19:20.730Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-erskine-street-sydney": {
+    "last_checked": "2026-03-30T05:19:20.740Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-falcon-street-crows-nest": {
+    "last_checked": "2026-03-30T05:19:20.751Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-five-islands-road-port-kembla": {
+    "last_checked": "2026-03-30T05:19:20.763Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-foreshore-road-banksmeadow": {
+    "last_checked": "2026-03-30T05:19:20.774Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-general-holmes-drive-botany": {
+    "last_checked": "2026-03-30T05:19:20.786Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-george-st-railway-square": {
+    "last_checked": "2026-03-30T05:19:20.797Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-giinagay-way-macksville": {
+    "last_checked": "2026-03-30T05:19:20.808Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
+  },
+  "nsw-gladesville-bridge-drummoyne": {
+    "last_checked": "2026-03-30T05:19:21.083Z",
+    "consecutive_failures": 1,
+    "last_failure_reason": "Rejected content-type: text/html (only image/jpeg and image/png allowed)",
+    "status": "suspect"
   }
 }
