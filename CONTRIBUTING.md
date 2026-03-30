@@ -84,6 +84,7 @@ Current sources in the registry:
 | Oregon | ODOT TripCheck camera inventory | 1,120 | None |
 | Nevada | NDOT nvroads.com API (LV, Reno, Elko) | 643 | None |
 | New York | NYC TMC API | 100 | None |
+| São Paulo | CET urban traffic cameras | 195 | None |
 
 ## Code contributions
 

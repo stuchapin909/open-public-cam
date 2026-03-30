@@ -1,4 +1,4 @@
-# Open Eagle Eye — Session Summary (March 28-29, 2026)
+# Open Eagle Eye — Session Summary (March 28-30, 2026)
 
 ## Project
 - **Repo:** github.com/stuchapin909/Open-Eagle-Eye
@@ -6,7 +6,7 @@
 - **Package:** openeagleeye v7.0.0 (npm, MCP server)
 - **License:** MIT
 
-## Current Registry: 20,593 cameras across 9 countries
+## Current Registry: 20,788 cameras across 10 countries
 
 | Country | Count | Sources |
 |---------|-------|---------|
@@ -14,6 +14,7 @@
 | CA | 1,292 | Ontario MTO (923), Alberta 511 (369) |
 | HK | 995 | Hong Kong Transport Department |
 | UK | 424 | London TfL JamCams |
+| BR | 195 | CET São Paulo urban traffic |
 | NZ | 251 | NZTA nationwide highways |
 | AU | 197 | Sydney metro (153) + Regional NSW (44) |
 | JP | 98 | NEXCO East expressways |
@@ -53,6 +54,10 @@ This session (March 29):
 
 9. **Nevada NDOT** (+643) — DataTables POST API at `nvroads.com/List/GetData/Cameras` (pagination, 100/page, 643 total). Direct JPEG/PNG from `nvroads.com/map/Cctv/{id}`. Covers three regions: Las Vegas metro (367), Reno-Sparks (184), Elko (90). Highways include I-15, I-80, I-580, I-11, I-215, I-515, US-395, US-50, US-95, US-6, SR-227 and many local arterials. GPS coords in WKT format. No auth. 12/12 validation samples returned valid images (mix of JPEG 4-33KB and PNG 27KB).
 
+March 30:
+
+10. **Brazil CET São Paulo** (+195) — CET (Companhia de Engenharia de Tráfego) urban traffic cameras. Camera viewer at `cameras.cetsp.com.br/View/Cam.aspx` with embedded JavaScript array. Direct JPEG from `cameras.cetsp.com.br/Cams/{id}/1.jpg`. 195 valid cameras found in ID range 1-238 (with gaps). 11 cameras have known street names from the live page; 184 use numeric IDs. No GPS coordinates available from any current endpoint (old GeoServer at cetsp1.cetsp.com.br returns 404). All cameras use approximate São Paulo center coordinates. No auth. 12/12 validation samples returned valid JPEG (6.5-31KB).
+
 ### Validation method
 For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG magic bytes (`\xff\xd8`) or PNG (`\x89PNG`) + reasonable file size (>500B-1KB). Send screenshots to user for visual confirmation.
 
@@ -65,6 +70,7 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 - `7082b56` — Add 1,445 Pennsylvania PennDOT 511PA cameras
 - `ce9f670` — Add 1,120 Oregon ODOT TripCheck cameras
 - `53a68fc` — Add 643 Nevada NDOT cameras
+- `XXXXXXX` — Add 195 Brazil CET São Paulo cameras (10 countries)
 - Plus CONTRIBUTING.md and README.md updates interleaved
 
 ## Failed sources (do not retry without new approach)
@@ -95,7 +101,7 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 4. **Georgia** — Retry if GDOT launches a new public API.
 
 ### International (mixed probability)
-6. **Brazil** — CET (Sao Paulo) and DER/ARTESP (state highways) may have camera feeds.
+6. ~~**Brazil**~~ — DONE. 195 cameras from CET São Paulo.
 7. **Chile** — Vias Chile operates highway cameras on Santiago's expressways.
 8. **South Africa** — SANRAL toll roads may have camera feeds.
 9. **India** — Some metro cities (Bangalore, Hyderabad) have traffic camera networks.
@@ -108,7 +114,7 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 
 ## Key files
 
-- `cameras.json` — The registry (~5.5MB, 20,593 entries, JSON array)
+- `cameras.json` — The registry (~5.5MB, 20,788 entries, JSON array)
 - `index.js` — MCP server (main package entry point)
 - `validate-registry.js` — GitHub Action validator
 - `merge_validate.mjs` — Local merge + validation script
@@ -136,7 +142,7 @@ The registry is a JSON array. Each entry:
 }
 ```
 
-ID naming convention: `{country_code}-{descriptive-slug}` (e.g., `co-i-70-...`, `va-nrocctvi66e00501`, `fl-1-0517n-...`, `nc-5-i-40-exit-270`, `td-H429F`, `az-635`, `or-i-5-at-roseburg-mp120-pid676`, `nv-mccarran-caughlin-cashill-2`).
+ID naming convention: `{country_code}-{descriptive-slug}` (e.g., `co-i-70-...`, `va-nrocctvi66e00501`, `fl-1-0517n-...`, `nc-5-i-40-exit-270`, `td-H429F`, `az-635`, `or-i-5-at-roseburg-mp120-pid676`, `nv-mccarran-caughlin-cashill-2`, `br-cet-225`).
 
 ## Workflow for adding a new source
 
