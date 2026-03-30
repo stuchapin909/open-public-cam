@@ -6,11 +6,11 @@
 - **Package:** openeagleeye v7.0.0 (npm, MCP server)
 - **License:** MIT
 
-## Current Registry: 18,226 cameras across 9 countries
+## Current Registry: 18,830 cameras across 9 countries
 
 | Country | Count | Sources |
 |---------|-------|---------|
-| US | 14,826 | NYC DOT (100), WSDOT (1,654), Caltrans CWWP2 (3,430), CDOT CoTrip (1,023), VDOT 511 (1,695), FDOT FL511 (4,700), NCDOT (779), PennDOT 511PA (1,445) |
+| US | 15,430 | NYC DOT (100), WSDOT (1,654), Caltrans CWWP2 (3,430), CDOT CoTrip (1,023), VDOT 511 (1,695), FDOT FL511 (4,700), NCDOT (779), PennDOT 511PA (1,445), Arizona ADOT (604) |
 | CA | 1,292 | Ontario MTO (923), Alberta 511 (369) |
 | HK | 995 | Hong Kong Transport Department |
 | UK | 424 | London TfL JamCams |
@@ -29,7 +29,7 @@ Every camera has: id, name, url, category, location, timezone, country, city, co
 - Added Caltrans (3,430), Japan NEXCO East (98), NZ NZTA (251), Ireland TII (53)
 - Removed 235 fabricated EU cameras (DE, DK, FR, NO, SE)
 
-### This session additions (+9,192 cameras)
+### This session additions (+9,796 cameras)
 
 Previous session (March 28):
 
@@ -46,6 +46,8 @@ Previous session (March 28):
 This session (March 29):
 
 6. **Pennsylvania PennDOT** (+1,445) — DataTables POST API at `511pa.com/List/GetData/Cameras` (pagination, 100/page, 1,445 total). Direct JPEG from `511pa.com/map/Cctv/{id}`. Sources: PennDOT (1,279), RWIS (77), PTC/Pennsylvania Turnpike Commission (89). GPS coords in WKT format. No auth. All 15 validation samples returned valid JPEG (5-50KB).
+
+7. **Arizona ADOT** (+604) — DataTables POST API at `az511.com/List/GetData/Cameras` (pagination, 100/page, 604 total). Direct JPEG/PNG from `az511.com/map/Cctv/{id}`. Source: AZDOT. Covers I-10, I-17, I-40, I-8, Loop 101/202/303, SR-51 and state routes statewide. GPS coords in WKT format. No auth. 12/12 validation samples returned valid images (mix of JPEG 27KB-545KB and PNG 15KB). Top cities: Phoenix (395), Tucson (53), Flagstaff (17), Nogales (16), Prescott (14).
 
 ### Validation method
 For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG magic bytes (`\xff\xd8`) or PNG (`\x89PNG`) + reasonable file size (>500B-1KB). Send screenshots to user for visual confirmation.
@@ -81,10 +83,10 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 ## Next steps (priority order)
 
 ### US states (high probability of success)
-1. **Arizona ADOT** — ADOT has cameras on I-10, I-17, Loop 101/202. Check az511.com or ADOT's own systems.
-3. **Oregon ODOT** — TripCheck has a well-known camera system. Check tripcheck.com for API endpoints.
-4. **Nevada NDOT** — Check nvroads.com for camera feeds.
-5. **Georgia** — Retry if GDOT launches a new public API.
+1. ~~**Arizona ADOT**~~ — DONE. 604 cameras from az511.com.
+2. **Oregon ODOT** — TripCheck has a well-known camera system. Check tripcheck.com for API endpoints.
+3. **Nevada NDOT** — Check nvroads.com for camera feeds.
+4. **Georgia** — Retry if GDOT launches a new public API.
 
 ### International (mixed probability)
 6. **Brazil** — CET (Sao Paulo) and DER/ARTESP (state highways) may have camera feeds.
@@ -100,7 +102,7 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 
 ## Key files
 
-- `cameras.json` — The registry (~4.5MB, 18,226 entries, JSON array)
+- `cameras.json` — The registry (~4.9MB, 18,830 entries, JSON array)
 - `index.js` — MCP server (main package entry point)
 - `validate-registry.js` — GitHub Action validator
 - `merge_validate.mjs` — Local merge + validation script
@@ -128,7 +130,7 @@ The registry is a JSON array. Each entry:
 }
 ```
 
-ID naming convention: `{country_code}-{descriptive-slug}` (e.g., `co-i-70-...`, `va-nrocctvi66e00501`, `fl-1-0517n-...`, `nc-5-i-40-exit-270`, `td-H429F`).
+ID naming convention: `{country_code}-{descriptive-slug}` (e.g., `co-i-70-...`, `va-nrocctvi66e00501`, `fl-1-0517n-...`, `nc-5-i-40-exit-270`, `td-H429F`, `az-635`).
 
 ## Workflow for adding a new source
 
