@@ -6,17 +6,18 @@
 - **Package:** openeagleeye v7.0.0 (npm, MCP server)
 - **License:** MIT
 
-## Current Registry: 20,776 cameras across 10 countries
+## Current Registry: 22,999 cameras across 11 countries
 
 | Country | Count | Sources |
 |---------|-------|---------|
 | US | 17,193 | NYC DOT (100), WSDOT (1,654), Caltrans CWWP2 (3,430), CDOT CoTrip (1,023), VDOT 511 (1,695), FDOT FL511 (4,700), NCDOT (779), PennDOT 511PA (1,445), Arizona ADOT (604), Oregon ODOT (1,120), Nevada NDOT (643) |
+| FI | 2,223 | Digitraffic weather cameras (Fintraffic) |
 | CA | 1,292 | Ontario MTO (923), Alberta 511 (369) |
 | HK | 995 | Hong Kong Transport Department |
 | UK | 424 | London TfL JamCams |
-| BR | 195 | CET São Paulo urban traffic |
 | NZ | 251 | NZTA nationwide highways |
 | AU | 197 | Sydney metro (153) + Regional NSW (44) |
+| BR | 195 | CET São Paulo urban traffic |
 | JP | 98 | NEXCO East expressways |
 | SG | 90 | Singapore LTA |
 | IE | 53 | TII motorway cams (M50 Dublin) |
@@ -58,6 +59,8 @@ March 30:
 
 10. **Brazil CET São Paulo** (+195) — CET (Companhia de Engenharia de Tráfego) urban traffic cameras. Camera viewer at `cameras.cetsp.com.br/View/Cam.aspx` with embedded JavaScript array. Direct JPEG from `cameras.cetsp.com.br/Cams/{id}/1.jpg`. 195 valid cameras found in ID range 1-238 (with gaps). 11 cameras have known street names from the live page; 184 use numeric IDs. No GPS coordinates available from any current endpoint (old GeoServer at cetsp1.cetsp.com.br returns 404). All cameras use approximate São Paulo center coordinates. No auth. 12/12 validation samples returned valid JPEG (6.5-31KB).
 
+11. **Finland Digitraffic** (+2,223) — Fintraffic Digitraffic weather camera API at `tie.digitraffic.fi/api/weathercam/v1/stations` (GeoJSON with features array). 804 camera stations with 2,223 active presets (camera angles). Direct JPEG from `weathercam.digitraffic.fi/{presetId}.jpg` (mix of 1280x720 and 720x576). Covers entire Finnish road network including highways (valtatiet), regional roads (kantatiet), and main roads (seututiet). GPS coordinates included (WGS84). No auth. Requires Accept-Encoding: gzip header. Images update every ~10 minutes. 6/6 validation samples returned valid JPEG (9.8-307KB). Top cities: Oulu (99), Tampere (44), Kuopio (39), Lappeenranta (37), Enontekiö (37), Inari (32), Savonlinna (31).
+
 ### Validation method
 For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG magic bytes (`\xff\xd8`) or PNG (`\x89PNG`) + reasonable file size (>500B-1KB). Send screenshots to user for visual confirmation.
 
@@ -71,6 +74,7 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 - `ce9f670` — Add 1,120 Oregon ODOT TripCheck cameras
 - `53a68fc` — Add 643 Nevada NDOT cameras
 - `4a9c287` — Add 195 Brazil CET São Paulo cameras (10 countries)
+- `COMMIT` — Add 2,223 Finland Digitraffic weather cameras (11 countries)
 - Plus CONTRIBUTING.md and README.md updates interleaved
 
 ## Failed sources (do not retry without new approach)
@@ -86,11 +90,15 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 | **Japan NEXCO Central/West** | Camera data found at c-ihighway.jp (80 cams) and ihighway.jp (361 cams), but image URLs return 404 when accessed directly. Session/referer restricted. |
 | **UAE Dubai RTA** | traffic.rta.ae behind WAF (Request Rejected). dubairoads.ae domain defunct. Abu Dhabi ITC camera pages return 404. |
 | 511.org (Bay Area) | Requires API key. |
+| **Chile** | Vias Chile cameras locked behind proprietary mobile apps (Costanera Norte, Vespucio Norte, etc.). No public web APIs or image endpoints found. UOCT has traffic junction data (3,501 points with GPS) but no camera feeds. |
+| **South Africa** | i-traffic.co.za (SANRAL) has documented camera API (`/api/GetCameras`) but requires free registration for API key. Live images return placeholder without auth. |
+| **India** | All government traffic police websites (btis.in, hyderabadpolice.gov.in, delhitrafficpolice.nic.in, etc.) either dead (HTTP 410), timing out from outside India, or DNS-failing. No public camera APIs exist. |
 
 ## Sources that could work with API keys
 - **Ohio OHGO** — `publicapi.ohgo.com` — free registration
 - **Sweden Trafikverket** — free API key registration
 - **511.org** — free API key
+- **South Africa i-traffic.co.za** — free registration for camera API
 
 ## Next steps (priority order)
 
@@ -102,9 +110,9 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 
 ### International (mixed probability)
 6. ~~**Brazil**~~ — DONE. 195 cameras from CET São Paulo.
-7. **Chile** — Vias Chile operates highway cameras on Santiago's expressways.
-8. **South Africa** — SANRAL toll roads may have camera feeds.
-9. **India** — Some metro cities (Bangalore, Hyderabad) have traffic camera networks.
+7. ~~**Chile**~~ — FAILED. Cameras locked behind proprietary mobile apps. No public APIs.
+8. ~~**South Africa**~~ — FAILED. Requires free API key registration at i-traffic.co.za. Could work with a key.
+9. ~~**India**~~ — FAILED. All government sites dead or inaccessible from outside India.
 10. **Taiwan** — Revisit if we add MJPEG stream support to the server. 4,071 cameras waiting.
 
 ### Infrastructure improvements
@@ -114,7 +122,7 @@ For each new source: download samples (6-12 per cluster), verify HTTP 200 + JPEG
 
 ## Key files
 
-- `cameras.json` — The registry (~5.5MB, 20,788 entries, JSON array)
+- `cameras.json` — The registry (~6.3MB, 22,999 entries, JSON array)
 - `index.js` — MCP server (main package entry point)
 - `validate-registry.js` — GitHub Action validator
 - `merge_validate.mjs` — Local merge + validation script
