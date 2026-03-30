@@ -85,7 +85,16 @@ Every tool returns structured JSON. Snapshots save to disk and return the file p
 ## Registry
 
 **~30,000 cameras** across eleven countries:
-- US: 20,359 state DOTs (NYC, Washington, California, Colorado, Virginia, Florida, North Carolina, Pennsylvania, Arizona, Oregon, Nevada, Utah, Wisconsin, New England 511, Louisiana)
+- US: 24,201 (NYC DOT, WSDOT, Caltrans CWWP2, CDOT CoTrip, VDOT 511, FDOT FL511, NCDOT, PennDOT 511PA, Arizona ADOT, Oregon ODOT, Nevada NDOT, Utah UDOT, Wisconsin WisDOT, New England 511, Louisiana LADOTD)
+- FI: 1,404 (Digitraffic weather cameras (Fintraffic))
+- CA: 1,292 (Ontario MTO, Alberta 511)
+- HK: 995 (Hong Kong Transport Department)
+- GB: 424
+- NZ: 248 (NZTA nationwide highways)
+- BR: 195 (CET Sao Paulo urban traffic)
+- JP: 98 (NEXCO East expressways)
+- SG: 90 (Singapore LTA)
+- IE: 49 (TII motorway cams (M50 Dublin))
 - FI: 2,223 Digitraffic weather cameras
 - CA: 1,292 (Ontario, Alberta)
 - HK: 995 Hong Kong Transport Department
