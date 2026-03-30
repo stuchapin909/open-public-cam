@@ -283,23 +283,48 @@ async function main() {
     saveCameras(allCameras);
 
   } else {
-    // Push/PR mode: cap to prevent DoS via massive PRs
-    if (allCameras.length > MAX_PUSH_VALIDATIONS) {
-      console.log(`REJECT: ${allCameras.length} cameras exceeds push limit of ${MAX_PUSH_VALIDATIONS}`);
-      console.log(`PRs should add cameras incrementally. Split into smaller PRs if needed.`);
+    // Push/PR mode: Only validate modified/new cameras against upstream baseline
+    let diffCameras = [];
+    try {
+      console.log(`Fetching upstream baseline to identify changed cameras...`);
+      const resp = await axios.get(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/cameras.json`, {
+        headers: {
+          "User-Agent": "registry-bot",
+          "Accept": "application/vnd.github.raw+json",
+          ...(GITHUB_TOKEN ? { Authorization: `Bearer ${GITHUB_TOKEN}` } : {})
+        },
+        timeout: 45000,
+        maxContentLength: 50 * 1024 * 1024
+      });
+      const upstreamCameras = resp.data;
+      const upstreamMap = new Map();
+      if (Array.isArray(upstreamCameras)) {
+        for (const c of upstreamCameras) upstreamMap.set(c.id, c);
+      }
+      diffCameras = allCameras.filter(c => {
+        const up = upstreamMap.get(c.id);
+        if (!up) return true; // new
+        return up.url !== c.url || up.timezone !== c.timezone || up.city !== c.city;
+      });
+      console.log(`Found ${diffCameras.length} changed or new camera(s) to validate.`);
+    } catch (e) {
+      console.log(`Failed to fetch upstream baseline: ${e.message}`);
+      diffCameras = allCameras; // fallback
+    }
+
+    if (diffCameras.length > MAX_PUSH_VALIDATIONS) {
+      console.log(`REJECT: ${diffCameras.length} changed cameras exceeds limit of ${MAX_PUSH_VALIDATIONS}`);
       if (EVENT_NAME === "pull_request") {
         await postPRComment(
-          `## Registry Validation\n\n**REJECTED:** ${allCameras.length} cameras exceeds the maximum of ${MAX_PUSH_VALIDATIONS} per push/PR.\n\nPlease split your submission into smaller PRs or remove invalid entries.`
+          `## Registry Validation\n\n**REJECTED:** ${diffCameras.length} changed cameras exceeds the maximum of ${MAX_PUSH_VALIDATIONS} per PR.\n\nPlease split your submission.`
         );
         process.exit(1);
       }
-      // Push mode: only validate the first MAX_PUSH_VALIDATIONS
       console.log(`Push mode: validating first ${MAX_PUSH_VALIDATIONS} cameras only.`);
     }
-    const capped = allCameras.length > MAX_PUSH_VALIDATIONS;
-    const camerasToValidate = capped
-      ? allCameras.slice(0, MAX_PUSH_VALIDATIONS)
-      : allCameras;
+
+    const capped = diffCameras.length > MAX_PUSH_VALIDATIONS;
+    const camerasToValidate = diffCameras.slice(0, MAX_PUSH_VALIDATIONS);
 
     for (let i = 0; i < camerasToValidate.length; i++) {
       const entry = camerasToValidate[i];
