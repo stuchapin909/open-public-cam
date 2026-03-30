@@ -16,7 +16,7 @@ The most valuable contribution is new webcam sources. Here's the process:
 
 3. **Check it's a public space** -- streets, parks, landmarks, traffic, weather, nature. No private interiors, security cameras, or password-protected feeds.
 
-4. **Add it** -- edit `cameras.json` and push, or open a PR. Each entry requires:
+4. **Add it** -- use the MCP tool `add_local_camera` to add it locally, test with `get_snapshot`, then share upstream with `submit_local` (requires `gh` CLI). Alternatively, edit `cameras.json` directly and open a PR. Each entry requires:
    - `id` -- unique identifier, lowercase with hyphens (e.g. `nyc-fdr-brooklyn-bridge`)
    - `name` -- human-readable name
    - `url` -- direct image URL
@@ -87,6 +87,7 @@ Current sources in the registry:
 | São Paulo | CET urban traffic cameras | 195 | None |
 | Finland | Fintraffic Digitraffic weather cameras (nationwide) | 2,223 | None |
 | Utah | UDOT udottraffic.utah.gov API (ADX) | 2,026 | None |
+| Wisconsin | WisDOT 511wi.gov API (ATMS) | 448 | None |
 
 ## Code contributions
 
