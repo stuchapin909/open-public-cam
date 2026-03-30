@@ -96,6 +96,48 @@ function getUserApiKeys() {
 const getValidationLog = () => { try { return JSON.parse(fs.readFileSync(LOG_PATH, "utf8")); } catch (e) { return {}; } };
 const saveLog = (data) => fs.writeFileSync(LOG_PATH, JSON.stringify(data, null, 2));
 
+// --- Country normalization ---
+// The registry uses a mix of ISO alpha-2 codes and some non-standard values
+// (e.g. "UK" instead of the ISO-correct "GB"). This map lets agents use any
+// common alias and still get results.
+const COUNTRY_ALIASES = {
+  "uk": "gb",
+  "england": "gb",
+  "britain": "gb",
+  "great britain": "gb",
+  "united kingdom": "gb",
+  "usa": "us",
+  "america": "us",
+  "united states": "us",
+  "united states of america": "us",
+  "australia": "au",
+  "japan": "jp",
+  "singapore": "sg",
+  "hong kong": "hk",
+  "ireland": "ie",
+  "new zealand": "nz",
+  "finland": "fi",
+  "brazil": "br",
+  "canada": "ca",
+  "france": "fr",
+  "germany": "de",
+  "netherlands": "nl",
+  "norway": "no",
+  "sweden": "se",
+  "switzerland": "ch",
+  "china": "cn",
+  "south korea": "kr",
+  "korea": "kr",
+};
+
+// Returns the canonical lowercase country code for any input.
+// Falls back to the lowercased input so unknown codes pass through unchanged.
+function normalizeCountry(input) {
+  if (!input) return "";
+  const lower = input.toLowerCase().trim();
+  return COUNTRY_ALIASES[lower] || lower;
+}
+
 function findWebcam(idOrUrl) {
   return allCameras.find(c => c.id === idOrUrl || c.url === idOrUrl);
 }
@@ -287,10 +329,10 @@ server.tool("list_cameras", "Browse the camera registry. Returns cameras with id
   const logs = getValidationLog();
   let filtered = allCameras;
   if (city) filtered = filtered.filter(c => (c.city || "").toLowerCase() === city.toLowerCase());
-  if (country) filtered = filtered.filter(c => {
-    const cc = (c.country || "").toLowerCase();
-    return cc === country.toLowerCase();
-  });
+  if (country) {
+    const normCountry = normalizeCountry(country);
+    filtered = filtered.filter(c => normalizeCountry(c.country) === normCountry);
+  }
   if (location) filtered = filtered.filter(c => (c.location || "").toLowerCase().includes(location.toLowerCase()));
   if (category) filtered = filtered.filter(c => (c.category || "") === category);
 
@@ -375,10 +417,10 @@ server.tool("explore_cameras", "Get random cameras from the registry for discove
 
   let pool = allCameras;
   if (city) pool = pool.filter(c => (c.city || "").toLowerCase() === city.toLowerCase());
-  if (country) pool = pool.filter(c => {
-    const cc = (c.country || "").toLowerCase();
-    return cc === country.toLowerCase();
-  });
+  if (country) {
+    const normCountry = normalizeCountry(country);
+    pool = pool.filter(c => normalizeCountry(c.country) === normCountry);
+  }
   if (category) pool = pool.filter(c => (c.category || "") === category);
 
   if (pool.length === 0) return errResponse("No cameras match the filters", { filters: { city, country, category }, pool_size: 0 });

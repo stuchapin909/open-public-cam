@@ -1,0 +1,2 @@
+# Git LFS tracking for the camera registry (large binary-like JSON, updated nightly)
+cameras.json filter=lfs diff=lfs merge=lfs -text
