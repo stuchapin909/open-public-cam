@@ -68,6 +68,7 @@ Current sources in the registry:
 | Colorado | CDOT CoTrip CARS Program API | 1,023 | None |
 | Virginia | VDOT 511 GeoJSON API | 1,695 | None |
 | Florida | FDOT FL511 DIVAS API (all 7 districts) | 4,700 | None |
+| North Carolina | NCDOT Traffic API | 779 | None |
 | Ontario | MTO 511 API | 923 | None |
 | London | TfL JamCam API | 424 | API key for discovery only, images public |
 | New Zealand | NZTA cameras.json API | 251 | None |
