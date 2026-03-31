@@ -55,7 +55,7 @@ A valid camera URL is any endpoint that returns a JPEG or PNG on a plain HTTP GE
 
 The registry has two layers:
 
-- **Upstream** — the global registry fetched from GitHub on every server start. These are the ~29,000 validated public cameras.
+- **Upstream** — the global registry fetched from GitHub on every server start. These are the ~32,000 validated public cameras.
 - **Local** — cameras you add yourself via `add_local_camera`. They persist in `~/.openeagleeye/local-cameras.json`, survive restarts, and appear in `list_cameras`/`search_cameras` with `source: "local"`. Share them upstream anytime with `submit_local`.
 
 ### Filtering
@@ -85,21 +85,21 @@ Every tool returns structured JSON. Snapshots save to disk and return the file p
 
 ## Registry
 
-~31,000 cameras across eleven countries (31,070 verified):
+~32,000 cameras across eleven countries (32,096 verified):
 
 | Country | Count | Sources |
 |---|---|---|
-| US | 26,275 | NYC DOT, NY 511, WSDOT, Caltrans CWWP2, CDOT CoTrip, VDOT 511, FDOT FL511, NCDOT, PennDOT 511PA, Arizona ADOT, Oregon ODOT, Nevada NDOT, Utah UDOT, Wisconsin WisDOT, New England 511, Louisiana LADOTD, Alaska DOT&PF, Missouri MoDOT |
-| FI | 1,404 | Digitraffic weather cameras (Fintraffic) |
+| US | 27,184 | NYC DOT, NY 511, WSDOT, Caltrans CWWP2, CDOT CoTrip, VDOT 511, FDOT FL511, NCDOT, PennDOT 511PA, Arizona ADOT, Oregon ODOT, Nevada NDOT, Utah UDOT, Wisconsin WisDOT, New England 511, Louisiana LADOTD, Alaska DOT&PF, Missouri MoDOT |
+| FI | 1,309 | Digitraffic weather cameras (Fintraffic) |
 | CA | 1,292 | Ontario MTO, Alberta 511 |
 | HK | 995 | Hong Kong Transport Department |
 | GB | 424 | London TfL JamCams |
 | NZ | 248 | NZTA nationwide highways |
-| BR | 195 | CET São Paulo urban traffic |
-| AU | 159 | Sydney + Regional NSW |
+| AU | 247 | Queensland DOT traffic + flood cameras |
+| BR | 160 | CET São Paulo urban traffic |
 | JP | 98 | NEXCO East expressways |
 | SG | 90 | Singapore LTA |
-| IE | 53 | TII motorway cams (M50 Dublin) |
+| IE | 49 | TII motorway cams (M50 Dublin) |
 
 Every camera has `country`, `city`, `location`, `timezone`, and `coordinates` (lat/lng).
 
