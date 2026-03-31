@@ -287,15 +287,14 @@ async function main() {
     let diffCameras = [];
     try {
       console.log(`Fetching upstream baseline to identify changed cameras...`);
-      const resp = await axios.get(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/cameras.json`, {
+      const resp = await axios.get(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/master/cameras.json`, {
         headers: {
-          "User-Agent": "registry-bot",
-          "Accept": "application/vnd.github.raw+json",
-          ...(GITHUB_TOKEN ? { Authorization: `Bearer ${GITHUB_TOKEN}` } : {})
+          "User-Agent": "registry-bot"
         },
         timeout: 45000,
         maxContentLength: 50 * 1024 * 1024
       });
+      // Axios auto-parses native JSON payloads
       const upstreamCameras = resp.data;
       const upstreamMap = new Map();
       if (Array.isArray(upstreamCameras)) {

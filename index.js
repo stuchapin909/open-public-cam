@@ -36,18 +36,15 @@ async function fetchFile(remotePath) {
   return resp.data;
 }
 
-// LFS-aware fetch for cameras.json via GitHub Contents API.
-// The vnd.github.raw+json Accept header causes GitHub to redirect through
-// LFS storage, so the actual 13 MB JSON is returned rather than the pointer.
+// Unauthenticated direct fetch for cameras.json via raw source
 async function fetchCamerasJson() {
-  const resp = await axios.get(`${GITHUB_API}/cameras.json`, {
+  const resp = await axios.get(`https://raw.githubusercontent.com/stuchapin909/Open-Eagle-Eye/master/cameras.json`, {
     timeout: 30000,
     responseType: "text",
     headers: {
-      "User-Agent": "openeagleeye-bootstrap",
-      "Accept": "application/vnd.github.raw+json",
+      "User-Agent": "openeagleeye-bootstrap"
     },
-    maxRedirects: 5,
+    maxRedirects: 3,
   });
   return resp.data;
 }
