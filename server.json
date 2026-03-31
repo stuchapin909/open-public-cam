@@ -1,0 +1,20 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.stuchapin909/open-eagle-eye",
+  "description": "Live snapshots from ~29,000 public cameras across 11 countries — traffic, weather, webcams",
+  "repository": {
+    "url": "https://github.com/stuchapin909/Open-Eagle-Eye",
+    "source": "github"
+  },
+  "version": "8.0.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "openeagleeye",
+      "version": "8.0.0",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

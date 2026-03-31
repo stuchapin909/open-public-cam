@@ -1,5 +1,6 @@
 {
   "name": "openeagleeye",
+  "mcpName": "io.github.stuchapin909/open-eagle-eye",
   "version": "8.0.0",
   "description": "Instant webcam snapshots from public cameras worldwide via MCP — designed for AI agents using the Model Context Protocol",
   "type": "module",
