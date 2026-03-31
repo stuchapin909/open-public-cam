@@ -1,103 +1,185 @@
 # Contributing to Open Eagle Eye
 
-Thanks for your interest. Here's how to help.
+The most impactful contribution is new camera sources. This guide walks through the full process using a real example.
 
-## Adding webcams
+## Quick start: add a single camera
 
-The most valuable contribution is new webcam sources. Here's the process:
+The fastest path uses the MCP tools directly:
 
-1. **Find a direct-image URL** -- the camera must return a JPEG or PNG on a plain HTTP GET with no authentication. Check with:
-   ```
-   curl -I -s https://example.com/camera/image | grep content-type
-   ```
-   Must return `image/jpeg` or `image/png`.
+1. `add_local_camera` with the URL, city, location, timezone, and optional coordinates
+2. `get_snapshot` to verify it works
+3. `submit_local` to share upstream (requires `gh` CLI)
 
-2. **Verify it's live** -- fetch it twice, a few seconds apart. File size or content should change.
+Local cameras are usable immediately -- they don't need upstream approval.
 
-3. **Check it's a public space** -- streets, parks, landmarks, traffic, weather, nature. No private interiors, security cameras, or password-protected feeds.
+## Adding a new source (bulk)
 
-4. **Add it** -- use the MCP tool `add_local_camera` to add it locally, test with `get_snapshot`, then share upstream with `submit_local` (requires `gh` CLI). Alternatively, edit `cameras.json` directly and open a PR. Each entry requires:
-   - `id` -- unique identifier, lowercase with hyphens (e.g. `nyc-fdr-brooklyn-bridge`)
-   - `name` -- human-readable name
-   - `url` -- direct image URL
-   - `city` -- city name (e.g. `London`, `New York`, `Sydney`)
-   - `location` -- descriptive location string (e.g. `Manhattan, New York, USA`)
-   - `timezone` -- IANA timezone (e.g. `America/New_York`)
-   - `category` -- one of the categories below
-   - `coordinates` -- `{ "lat": ..., "lng": ... }` if available
-   - `country` -- ISO 3166-1 alpha-2 country code (e.g. `US`, `CA`, `GB`, `AU`, `NZ`, `JP`, `SG`, `HK`, `FI`, `BR`, `IE`)
+This is the process for integrating an entire camera network -- a city DOT, transport authority, weather service, etc. The example below follows the Queensland DOT integration.
 
-   The GitHub Action will:
-   - Validate the schema
-   - Verify the URL returns a valid image
-   - Use vision AI to confirm it's a real webcam
-   - Reject non-webcam images (logos, error pages, ads)
-   - Auto-remove invalid entries on push, comment on PRs
+### Step 1: Find a candidate source
 
-## What makes a good source
+Good places to look:
+- City and state department of transport websites
+- National traffic management centers
+- Weather station networks
+- Port and airport authorities
+- Ski resort and national park webcams
 
-- City traffic cameras (most DOTs have APIs)
-- Weather station webcams
-- Ski resort cams
-- National park webcams
-- Port and airport perimeter cams
-- University campus cams
+**What works:** APIs that return direct JPEG or PNG image URLs. The URL itself must return an image on a plain HTTP GET.
 
-## What doesn't work
-
+**What doesn't work:**
 - YouTube streams or video URLs
-- Webcam aggregator page URLs (EarthCam, WebcamTaxi, etc.)
+- Webcam aggregator page URLs (EarthCam, WebcamTaxi, SkylineWebcams)
 - RTSP, HLS, or DASH streams
 - Pages requiring JavaScript to load the image
-- URLs behind CAPTCHAs or cookie consent
-- Anything requiring authentication
-- URLs that serve images only with specific browser headers (Sec-Fetch-Dest, etc.) -- these break for programmatic access
+- URLs behind CAPTCHAs, cookie consent, or authentication
+- Feeds that require specific browser headers (Sec-Fetch-Dest) -- these break for programmatic access
 
-## Categories
+### Step 2: Verify the images
 
-Use one of: `city`, `park`, `highway`, `airport`, `port`, `weather`, `nature`, `landmark`, `other`
+```bash
+# Must return 200 with image/jpeg or image/png
+curl -s -o /tmp/test.jpg -w "%{http_code} %{content_type} %{size_download}" \
+  -L --max-time 8 "https://example.com/camera/image.jpg"
 
-## Camera sources
+# Verify it's live (file should change between fetches)
+curl -s -o /tmp/test1.jpg "URL"
+sleep 5
+curl -s -o /tmp/test2.jpg "URL"
+diff /tmp/test1.jpg /tmp/test2.jpg && echo "STATIC" || echo "LIVE"
+```
 
-Current sources in the registry:
+Red flags:
+- Content-type is `text/html` (probably an error page behind JS rendering)
+- File size is suspiciously consistent across cameras (could be an offline placeholder -- some DOTs serve a branded PNG for dead cameras)
+- Status 403 (WAF or authentication)
+- Requires `Referer` or `Sec-Fetch-*` headers (CDN hotlink protection -- works for humans, breaks for agents)
 
-| Region | Source | Count | Auth |
-|---|---|---|---|
-| California | Caltrans CWWP2 JSON API (all 12 districts) | 3,430 | None |
-| Washington | WSDOT KML feed | 1,641 | None |
-| Colorado | CDOT CoTrip CARS Program API | 1,022 | None |
-| Virginia | VDOT 511 GeoJSON API | 1,695 | None |
-| Florida | FDOT FL511 DIVAS API (all 7 districts) | 4,700 | None |
-| North Carolina | NCDOT Traffic API | 779 | None |
-| Ontario | MTO 511 API | 923 | None |
-| London | TfL JamCam API | 424 | API key for discovery only, images public |
-| New Zealand | NZTA cameras.json API | 251 | None |
-| Hong Kong | Transport Department CCTV | 995 | None |
-| NSW | NSW Live Traffic (Sydney + Regional) | 159 | None |
-| Alberta | Alberta 511 API | 369 | None |
-| Japan | NEXCO East expressway cameras | 98 | None |
-| Singapore | LTA Traffic Images API | 90 | None |
-| Ireland | TII motorway cameras (M50 Dublin) | 53 | None |
-| Pennsylvania | PennDOT 511PA API (PennDOT + PTC + RWIS) | 1,445 | None |
-| Arizona | ADOT az511.com API | 604 | None |
-| Oregon | ODOT TripCheck camera inventory | 1,122 | None |
-| Nevada | NDOT nvroads.com API (LV, Reno, Elko) | 643 | None |
-| New York | NYC TMC API | 100 | None |
-| São Paulo | CET urban traffic cameras | 195 | None |
-| Finland | Fintraffic Digitraffic weather cameras (nationwide) | 2,223 | None |
-| Utah | UDOT udottraffic.utah.gov API (ADX) | 2,026 | None |
-| Wisconsin | WisDOT 511wi.gov API (ATMS) | 448 | None |
-| New England | 511 newengland511.org API (NH, ME, VT) | 408 | None |
-| Louisiana | LADOTD 511la.org API | 296 | None |
-| Georgia | Georgia 511 (Navigator) DataTables API | 3,861 | None |
+### Step 3: Get the listing
 
-## Source documentation
+You need a way to enumerate all cameras, not just find individual URLs. Common patterns:
 
-The `sources/` directory contains per-source API research notes for every camera source in the registry. Each file documents the API endpoint, pagination method, image URL pattern, coordinate format, and known pitfalls. Use these as reference when adding new sources or debugging broken ones.
+**Pattern A: JSON API**
+```bash
+curl -s "https://api.example.com/cameras" | head
+```
 
-- `sources/datatables-pattern/RESEARCH.md` -- the common 511-style DataTables API used by most US state DOTs
-- `sources/us-{state}/RESEARCH.md` -- individual US state sources
-- `sources/{country-code}/RESEARCH.md` -- international sources (au, br, ca, fi, hk, ie, jp, nz, sg, uk)
+**Pattern B: DataTables (common for US state 511 sites)**
+```bash
+curl -s -X POST "https://www.example.com/List/GetData/Cameras" \
+  -H "Content-Type: application/json" \
+  -H "X-Requested-With: XMLHttpRequest" \
+  -d '{"draw":1,"start":0,"length":100,"columns":[{"data":"sortOrder","name":"sortOrder"}]}'
+```
+Most cap at 100 per request -- paginate by incrementing `start`.
+
+**Pattern C: GeoJSON**
+```bash
+curl -s "https://data.example.com/cameras.geojson" | head
+```
+
+**Pattern D: KML (XML)**
+```bash
+curl -s "https://www.example.com/cameras/kml.aspx" | head
+```
+
+**Pattern E: CSV**
+```bash
+curl -s "https://data.example.com/camera-locations.csv" | head
+```
+
+If the API paginates, check the total count first, then loop until you've fetched everything.
+
+### Step 4: Parse and build entries
+
+Each camera in `cameras.json` follows this schema:
+
+```json
+{
+  "id": "qld-1-archerfield",
+  "name": "Archerfield - Ipswich Motorway & Granard Rd - North",
+  "url": "https://cameras.qldtraffic.qld.gov.au/Metropolitan/Archerfield_Ipswich_Mwy_sth.jpg",
+  "country": "AU",
+  "city": "Brisbane",
+  "category": "highway",
+  "location": "Archerfield, Queensland, Australia",
+  "timezone": "Australia/Brisbane",
+  "coordinates": { "lat": -27.555, "lng": 153.009 },
+  "verified": true,
+  "auth": false
+}
+```
+
+**Required fields:** `id`, `name`, `url`, `country`, `city`, `location`, `timezone`, `coordinates`, `verified`, `auth`
+
+**`id` format:** `{source_prefix}-{numeric_id}-{slug}`. Must be unique across the entire registry. Check existing IDs before choosing a prefix.
+
+**`country`:** ISO 3166-1 alpha-2 code (US, CA, GB, AU, NZ, JP, SG, HK, FI, BR, IE, etc.)
+
+**`category`:** One of: `city`, `park`, `highway`, `airport`, `port`, `weather`, `nature`, `landmark`, `other`
+
+**`coordinates`:** Always nested as `{"lat": number, "lng": number}`. Never flat top-level fields.
+
+### Common pitfalls
+
+**GeoJSON coordinate order:** GeoJSON uses `[lng, lat]`. The registry uses `{lat, lng}`. Swap them.
+
+**WKT coordinate format:** Some APIs store coords as `POINT (lng lat)` in a `wellKnownText` field. Parse with regex and swap.
+
+**Pagination wraparound:** Some APIs return results from the beginning when you paginate past the total. Stop when `start >= recordsTotal`, not when `data` is empty.
+
+**Offline placeholders:** Some DOTs serve a branded PNG for dead cameras (same file size for every offline camera). The nightly validator catches these, but avoid adding known-offline cameras in the first place.
+
+**Control characters in JSON:** Some APIs return null bytes or carriage returns in JSON responses. Strip with `raw.replace(b'\x00', b'').replace(b'\r', b'')` before parsing.
+
+**Content-type lies:** Some CDNs return `application/octet-stream` or `binary/octet-stream` for valid JPEGs. The server's magic byte detection handles this, but be aware when testing with curl.
+
+**City consolidation:** If a source covers many small towns with 1-2 cameras each, consolidate them into a region name (e.g., "Regional Queensland" instead of 100 individual towns). Keep the real town in the `location` field.
+
+**Null coordinates:** Exclude cameras with null, zero, or missing GPS coordinates. `POINT (0 0)` is not valid.
+
+### Step 5: Validate before submitting
+
+Test at least 3-5 cameras from different parts of the source:
+- Different cities/regions
+- Different image URL patterns (if the source has multiple)
+- One from the beginning, middle, and end of the listing
+
+```bash
+# Quick validation script
+for url in "URL1" "URL2" "URL3"; do
+  result=$(curl -s -o /dev/null -w "%{http_code} %{content_type} %{size_download}" \
+    -L --max-time 8 "$url")
+  echo "$url -> $result"
+done
+```
+
+### Step 6: Submit
+
+**Option A: Pull request** (recommended for bulk additions)
+1. Fork the repo
+2. Add entries to `cameras.json` (append to the array, deduplicate by ID)
+3. Commit and push
+4. Open a PR
+5. The GitHub Action validates all new entries and comments on the PR
+
+**Option B: GitHub issue** (for small additions or first-time contributors)
+1. Use `submit_local` if you have `gh` CLI set up
+2. Or open a manual issue with camera details (URL, city, country, coordinates)
+3. A maintainer will validate and add them
+
+### What happens after you submit
+
+The GitHub Action runs on every push:
+- Validates schema for all new entries
+- Verifies each URL returns a valid image (HTTP status, content-type, magic bytes)
+- Uses vision AI to confirm images show real webcam feeds (not error pages, ads, or logos)
+- Rejects invalid entries and comments on PRs with details
+- On merge, the nightly validator takes over long-term health monitoring
+
+## Source research notes
+
+The `sources/` directory contains per-source API documentation for every camera source in the registry. Each file covers the API endpoint, pagination, coordinate format, image URL pattern, and known pitfalls. These are the best reference for understanding how a source works before integrating it.
 
 ## Code contributions
 

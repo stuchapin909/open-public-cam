@@ -161,7 +161,15 @@ All runtime data lives in `~/.openeagleeye/`:
 
 ## Contributing
 
-Pull requests welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Pull requests welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on adding camera sources.
+
+## Why this exists
+
+See [WHY.md](WHY.md) for the reasoning behind the project's design decisions, how it compares to other camera services, and why agent-native and self-healing matter.
+
+## Privacy & security
+
+See [SECURITY.md](SECURITY.md) for answers to common questions about surveillance, data collection, private cameras, and the security architecture.
 
 ## License
 
