@@ -29,19 +29,19 @@
   <line x1="960" y1="40" x2="960" y2="460" stroke="#1E293B" stroke-width="0.5"/>
   <circle cx="248.27777777777777" cy="157.13333333333333" r="34.040305361364105" fill="#3B82F6" opacity="0.15"/>
   <circle cx="248.27777777777777" cy="157.13333333333333" r="31.040305361364105" fill="#3B82F6" opacity="0.8" filter="url(#glow)"/>
-  <text x="248.27777777777777" y="121.09302797196922" text-anchor="middle" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">US 27,184</text>
+  <text x="293.27777777777777" y="126.09302797196922" text-anchor="start" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">US 27,184</text>
   <circle cx="566.4444444444445" cy="100.66666666666666" r="24.82089906959035" fill="#8B5CF6" opacity="0.15"/>
   <circle cx="566.4444444444445" cy="100.66666666666666" r="21.82089906959035" fill="#8B5CF6" opacity="0.8" filter="url(#glow)"/>
   <text x="566.4444444444445" y="95.8457675970763" text-anchor="middle" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">FI 1,309</text>
   <circle cx="229.11111111111111" cy="119.33333333333333" r="24.78118967416276" fill="#EF4444" opacity="0.15"/>
   <circle cx="229.11111111111111" cy="119.33333333333333" r="21.78118967416276" fill="#EF4444" opacity="0.8" filter="url(#glow)"/>
-  <text x="229.11111111111111" y="114.55214365917057" text-anchor="middle" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">CA 1,292</text>
+  <text x="229.11111111111111" y="116.55214365917057" text-anchor="middle" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">CA 1,292</text>
   <circle cx="791.8444444444444" cy="197.96666666666667" r="23.98781536896589" fill="#F59E0B" opacity="0.15"/>
   <circle cx="791.8444444444444" cy="197.96666666666667" r="20.98781536896589" fill="#F59E0B" opacity="0.8" filter="url(#glow)"/>
-  <text x="821.8444444444444" y="175.97885129770077" text-anchor="middle" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">HK 995</text>
+  <text x="791.8444444444444" y="151.97885129770077" text-anchor="middle" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">HK 995</text>
   <circle cx="494.8888888888889" cy="124" r="21.39872251035218" fill="#10B981" opacity="0.15"/>
   <circle cx="494.8888888888889" cy="124" r="18.39872251035218" fill="#10B981" opacity="0.8" filter="url(#glow)"/>
-  <text x="494.8888888888889" y="122.60127748964783" text-anchor="middle" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">GB 424</text>
+  <text x="494.8888888888889" y="80.60127748964783" text-anchor="middle" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">GB 424</text>
   <circle cx="944.6666666666666" cy="345.66666666666663" r="19.773395429670153" fill="#06B6D4" opacity="0.15"/>
   <circle cx="944.6666666666666" cy="345.66666666666663" r="16.773395429670153" fill="#06B6D4" opacity="0.8" filter="url(#glow)"/>
   <text x="944.6666666666666" y="345.8932712369965" text-anchor="middle" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">NZ 248</text>
@@ -56,10 +56,10 @@
   <text x="852.6666666666666" y="169.03055363781715" text-anchor="middle" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">JP 98</text>
   <circle cx="765.2666666666667" cy="246.96666666666667" r="16.713289746247654" fill="#A855F7" opacity="0.15"/>
   <circle cx="765.2666666666667" cy="246.96666666666667" r="13.713289746247655" fill="#A855F7" opacity="0.8" filter="url(#glow)"/>
-  <text x="735.2666666666667" y="244.25337692041902" text-anchor="middle" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">SG 90</text>
+  <text x="765.2666666666667" y="248.25337692041902" text-anchor="middle" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">SG 90</text>
   <circle cx="474.44444444444446" cy="125.63333333333334" r="14.892790030352131" fill="#14B8A6" opacity="0.15"/>
   <circle cx="474.44444444444446" cy="125.63333333333334" r="11.892790030352131" fill="#14B8A6" opacity="0.8" filter="url(#glow)"/>
-  <text x="454.44444444444446" y="96.74054330298121" text-anchor="middle" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">IE 49</text>
+  <text x="444.44444444444446" y="94.74054330298121" text-anchor="end" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">IE 49</text>
   <text x="500" y="24" text-anchor="middle" fill="#F1F5F9" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" letter-spacing="0.5">Open Eagle Eye -- Global Camera Coverage</text>
   <text x="500" y="490" text-anchor="middle" fill="#64748B" font-family="system-ui, -apple-system, sans-serif" font-size="11">32,096 cameras across 11 countries</text>
 </svg>

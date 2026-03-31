@@ -4,13 +4,13 @@ const cameras = JSON.parse(fs.readFileSync("/root/projects/open-public-cam/camer
 
 // Country data: centroid + label offset to avoid overlaps
 const countryData = {
-  US: { lat: 39.8, lng: -98.5, labelDx: 0, labelDy: 0 },
-  CA: { lat: 56.0, lng: -106.0, labelDx: 0, labelDy: 22 },
+  US: { lat: 39.8, lng: -98.5, labelDx: 45, labelDy: 5 },
+  CA: { lat: 56.0, lng: -106.0, labelDx: 0, labelDy: 24 },
   FI: { lat: 64.0, lng: 26.0, labelDx: 0, labelDy: 22 },
-  GB: { lat: 54.0, lng: -2.0, labelDx: 0, labelDy: 22 },
-  IE: { lat: 53.3, lng: -10.0, labelDx: -20, labelDy: -12 },
-  HK: { lat: 22.3, lng: 114.2, labelDx: 30, labelDy: 4 },
-  SG: { lat: 1.3, lng: 103.8, labelDx: -30, labelDy: 16 },
+  GB: { lat: 54.0, lng: -2.0, labelDx: 0, labelDy: -20 },
+  IE: { lat: 53.3, lng: -10.0, labelDx: -30, labelDy: -14 },
+  HK: { lat: 22.3, lng: 114.2, labelDx: 0, labelDy: -20 },
+  SG: { lat: 1.3, lng: 103.8, labelDx: 0, labelDy: 20 },
   JP: { lat: 36.0, lng: 138.0, labelDx: 0, labelDy: 22 },
   AU: { lat: -25.0, lng: 134.0, labelDx: 0, labelDy: 0 },
   NZ: { lat: -41.0, lng: 174.0, labelDx: 0, labelDy: 22 },
@@ -93,7 +93,8 @@ sorted.forEach(([country, count]) => {
   const lx = x + (d.labelDx || 0);
   const ly = y - r - 5 + (d.labelDy || 0);
   const label = `${country} ${count.toLocaleString()}`;
-  svg += `  <text x="${lx}" y="${ly}" text-anchor="middle" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">${label}</text>\n`;
+  const anchor = (d.labelDx > 20) ? "start" : ((d.labelDx < -20) ? "end" : "middle");
+  svg += `  <text x="${lx}" y="${ly}" text-anchor="${anchor}" fill="#CBD5E1" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500">${label}</text>\n`;
 });
 
 // Title
