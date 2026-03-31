@@ -87,6 +87,8 @@ Every tool returns structured JSON. Snapshots save to disk and return the file p
 
 ~32,000 cameras across eleven countries (32,096 verified):
 
+![Global Coverage](docs/coverage-map.svg)
+
 | Country | Count | Sources |
 |---|---|---|
 | US | 27,184 | NYC DOT, NY 511, WSDOT, Caltrans CWWP2, CDOT CoTrip, VDOT 511, FDOT FL511, NCDOT, PennDOT 511PA, Arizona ADOT, Oregon ODOT, Nevada NDOT, Utah UDOT, Wisconsin WisDOT, New England 511, Louisiana LADOTD, Alaska DOT&PF, Missouri MoDOT |
