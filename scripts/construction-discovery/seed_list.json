@@ -1,0 +1,92 @@
+[
+  {
+    "name": "Space Needle PanoCam",
+    "country": "US",
+    "city": "Seattle",
+    "tz": "America/Los_Angeles",
+    "lat": 47.6205,
+    "lng": -122.3493,
+    "url": "https://spaceneedledev.com/panocam/index.html"
+  },
+  {
+    "name": "Panama Canal Miraflores",
+    "country": "PA",
+    "city": "Panama City",
+    "tz": "America/Panama",
+    "lat": 9.0028,
+    "lng": -79.5625,
+    "url": "https://www.pancanal.com/eng/webcam/"
+  },
+  {
+    "name": "ConstructionCam Directory",
+    "country": "US",
+    "city": "Various",
+    "tz": "America/New_York",
+    "lat": 40.7128,
+    "lng": -74.006,
+    "url": "https://constructioncam.com/"
+  },
+  {
+    "name": "Empire State Building",
+    "country": "US",
+    "city": "New York",
+    "tz": "America/New_York",
+    "lat": 40.7484,
+    "lng": -73.9857,
+    "url": "https://www.esbnyc.com/"
+  },
+  {
+    "name": "Willis Tower",
+    "country": "US",
+    "city": "Chicago",
+    "tz": "America/Chicago",
+    "lat": 41.8789,
+    "lng": -87.6359,
+    "url": "https://www.willistower.com/"
+  },
+  {
+    "name": "CN Tower",
+    "country": "CA",
+    "city": "Toronto",
+    "tz": "America/Toronto",
+    "lat": 43.6426,
+    "lng": -79.3871,
+    "url": "https://www.cntower.ca/"
+  },
+  {
+    "name": "Eiffel Tower",
+    "country": "FR",
+    "city": "Paris",
+    "tz": "Europe/Paris",
+    "lat": 48.8584,
+    "lng": 2.2945,
+    "url": "https://www.toureiffel.paris/en/the-monument/webcams"
+  },
+  {
+    "name": "Sydney Harbour Bridge",
+    "country": "AU",
+    "city": "Sydney",
+    "tz": "Australia/Sydney",
+    "lat": -33.8523,
+    "lng": 151.2108,
+    "url": "https://www.sydneymonorail.com/webcam/"
+  },
+  {
+    "name": "Big Ben",
+    "country": "GB",
+    "city": "London",
+    "tz": "Europe/London",
+    "lat": 51.5007,
+    "lng": -0.1246,
+    "url": "https://www.parliament.uk/about/living-heritage/building/palace/webcam/"
+  },
+  {
+    "name": "Tokyo Tower",
+    "country": "JP",
+    "city": "Tokyo",
+    "tz": "Asia/Tokyo",
+    "lat": 35.6586,
+    "lng": 139.7454,
+    "url": "https://www.tokyotower.co.jp/"
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "name": "Indianapolis Motor Speedway",
+    "country": "US",
+    "city": "Indianapolis",
+    "tz": "America/Indiana/Indianapolis",
+    "lat": 39.7957,
+    "lng": -86.2373,
+    "url": "https://www.indianapolismotorspeedway.com/webcams"
+  },
+  {
+    "name": "N\u00fcrburgring",
+    "country": "DE",
+    "city": "N\u00fcrburg",
+    "tz": "Europe/Berlin",
+    "lat": 50.335,
+    "lng": 6.9475,
+    "url": "https://www.nuerburgring.de/en/webcam.html"
+  },
+  {
+    "name": "Spa-Francorchamps",
+    "country": "BE",
+    "city": "Stavelot",
+    "tz": "Europe/Brussels",
+    "lat": 50.4372,
+    "lng": 5.9714,
+    "url": "https://www.spa-francorchamps.be/en/webcam"
+  },
+  {
+    "name": "Circuit de Barcelona",
+    "country": "ES",
+    "city": "Montmel\u00f3",
+    "tz": "Europe/Madrid",
+    "lat": 41.5697,
+    "lng": 2.2611,
+    "url": "https://www.circuitcat.com/en/webcam"
+  },
+  {
+    "name": "Silverstone",
+    "country": "GB",
+    "city": "Silverstone",
+    "tz": "Europe/London",
+    "lat": 52.0717,
+    "lng": -1.0178,
+    "url": "https://www.silverstone.co.uk/webcams"
+  },
+  {
+    "name": "Monza",
+    "country": "IT",
+    "city": "Monza",
+    "tz": "Europe/Rome",
+    "lat": 45.6178,
+    "lng": 9.2817,
+    "url": "https://www.monzanet.it/en/webcam"
+  },
+  {
+    "name": "Daytona International",
+    "country": "US",
+    "city": "Daytona Beach",
+    "tz": "America/New_York",
+    "lat": 29.1814,
+    "lng": -81.0739,
+    "url": "https://www.daytonainternationalspeedway.com/webcams"
+  },
+  {
+    "name": "Bristol Motor Speedway",
+    "country": "US",
+    "city": "Bristol",
+    "tz": "America/New_York",
+    "lat": 36.5128,
+    "lng": -82.2617,
+    "url": "https://www.bristolmotorspeedway.com/webcams"
+  },
+  {
+    "name": "Laguna Seca",
+    "country": "US",
+    "city": "Monterey",
+    "tz": "America/Los_Angeles",
+    "lat": 36.5856,
+    "lng": -121.7569,
+    "url": "https://www.lagunaseca.com/webcams"
+  },
+  {
+    "name": "COTA Austin",
+    "country": "US",
+    "city": "Austin",
+    "tz": "America/Chicago",
+    "lat": 30.1327,
+    "lng": -97.6409,
+    "url": "https://www.circuitoftheamericas.com/webcams"
+  }
+]

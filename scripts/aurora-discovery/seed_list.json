@@ -1,0 +1,92 @@
+[
+  {
+    "name": "Aurora Sky Station Abisko",
+    "country": "SE",
+    "city": "Abisko",
+    "tz": "Europe/Stockholm",
+    "lat": 68.356,
+    "lng": 18.828,
+    "url": "https://www.auroraskystation.com/webcam/"
+  },
+  {
+    "name": "Troms\u00f8 Aurora",
+    "country": "NO",
+    "city": "Troms\u00f8",
+    "tz": "Europe/Oslo",
+    "lat": 69.6496,
+    "lng": 18.9553,
+    "url": "https://en.visittromso.no/webcam"
+  },
+  {
+    "name": "Rovaniemi",
+    "country": "FI",
+    "city": "Rovaniemi",
+    "tz": "Europe/Helsinki",
+    "lat": 66.5039,
+    "lng": 25.7294,
+    "url": "https://www.visitrovaniemi.fi/webcam"
+  },
+  {
+    "name": "Yellowknife Aurora",
+    "country": "CA",
+    "city": "Yellowknife",
+    "tz": "America/Yellowknife",
+    "lat": 62.454,
+    "lng": -114.3718,
+    "url": "https://spectacularnwt.com/en/webcams"
+  },
+  {
+    "name": "Iceland Road Cams",
+    "country": "IS",
+    "city": "Reykjavik",
+    "tz": "Atlantic/Reykjavik",
+    "lat": 64.1466,
+    "lng": -21.9426,
+    "url": "https://www.road.is/webcams/"
+  },
+  {
+    "name": "Fairbanks Aurora",
+    "country": "US",
+    "city": "Fairbanks",
+    "tz": "America/Anchorage",
+    "lat": 64.8378,
+    "lng": -147.7164,
+    "url": "https://www.gi.alaska.edu/aurora-forecast"
+  },
+  {
+    "name": "Churchill Aurora",
+    "country": "CA",
+    "city": "Churchill",
+    "tz": "America/Winnipeg",
+    "lat": 58.77,
+    "lng": -94.17,
+    "url": "https://www.churchillwild.com/webcam/"
+  },
+  {
+    "name": "Northern Norway Aurora",
+    "country": "NO",
+    "city": "Svalbard",
+    "tz": "Arctic/Longyearbyen",
+    "lat": 78.2232,
+    "lng": 15.6267,
+    "url": "https://www.visitsvalbard.com/webcam"
+  },
+  {
+    "name": "Ruka Finland",
+    "country": "FI",
+    "city": "Ruka",
+    "tz": "Europe/Helsinki",
+    "lat": 65.9486,
+    "lng": 28.2025,
+    "url": "https://www.ruka.fi/en/webcam"
+  },
+  {
+    "name": "Levi Finland",
+    "country": "FI",
+    "city": "Kittila",
+    "tz": "Europe/Helsinki",
+    "lat": 67.806,
+    "lng": 24.81,
+    "url": "https://www.levi.fi/en/webcam"
+  }
+]

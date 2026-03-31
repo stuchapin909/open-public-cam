@@ -1,0 +1,92 @@
+[
+  {
+    "name": "BC Ferries Tsawwassen",
+    "country": "CA",
+    "city": "Tsawwassen",
+    "tz": "America/Vancouver",
+    "lat": 49.0083,
+    "lng": -123.0833,
+    "url": "https://www.bcferries.com/current-conditions/"
+  },
+  {
+    "name": "WSDOT Anacortes",
+    "country": "US",
+    "city": "Anacortes",
+    "tz": "America/Los_Angeles",
+    "lat": 48.5125,
+    "lng": -122.6125,
+    "url": "https://www.wsdot.com/ferries/vesselwatch/VesselWatchWebcams.aspx"
+  },
+  {
+    "name": "WSDOT Seattle-Bremerton",
+    "country": "US",
+    "city": "Seattle",
+    "tz": "America/Los_Angeles",
+    "lat": 47.6062,
+    "lng": -122.3321,
+    "url": "https://www.wsdot.com/ferries/vesselwatch/VesselWatchWebcams.aspx"
+  },
+  {
+    "name": "WSDOT Edmonds-Kingston",
+    "country": "US",
+    "city": "Edmonds",
+    "tz": "America/Los_Angeles",
+    "lat": 47.8103,
+    "lng": -122.377,
+    "url": "https://www.wsdot.com/ferries/vesselwatch/VesselWatchWebcams.aspx"
+  },
+  {
+    "name": "Coho Ferry Port Angeles",
+    "country": "US",
+    "city": "Port Angeles",
+    "tz": "America/Los_Angeles",
+    "lat": 48.1142,
+    "lng": -123.4342,
+    "url": "https://cohoferry.com/webcam/"
+  },
+  {
+    "name": "WA State Ferries Fauntleroy",
+    "country": "US",
+    "city": "Seattle",
+    "tz": "America/Los_Angeles",
+    "lat": 47.5231,
+    "lng": -122.3946,
+    "url": "https://www.wsdot.com/ferries/vesselwatch/VesselWatchWebcams.aspx"
+  },
+  {
+    "name": "Martha's Vineyard",
+    "country": "US",
+    "city": "Woods Hole",
+    "tz": "America/New_York",
+    "lat": 41.527,
+    "lng": -70.664,
+    "url": "https://www.steamshipauthority.com/webcam"
+  },
+  {
+    "name": "Staten Island Ferry",
+    "country": "US",
+    "city": "New York",
+    "tz": "America/New_York",
+    "lat": 40.6433,
+    "lng": -74.0736,
+    "url": "https://www.siferry.com/"
+  },
+  {
+    "name": "Alaska Marine Highway",
+    "country": "US",
+    "city": "Juneau",
+    "tz": "America/Anchorage",
+    "lat": 58.3019,
+    "lng": -134.42,
+    "url": "https://www.dot.state.ak.us/amhs/webcams.shtml"
+  },
+  {
+    "name": "BC Ferries Horseshoe Bay",
+    "country": "CA",
+    "city": "West Vancouver",
+    "tz": "America/Vancouver",
+    "lat": 49.3733,
+    "lng": -123.2633,
+    "url": "https://www.bcferries.com/current-conditions/"
+  }
+]

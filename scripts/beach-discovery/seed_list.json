@@ -1,0 +1,137 @@
+[
+  {
+    "name": "Pipeline, Oahu",
+    "country": "US",
+    "city": "Haleiwa",
+    "tz": "Pacific/Honolulu",
+    "lat": 21.6659,
+    "lng": -158.0536,
+    "url": "https://www.surfline.com/surf-report/pipeline-584204184"
+  },
+  {
+    "name": "Waikiki Beach",
+    "country": "US",
+    "city": "Honolulu",
+    "tz": "Pacific/Honolulu",
+    "lat": 21.2793,
+    "lng": -157.8292,
+    "url": "https://www.surfline.com/surf-report/waikiki-beach-584204196"
+  },
+  {
+    "name": "Huntington Beach Pier",
+    "country": "US",
+    "city": "Huntington Beach",
+    "tz": "America/Los_Angeles",
+    "lat": 33.6603,
+    "lng": -117.9992,
+    "url": "https://www.surfline.com/surf-report/huntington-beach-pier-584204200"
+  },
+  {
+    "name": "Malibu Surfrider",
+    "country": "US",
+    "city": "Malibu",
+    "tz": "America/Los_Angeles",
+    "lat": 34.0259,
+    "lng": -118.7798,
+    "url": "https://www.surfline.com/surf-report/malibu-584204198"
+  },
+  {
+    "name": "Trestles",
+    "country": "US",
+    "city": "San Clemente",
+    "tz": "America/Los_Angeles",
+    "lat": 33.37,
+    "lng": -117.6125,
+    "url": "https://www.surfline.com/surf-report/lower-trestles-584204202"
+  },
+  {
+    "name": "Ocean City",
+    "country": "US",
+    "city": "Ocean City",
+    "tz": "America/New_York",
+    "lat": 38.3368,
+    "lng": -75.0847,
+    "url": "https://www.surfline.com/surf-report/ocean-city-584204219"
+  },
+  {
+    "name": "Virginia Beach",
+    "country": "US",
+    "city": "Virginia Beach",
+    "tz": "America/New_York",
+    "lat": 36.8529,
+    "lng": -75.978,
+    "url": "https://www.surfline.com/surf-report/virginia-beach-584204220"
+  },
+  {
+    "name": "Cocoa Beach",
+    "country": "US",
+    "city": "Cocoa Beach",
+    "tz": "America/New_York",
+    "lat": 28.3554,
+    "lng": -80.604,
+    "url": "https://www.surfline.com/surf-report/cocoa-beach-584204224"
+  },
+  {
+    "name": "Bondi Beach",
+    "country": "AU",
+    "city": "Sydney",
+    "tz": "Australia/Sydney",
+    "lat": -33.8915,
+    "lng": 151.2767,
+    "url": "https://www.surfline.com/surf-report/bondi-beach-584214192"
+  },
+  {
+    "name": "Pipeline, Oahu",
+    "country": "US",
+    "city": "Haleiwa",
+    "tz": "Pacific/Honolulu",
+    "lat": 21.6659,
+    "lng": -158.0536,
+    "url": "https://magicseaweed.com/Pipeline-Surf-Report/36/"
+  },
+  {
+    "name": "Mavericks",
+    "country": "US",
+    "city": "Half Moon Bay",
+    "tz": "America/Los_Angeles",
+    "lat": 37.494,
+    "lng": -122.488,
+    "url": "https://magicseaweed.com/Mavericks-Surf-Report/4211/"
+  },
+  {
+    "name": "Teahupoo",
+    "country": "PF",
+    "city": "Taiarapu",
+    "tz": "Pacific/Tahiti",
+    "lat": -17.842,
+    "lng": -149.267,
+    "url": "https://magicseaweed.com/Teahupoo-Surf-Report/40/"
+  },
+  {
+    "name": "Nazare",
+    "country": "PT",
+    "city": "Nazar\u00e9",
+    "tz": "Europe/Lisbon",
+    "lat": 39.602,
+    "lng": -9.0703,
+    "url": "https://magicseaweed.com/Nazare-Surf-Report/4235/"
+  },
+  {
+    "name": "Jaws, Maui",
+    "country": "US",
+    "city": "Paia",
+    "tz": "Pacific/Honolulu",
+    "lat": 20.9433,
+    "lng": -156.3083,
+    "url": "https://magicseaweed.com/Peahi-Jaws-Surf-Report/4210/"
+  },
+  {
+    "name": "Snapper Rocks",
+    "country": "AU",
+    "city": "Gold Coast",
+    "tz": "Australia/Brisbane",
+    "lat": -28.1667,
+    "lng": 153.5333,
+    "url": "https://magicseaweed.com/Snapper-Rocks-Surf-Report/28/"
+  }
+]

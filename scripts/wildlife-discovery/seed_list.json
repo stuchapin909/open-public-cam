@@ -1,0 +1,92 @@
+[
+  {
+    "name": "Cornell Lab Feeders",
+    "country": "US",
+    "city": "Ithaca",
+    "tz": "America/New_York",
+    "lat": 42.4534,
+    "lng": -76.4764,
+    "url": "https://www.allaboutbirds.org/cams/"
+  },
+  {
+    "name": "Explore.org Cams",
+    "country": "US",
+    "city": "Santa Monica",
+    "tz": "America/Los_Angeles",
+    "lat": 34.0195,
+    "lng": -118.4912,
+    "url": "https://explore.org/livecams"
+  },
+  {
+    "name": "African Safari Cams",
+    "country": "KE",
+    "city": "Nairobi",
+    "tz": "Africa/Nairobi",
+    "lat": -1.2921,
+    "lng": 36.8219,
+    "url": "https://www.camscape.com/webcam/safari-cam-in-the-masai-mara-kenya/"
+  },
+  {
+    "name": "Brown Bears Brooks Falls",
+    "country": "US",
+    "city": "King Salmon",
+    "tz": "America/Anchorage",
+    "lat": 58.54,
+    "lng": -155.795,
+    "url": "https://www.nps.gov/katm/learn/photosmultimedia/webcams.htm"
+  },
+  {
+    "name": "Katmai NP Cams",
+    "country": "US",
+    "city": "King Salmon",
+    "tz": "America/Anchorage",
+    "lat": 58.54,
+    "lng": -155.795,
+    "url": "https://www.nps.gov/katm/learn/photosmultimedia/webcams.htm"
+  },
+  {
+    "name": "Yellowstone NP Cams",
+    "country": "US",
+    "city": "West Yellowstone",
+    "tz": "America/Denver",
+    "lat": 44.428,
+    "lng": -110.5885,
+    "url": "https://www.nps.gov/yell/learn/photosmultimedia/webcams.htm"
+  },
+  {
+    "name": "National Park Service",
+    "country": "US",
+    "city": "Washington",
+    "tz": "America/New_York",
+    "lat": 38.8951,
+    "lng": -77.0364,
+    "url": "https://www.nps.gov/subjects/webcams.htm"
+  },
+  {
+    "name": "Osprey Hellgate",
+    "country": "US",
+    "city": "Missoula",
+    "tz": "America/Denver",
+    "lat": 46.8721,
+    "lng": -113.994,
+    "url": "https://www.allaboutbirds.org/cams/hellgate-ospreys/"
+  },
+  {
+    "name": "Decorah Eagles",
+    "country": "US",
+    "city": "Decorah",
+    "tz": "America/Chicago",
+    "lat": 43.3067,
+    "lng": -91.7856,
+    "url": "https://www.raptorresource.org/birdcams/decorah-eagles/"
+  },
+  {
+    "name": "Kamfers Dam Flamingos",
+    "country": "ZA",
+    "city": "Kimberley",
+    "tz": "Africa/Johannesburg",
+    "lat": -28.737,
+    "lng": 24.721,
+    "url": "https://www.camscape.com/webcam/kamfers-dam-flamingo-webcam/"
+  }
+]

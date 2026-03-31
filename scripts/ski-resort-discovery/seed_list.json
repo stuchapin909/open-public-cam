@@ -1,0 +1,317 @@
+[
+  {
+    "resort": "Arapahoe Basin",
+    "state": "CO",
+    "url": "https://www.arapahoebasin.com/mountain-cams/"
+  },
+  {
+    "resort": "Copper Mountain",
+    "state": "CO",
+    "url": "https://www.coppercolorado.com/the-mountain/webcams/"
+  },
+  {
+    "resort": "Eldora",
+    "state": "CO",
+    "url": "https://www.eldora.com/the-mountain/webcams/snow-stake-cam/"
+  },
+  {
+    "resort": "Monarch",
+    "state": "CO",
+    "url": "https://www.skimonarch.com/conditions/cams/"
+  },
+  {
+    "resort": "Snowbasin",
+    "state": "CO",
+    "url": "https://www.snowbasin.com/the-mountain/web-cams"
+  },
+  {
+    "resort": "Purgatory",
+    "state": "CO",
+    "url": "https://www.purgatoryresort.com/mountain/webcams"
+  },
+  {
+    "resort": "Wolf Creek",
+    "state": "CO",
+    "url": "https://www.wolfcreekski.com/webcam"
+  },
+  {
+    "resort": "Sunlight",
+    "state": "CO",
+    "url": "https://www.sunlightmtn.com/webcam"
+  },
+  {
+    "resort": "Ski Cooper",
+    "state": "CO",
+    "url": "https://www.skicooper.com/webcams"
+  },
+  {
+    "resort": "Powderhorn",
+    "state": "CO",
+    "url": "https://www.powderhorn.com/mountain/webcams"
+  },
+  {
+    "resort": "Aspen Snowmass",
+    "state": "CO",
+    "url": "https://www.aspensnowmass.com/mountain/webcams"
+  },
+  {
+    "resort": "Vail",
+    "state": "CO",
+    "url": "https://www.vail.com/mountain/webcams.aspx"
+  },
+  {
+    "resort": "Breckenridge",
+    "state": "CO",
+    "url": "https://www.breckenridge.com/mountain/webcams"
+  },
+  {
+    "resort": "Keystone",
+    "state": "CO",
+    "url": "https://www.keystoneresort.com/mountain/webcams"
+  },
+  {
+    "resort": "Beaver Creek",
+    "state": "CO",
+    "url": "https://www.beavercreek.com/mountain/webcams"
+  },
+  {
+    "resort": "Snowbird",
+    "state": "UT",
+    "url": "https://www.snowbird.com/mountain/webcams/"
+  },
+  {
+    "resort": "Alta",
+    "state": "UT",
+    "url": "https://www.alta.com/conditions/webcams"
+  },
+  {
+    "resort": "Brighton",
+    "state": "UT",
+    "url": "https://www.brightonresort.com/conditions/webcams"
+  },
+  {
+    "resort": "Solitude",
+    "state": "UT",
+    "url": "https://www.skisolitude.com/mountain/webcams"
+  },
+  {
+    "resort": "Deer Valley",
+    "state": "UT",
+    "url": "https://www.deervalley.com/mountain/webcams"
+  },
+  {
+    "resort": "Park City",
+    "state": "UT",
+    "url": "https://www.parkcitymountain.com/mountain/webcams"
+  },
+  {
+    "resort": "Snowbasin",
+    "state": "UT",
+    "url": "https://www.snowbasin.com/the-mountain/web-cams"
+  },
+  {
+    "resort": "Jackson Hole",
+    "state": "WY",
+    "url": "https://www.jacksonhole.com/mountain/webcams"
+  },
+  {
+    "resort": "Grand Targhee",
+    "state": "WY",
+    "url": "https://www.grandtarghee.com/the-mountain/cams-conditions/mountain-report"
+  },
+  {
+    "resort": "Mammoth",
+    "state": "CA",
+    "url": "https://www.mammothmountain.com/webcams"
+  },
+  {
+    "resort": "Palisades Tahoe",
+    "state": "CA",
+    "url": "https://www.palisadestahoe.com/mountain/webcams"
+  },
+  {
+    "resort": "Heavenly",
+    "state": "CA",
+    "url": "https://www.skiheavenly.com/mountain/webcams"
+  },
+  {
+    "resort": "Northstar",
+    "state": "CA",
+    "url": "https://www.northstarcalifornia.com/mountain/webcams"
+  },
+  {
+    "resort": "Kirkwood",
+    "state": "CA",
+    "url": "https://www.kirkwood.com/mountain/webcams"
+  },
+  {
+    "resort": "Squaw Valley",
+    "state": "CA",
+    "url": "https://www.squawalpine.com/mountain/webcams"
+  },
+  {
+    "resort": "Sierra-at-Tahoe",
+    "state": "CA",
+    "url": "https://www.sierraattahoe.com/mountain/webcams"
+  },
+  {
+    "resort": "Boreal",
+    "state": "CA",
+    "url": "https://www.rideboreal.com/webcams"
+  },
+  {
+    "resort": "June Mountain",
+    "state": "CA",
+    "url": "https://www.junemountain.com/mountain/webcams"
+  },
+  {
+    "resort": "Diamond Peak",
+    "state": "NV",
+    "url": "https://www.diamondpeak.com/mountain/webcams"
+  },
+  {
+    "resort": "Mt Baker",
+    "state": "WA",
+    "url": "https://www.mtbaker.us/conditions/webcams"
+  },
+  {
+    "resort": "Stevens Pass",
+    "state": "WA",
+    "url": "https://www.stevenspass.com/site/mountain/webcams"
+  },
+  {
+    "resort": "Crystal Mountain",
+    "state": "WA",
+    "url": "https://www.crystalmountainresort.com/mountain/webcams/"
+  },
+  {
+    "resort": "Mt Bachelor",
+    "state": "OR",
+    "url": "https://www.mtbachelor.com/webcams/"
+  },
+  {
+    "resort": "Timberline Lodge",
+    "state": "OR",
+    "url": "https://www.timberlinelodge.com/mountain/webcams"
+  },
+  {
+    "resort": "Mt Hood Meadows",
+    "state": "OR",
+    "url": "https://www.skihood.com/mountain/webcams"
+  },
+  {
+    "resort": "Sugarloaf",
+    "state": "ME",
+    "url": "https://www.sugarloaf.com/mountain/webcams"
+  },
+  {
+    "resort": "Sunday River",
+    "state": "ME",
+    "url": "https://www.sundayriver.com/mountain-conditions/webcams"
+  },
+  {
+    "resort": "Killington",
+    "state": "VT",
+    "url": "https://www.killington.com/mountain/webcams"
+  },
+  {
+    "resort": "Stowe",
+    "state": "VT",
+    "url": "https://www.stowe.com/mountain/webcams"
+  },
+  {
+    "resort": "Sugarbush",
+    "state": "VT",
+    "url": "https://www.sugarbush.com/mountain-report/webcams"
+  },
+  {
+    "resort": "Jay Peak",
+    "state": "VT",
+    "url": "https://www.jaypeakresort.com/mountain/webcams"
+  },
+  {
+    "resort": "Smugglers Notch",
+    "state": "VT",
+    "url": "https://www.smuggs.com/mountain/webcams"
+  },
+  {
+    "resort": "Wildcat",
+    "state": "NH",
+    "url": "https://www.skiwildcat.com/mountain/webcams"
+  },
+  {
+    "resort": "Loon Mountain",
+    "state": "NH",
+    "url": "https://www.loonmtn.com/mountain/webcams"
+  },
+  {
+    "resort": "Sunday River",
+    "state": "ME",
+    "url": "https://www.sundayriver.com/mountain-conditions/webcams"
+  },
+  {
+    "resort": "Big Sky",
+    "state": "MT",
+    "url": "https://www.bigsky.com/mountain/webcams"
+  },
+  {
+    "resort": "Whitefish",
+    "state": "MT",
+    "url": "https://www.skiwhitefish.com/mountain/webcams"
+  },
+  {
+    "resort": "Schweitzer",
+    "state": "ID",
+    "url": "https://www.schweitzer.com/mountain-info/webcam"
+  },
+  {
+    "resort": "Bogus Basin",
+    "state": "ID",
+    "url": "https://www.bogusbasin.org/mountain/webcams"
+  },
+  {
+    "resort": "Taos",
+    "state": "NM",
+    "url": "https://www.skitaos.com/mountain-conditions/webcams"
+  },
+  {
+    "resort": "Angel Fire",
+    "state": "NM",
+    "url": "https://www.angelfireresort.com/mountain/webcams"
+  },
+  {
+    "resort": "Lutsen Mountains",
+    "state": "MN",
+    "url": "https://www.lutsen.com/mountain/webcams"
+  },
+  {
+    "resort": "Boyne Highlands",
+    "state": "MI",
+    "url": "https://www.boynehighlands.com/mountain/webcams"
+  },
+  {
+    "resort": "Whistler Blackcomb",
+    "state": "BC",
+    "url": "https://www.whistler.com/mountain/webcams/"
+  },
+  {
+    "resort": "Banff Lake Louise",
+    "state": "AB",
+    "url": "https://www.banfflakelouise.com/mountain/webcams"
+  },
+  {
+    "resort": "Revelstoke",
+    "state": "BC",
+    "url": "https://www.revelstokemountainresort.com/mountain/webcams"
+  },
+  {
+    "resort": "Sun Peaks",
+    "state": "BC",
+    "url": "https://www.sunpeaksresort.com/mountain/webcams"
+  },
+  {
+    "resort": "Big White",
+    "state": "BC",
+    "url": "https://www.bigwhite.com/mountain/webcams"
+  }
+]

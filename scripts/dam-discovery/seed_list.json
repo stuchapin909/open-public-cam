@@ -1,0 +1,92 @@
+[
+  {
+    "name": "Hoover Dam",
+    "country": "US",
+    "city": "Boulder City",
+    "tz": "America/Los_Angeles",
+    "lat": 36.016,
+    "lng": -114.7377,
+    "url": "https://www.usbr.gov/lc/hooverdam/webcam/"
+  },
+  {
+    "name": "Grand Coulee Dam",
+    "country": "US",
+    "city": "Grand Coulee",
+    "tz": "America/Los_Angeles",
+    "lat": 47.9578,
+    "lng": -118.9867,
+    "url": "https://www.usbr.gov/pn/grandcoulee/webcam.html"
+  },
+  {
+    "name": "Bonneville Dam",
+    "country": "US",
+    "city": "Cascade Locks",
+    "tz": "America/Los_Angeles",
+    "lat": 45.6387,
+    "lng": -121.9422,
+    "url": "https://www.usbr.gov/pn/bonneville/"
+  },
+  {
+    "name": "Glen Canyon Dam",
+    "country": "US",
+    "city": "Page",
+    "tz": "America/Denver",
+    "lat": 36.9417,
+    "lng": -111.4872,
+    "url": "https://www.usbr.gov/uc/rm/crsp/webcam.html"
+  },
+  {
+    "name": "Shasta Dam",
+    "country": "US",
+    "city": "Shasta Lake",
+    "tz": "America/Los_Angeles",
+    "lat": 40.7183,
+    "lng": -122.4197,
+    "url": "https://www.usbr.gov/mp/shasta/"
+  },
+  {
+    "name": "Three Gorges Dam",
+    "country": "CN",
+    "city": "Yichang",
+    "tz": "Asia/Shanghai",
+    "lat": 30.8222,
+    "lng": 111.0033,
+    "url": "https://www.ctg.com.cn/en/"
+  },
+  {
+    "name": "Itaipu Dam",
+    "country": "BR",
+    "city": "Foz do Igua\u00e7u",
+    "tz": "America/Sao_Paulo",
+    "lat": -25.4083,
+    "lng": -54.5886,
+    "url": "https://www.itaipu.gov.br/en/webcams"
+  },
+  {
+    "name": "Chief Joseph Dam",
+    "country": "US",
+    "city": "Bridgeport",
+    "tz": "America/Los_Angeles",
+    "lat": 47.9933,
+    "lng": -119.78,
+    "url": "https://www.usbr.gov/pn/chiefjoseph/"
+  },
+  {
+    "name": "The Dalles Dam",
+    "country": "US",
+    "city": "The Dalles",
+    "tz": "America/Los_Angeles",
+    "lat": 45.595,
+    "lng": -121.1747,
+    "url": "https://www.usbr.gov/pn/dalles/"
+  },
+  {
+    "name": "Davis Dam",
+    "country": "US",
+    "city": "Bullhead City",
+    "tz": "America/Los_Angeles",
+    "lat": 35.005,
+    "lng": -114.7183,
+    "url": "https://www.usbr.gov/lc/region/programs/davis/"
+  }
+]

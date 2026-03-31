@@ -1,0 +1,128 @@
+[
+  {
+    "name": "Kilauea",
+    "country": "US",
+    "city": "Volcano",
+    "tz": "Pacific/Honolulu",
+    "lat": 19.4069,
+    "lng": -155.2834,
+    "url": "https://www.usgs.gov/volcanoes/kilauea/webcams"
+  },
+  {
+    "name": "Mount St Helens",
+    "country": "US",
+    "city": "Coulee Dam",
+    "tz": "America/Los_Angeles",
+    "lat": 46.1914,
+    "lng": -122.1957,
+    "url": "https://www.usgs.gov/volcanoes/mount-st-helens/webcams"
+  },
+  {
+    "name": "Mount Rainier",
+    "country": "US",
+    "city": "Tacoma",
+    "tz": "America/Los_Angeles",
+    "lat": 46.8523,
+    "lng": -121.7603,
+    "url": "https://www.usgs.gov/volcanoes/mount-rainier/webcams"
+  },
+  {
+    "name": "Etna",
+    "country": "IT",
+    "city": "Catania",
+    "tz": "Europe/Rome",
+    "lat": 37.751,
+    "lng": 14.9934,
+    "url": "https://www.ct.ingv.it/en/webcam-etna"
+  },
+  {
+    "name": "Stromboli",
+    "country": "IT",
+    "city": "Messina",
+    "tz": "Europe/Rome",
+    "lat": 38.788,
+    "lng": 15.2133,
+    "url": "https://www.ct.ingv.it/en/webcam-stromboli"
+  },
+  {
+    "name": "Vesuvius",
+    "country": "IT",
+    "city": "Naples",
+    "tz": "Europe/Rome",
+    "lat": 40.849,
+    "lng": 14.427,
+    "url": "https://www.ov.ingv.it/ov/webcam-vesuvio"
+  },
+  {
+    "name": "Sakurajima",
+    "country": "JP",
+    "city": "Kagoshima",
+    "tz": "Asia/Tokyo",
+    "lat": 31.5847,
+    "lng": 130.6575,
+    "url": "https://www.city.kagoshima.lg.jp/tenmon/category_16.html"
+  },
+  {
+    "name": "Popocatepetl",
+    "country": "MX",
+    "city": "Puebla",
+    "tz": "America/Mexico_City",
+    "lat": 19.023,
+    "lng": -98.622,
+    "url": "https://www.cenapred.unam.mx/popo/I.html"
+  },
+  {
+    "name": "Colima",
+    "country": "MX",
+    "city": "Colima",
+    "tz": "America/Mexico_City",
+    "lat": 19.514,
+    "lng": -103.62,
+    "url": "https://www.ucol.mx/volcan/colima/webcam.html"
+  },
+  {
+    "name": "White Island",
+    "country": "NZ",
+    "city": "Bay of Plenty",
+    "tz": "Pacific/Auckland",
+    "lat": -37.5213,
+    "lng": 177.1848,
+    "url": "https://www.geonet.org.nz/volcano/whiteisland"
+  },
+  {
+    "name": "Ruapehu",
+    "country": "NZ",
+    "city": "Ruapehu",
+    "tz": "Pacific/Auckland",
+    "lat": -39.28,
+    "lng": 175.564,
+    "url": "https://www.geonet.org.nz/volcano/ruapehu"
+  },
+  {
+    "name": "Fuego",
+    "country": "GT",
+    "city": "Antigua",
+    "tz": "America/Guatemala",
+    "lat": 14.473,
+    "lng": -90.88,
+    "url": "https://www.insivumeh.gob.gt/"
+  },
+  {
+    "name": "Sinabung",
+    "country": "ID",
+    "city": "Karo",
+    "tz": "Asia/Jakarta",
+    "lat": 3.17,
+    "lng": 98.392,
+    "url": "https://magma.esdm.go.id/vulkan/sinabung/"
+  },
+  {
+    "name": "Merapi",
+    "country": "ID",
+    "city": "Yogyakarta",
+    "tz": "Asia/Jakarta",
+    "lat": -7.5407,
+    "lng": 110.4457,
+    "url": "https://magma.esdm.go.id/vulkan/merapi/"
+  }
+]
