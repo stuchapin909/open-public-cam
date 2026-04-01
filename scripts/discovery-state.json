@@ -17,7 +17,9 @@
   ],
   "construction": [
     "https://www.earthcam.com/projects/construction/",
-    "https://www.webcampedia.com/"
+    "https://www.webcampedia.com/",
+    "https://livewebcamstream.com/?tag=construction",
+    "https://www.webcamtaxi.com/en/construction.html"
   ],
   "dam": [
     "https://www.usgs.gov/mission-areas/water-resources/multimedia/webcams",
@@ -54,9 +56,13 @@
   "volcano": [
     "https://www.volcanodiscovery.com/volcano-webcams.html",
     "https://www.avo.alaska.edu/webcam/",
-    "https://www.geonet.org.nz/volcano/cameras"
+    "https://www.geonet.org.nz/volcano/cameras",
+    "https://volcanolive.com/volcanocams.html",
+    "https://www.webcamexplore.com/categories/volcano"
   ],
   "wildlife": [
-    "https://hdontap.com"
+    "https://hdontap.com",
+    "https://pixcams.com/live-cams-index/",
+    "https://www.everywebcam.com/animals"
   ]
 }
