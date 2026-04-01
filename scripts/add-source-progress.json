@@ -318,5 +318,14 @@
     "status": "added",
     "cameras": 538,
     "date": "2026-04-01"
+  },
+  "ch": {
+    "status": "added",
+    "cameras": 11,
+    "date": "2026-04-01"
+  },
+  "in": {
+    "status": "blocked",
+    "reason": "No publicly accessible traffic camera image APIs found; all systems behind auth, JS-rendered SPAs, or offline"
   }
 }
