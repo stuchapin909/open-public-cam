@@ -15,9 +15,15 @@
     "https://www.earthcam.com/projects/construction/",
     "https://www.webcampedia.com/"
   ],
-  "dam": [],
-  "ferry": [],
-  "stadium": [],
+  "dam": [
+    "https://www.usgs.gov/mission-areas/water-resources/multimedia/webcams"
+  ],
+  "ferry": [
+    "https://www.skagitcounty.net/Departments/PublicWorksFerry/ferrycams.htm"
+  ],
+  "stadium": [
+    "https://webcamexpo.com/category/stadium/"
+  ],
   "volcano": [],
   "wildlife": []
 }
