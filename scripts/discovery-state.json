@@ -9,25 +9,54 @@
     "https://www.aurorawebcams.com/webcams-map"
   ],
   "beach": [
-    "https://www.skylinewebcams.com/en/live-cams-category/beach-cams.html"
+    "https://www.skylinewebcams.com/en/live-cams-category/beach-cams.html",
+    "https://earthcam.com/beaches/",
+    "https://animalcameras.com/",
+    "https://worldcams.tv/animals/",
+    "https://pixcams.com/"
   ],
   "construction": [
     "https://www.earthcam.com/projects/construction/",
     "https://www.webcampedia.com/"
   ],
   "dam": [
-    "https://www.usgs.gov/mission-areas/water-resources/multimedia/webcams"
+    "https://www.usgs.gov/mission-areas/water-resources/multimedia/webcams",
+    "https://www.hooverdamtours.org/webcams/",
+    "https://www.usbr.gov/newsroom/news-release/5195",
+    "https://worldcam.eu/webcams/south-america/colombia/29132-ituango-hydroelectric",
+    "https://www.webcamtaxi.com/en/usa/california/lake-oroville-dam.html",
+    "https://hublives.com/webcam/hydroelectric-dam",
+    "https://webcam.scs.com.ua/en/europe/russia/irkutsk/dam/"
   ],
   "ferry": [
-    "https://www.skagitcounty.net/Departments/PublicWorksFerry/ferrycams.htm"
+    "https://www.skagitcounty.net/Departments/PublicWorksFerry/ferrycams.htm",
+    "https://www.cmlf.com/check-traffic-live-webcam-feeds/",
+    "https://worldcams.tv/ships/",
+    "https://wisferry.com/webcams/",
+    "https://www.whidbeytel.com/cams/clinton/",
+    "https://www.mangolinkworld.com/webcams/transport/transport-ferries.html"
   ],
   "stadium": [
-    "https://webcamexpo.com/category/stadium/"
+    "https://webcamexpo.com/category/stadium/",
+    "https://www.earthcam.com/usa/nevada/lasvegas/stadium/",
+    "https://www.earthcam.com/cams/baseball/",
+    "https://www.mangolinkworld.com/webcams/sport/sport-american-football.html",
+    "https://www.skylinewebcams.com/en/webcam/united-states/missouri/saint-louis/stadium.html",
+    "https://mericacams.com/webcam.php?view=Raymond-James-Stadium",
+    "https://spotcameras.com/en/cams/United-States/Missouri/32386-Saint-Louis-St.-Louis-Missouri-USA-View-of-the-baseball-stadium-Busch-Stadium-from-the-pub-Ballpark-Village",
+    "https://www.ventusky.com/webcam-483052995",
+    "https://share.earthcam.net/tJ90CoLmq7TzrY396Yd88EKI3k5wffErrxLajIfZhDw!/00_overall_site-client/00_overall_site-client/live",
+    "https://www.mlb.com/athletics/las-vegas-ballpark/construction-cam",
+    "https://www.earthcam.net/projects/new_Nissan_Stadium_construction/",
+    "https://kugatewaydistrict.com/live-cameras/",
+    "https://www.fox29.com/philadelphia-stadium-complex-webcam"
   ],
   "volcano": [
     "https://www.volcanodiscovery.com/volcano-webcams.html",
     "https://www.avo.alaska.edu/webcam/",
     "https://www.geonet.org.nz/volcano/cameras"
   ],
-  "wildlife": []
+  "wildlife": [
+    "https://hdontap.com"
+  ]
 }
