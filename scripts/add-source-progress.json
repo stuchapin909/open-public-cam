@@ -313,5 +313,10 @@
     "status": "added",
     "cameras": 247,
     "date": "2026-03-31"
+  },
+  "us-wyoming": {
+    "status": "added",
+    "cameras": 538,
+    "date": "2026-04-01"
   }
 }
