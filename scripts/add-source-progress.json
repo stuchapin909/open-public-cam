@@ -60,5 +60,9 @@
   "me": {"status": "blocked", "reason": "Monteput WordPress site, no camera image URLs"},
   "ba": {"status": "blocked", "reason": "JP Autoceste WordPress site, no camera image URLs"},
   "hu": {"status": "blocked", "reason": "UTInform returns 403 Forbidden"},
-  "ro": {"status": "blocked", "reason": "CNADNR blocked by WAF"}
+  "ro": {"status": "blocked", "reason": "CNADNR blocked by WAF"},
+  "us-illinois": {"status": "added", "cameras": 34, "date": "2026-04-01"},
+  "mx": {"status": "blocked", "reason": "All .gob.mx domains unreachable from WSL; SkylineWebcams returns branded placeholder images, not real feeds"},
+  "ar": {"status": "blocked", "reason": "All sources behind WAF, JS-rendered SPAs, or DNS failure; no public camera image API found"},
+  "pt": {"status": "blocked", "reason": "IP SIGIP ArcGIS API decommissioned; remaining operators (Brisa, EMEL) have no public camera API"}
 }
