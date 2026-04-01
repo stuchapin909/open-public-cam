@@ -5,10 +5,14 @@
     "https://www.usbr.gov/pn/bonneville/",
     "https://www.ctg.com.cn/en/",
     "https://www.usbr.gov/uc/rm/crsp/webcam.html",
-    "https://www.usbr.gov/pn/grandcoulee/webcam.html"
+    "https://www.usbr.gov/pn/grandcoulee/webcam.html",
+    "https://www.itaipu.gov.br/en/webcams",
+    "https://www.usbr.gov/pn/chiefjoseph/",
+    "https://www.usbr.gov/pn/dalles/",
+    "https://www.usbr.gov/lc/region/programs/davis/"
   ],
   "discovered_cameras": [],
-  "last_run": "2026-04-01T00:42:10.601940Z",
+  "last_run": "2026-04-01T03:12:17.040748+00:00",
   "results": {
     "https://www.usbr.gov/uc/rm/crsp/webcam.html": {
       "status": "no_cams",
@@ -21,6 +25,22 @@
     "https://www.ctg.com.cn/en/": {
       "status": "no_cams",
       "reason": "No image URLs found"
+    },
+    "https://www.itaipu.gov.br/en/webcams": {
+      "status": "no_cams",
+      "reason": "Page exists but only has wp-content corporate images, no webcam feeds"
+    },
+    "https://www.usbr.gov/pn/chiefjoseph/": {
+      "status": "no_cams",
+      "reason": "404 Not Found"
+    },
+    "https://www.usbr.gov/pn/dalles/": {
+      "status": "no_cams",
+      "reason": "404 Not Found"
+    },
+    "https://www.usbr.gov/lc/region/programs/davis/": {
+      "status": "no_cams",
+      "reason": "404 Not Found"
     }
   }
 }

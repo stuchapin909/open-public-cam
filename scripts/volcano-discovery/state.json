@@ -5,7 +5,12 @@
     "https://www.usgs.gov/volcanoes/mount-rainier/webcams",
     "https://www.usgs.gov/volcanoes/mount-st-helens/webcams",
     "https://www.ct.ingv.it/en/webcam-stromboli",
-    "https://www.usgs.gov/volcanoes/kilauea/webcams"
+    "https://www.usgs.gov/volcanoes/kilauea/webcams",
+    "https://www.city.kagoshima.lg.jp/tenmon/category_16.html",
+    "https://www.cenapred.unam.mx/popo/I.html",
+    "https://www.ucol.mx/volcan/colima/webcam.html",
+    "https://www.geonet.org.nz/volcano/whiteisland",
+    "https://www.geonet.org.nz/volcano/ruapehu"
   ],
   "discovered_cameras": [
     "https://volcanoes.usgs.gov/observatories/hvo/cams/KWcam/images/M.jpg",
@@ -15,9 +20,11 @@
     "https://volcanoes.usgs.gov/cams/V3cam/images/M.jpg",
     "https://volcanoes.usgs.gov/vsc/captures/kilauea/hpcam.jpg",
     "https://volcanoes.usgs.gov/cams/MITDcam/images/M.jpg",
-    "https://volcanoes.usgs.gov/cams/KPcam/images/M.jpg"
+    "https://volcanoes.usgs.gov/cams/KPcam/images/M.jpg",
+    "https://images.geonet.org.nz/volcano/cameras/latest/tongariro.jpg",
+    "https://images.geonet.org.nz/volcano/cameras/latest/ngauruhoe.jpg"
   ],
-  "last_run": "2026-04-01T00:42:10.601940Z",
+  "last_run": "2026-04-01T03:11:28.411300+00:00",
   "results": {
     "https://www.ct.ingv.it/en/webcam-etna": {
       "status": "no_cams",
@@ -30,6 +37,28 @@
     "https://www.ov.ingv.it/ov/webcam-vesuvio": {
       "status": "no_cams",
       "reason": "Page loads but no live cam images found"
+    },
+    "https://www.city.kagoshima.lg.jp/tenmon/category_16.html": {
+      "status": "no_cams",
+      "reason": "404 Not Found"
+    },
+    "https://www.cenapred.unam.mx/popo/I.html": {
+      "status": "no_cams",
+      "reason": "Timeout/connection failed"
+    },
+    "https://www.ucol.mx/volcan/colima/webcam.html": {
+      "status": "no_cams",
+      "reason": "404 Not Found"
+    },
+    "https://www.geonet.org.nz/volcano/whiteisland": {
+      "status": "found",
+      "cameras_found": 2,
+      "note": "GeoNet API: images.geonet.org.nz/volcano/cameras/latest/{id}.jpg - found tongariro and ngauruhoe"
+    },
+    "https://www.geonet.org.nz/volcano/ruapehu": {
+      "status": "found",
+      "cameras_found": 0,
+      "note": "Same GeoNet API as whiteisland page, cameras discovered via API exploration"
     }
   }
 }

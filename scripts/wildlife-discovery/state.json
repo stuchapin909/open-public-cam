@@ -4,12 +4,16 @@
     "https://www.nps.gov/yell/learn/photosmultimedia/webcams.htm",
     "https://www.allaboutbirds.org/cams/",
     "https://www.camscape.com/webcam/safari-cam-in-the-masai-mara-kenya/",
-    "https://www.nps.gov/katm/learn/photosmultimedia/webcams.htm"
+    "https://www.nps.gov/katm/learn/photosmultimedia/webcams.htm",
+    "https://www.nps.gov/subjects/webcams.htm",
+    "https://www.allaboutbirds.org/cams/hellgate-ospreys/",
+    "https://www.raptorresource.org/birdcams/decorah-eagles/",
+    "https://www.camscape.com/webcam/kamfers-dam-flamingo-webcam/"
   ],
   "discovered_cameras": [
     "https://files.explore.org/files/Live-Bald-Eagle-Cam-Decorah-Iowa-035375521.jpg"
   ],
-  "last_run": "2026-04-01T00:42:10.601940Z",
+  "last_run": "2026-04-01T03:12:17.040748+00:00",
   "results": {
     "https://www.nps.gov/katm/learn/photosmultimedia/webcams.htm": {
       "status": "no_cams",
@@ -18,6 +22,22 @@
     "https://www.nps.gov/yell/learn/photosmultimedia/webcams.htm": {
       "status": "found",
       "cameras_found": 9
+    },
+    "https://www.nps.gov/subjects/webcams.htm": {
+      "status": "no_cams",
+      "reason": "404 Not Found"
+    },
+    "https://www.allaboutbirds.org/cams/hellgate-ospreys/": {
+      "status": "no_cams",
+      "reason": "YouTube live stream embed, no direct JPEG"
+    },
+    "https://www.raptorresource.org/birdcams/decorah-eagles/": {
+      "status": "no_cams",
+      "reason": "403 Forbidden"
+    },
+    "https://www.camscape.com/webcam/kamfers-dam-flamingo-webcam/": {
+      "status": "no_cams",
+      "reason": "Directory site, no direct webcam feeds"
     }
   }
 }

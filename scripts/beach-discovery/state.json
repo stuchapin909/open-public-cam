@@ -5,10 +5,19 @@
     "https://www.surfline.com/surf-report/malibu-584204198",
     "https://www.surfline.com/surf-report/waikiki-beach-584204196",
     "https://www.surfline.com/surf-report/pipeline-584204184",
-    "https://www.surfline.com/surf-report/lower-trestles-584204202"
+    "https://www.surfline.com/surf-report/lower-trestles-584204202",
+    "https://www.surfline.com/surf-report/virginia-beach-584204220",
+    "https://www.surfline.com/surf-report/cocoa-beach-584204224",
+    "https://www.surfline.com/surf-report/bondi-beach-584214192",
+    "https://magicseaweed.com/Pipeline-Surf-Report/36/",
+    "https://magicseaweed.com/Mavericks-Surf-Report/4211/",
+    "https://magicseaweed.com/Teahupoo-Surf-Report/40/",
+    "https://magicseaweed.com/Nazare-Surf-Report/4235/",
+    "https://magicseaweed.com/Peahi-Jaws-Surf-Report/4210/",
+    "https://magicseaweed.com/Snapper-Rocks-Surf-Report/28/"
   ],
   "discovered_cameras": [],
-  "last_run": "2026-04-01T00:42:10.601940Z",
+  "last_run": "2026-04-01T03:11:28.411300+00:00",
   "results": {
     "https://www.surfline.com/surf-report/malibu-584204198": {
       "status": "blocked",
@@ -21,6 +30,42 @@
     "https://www.surfline.com/surf-report/ocean-city-584204219": {
       "status": "blocked",
       "reason": "403 Forbidden (Surfline blocks scraping)"
+    },
+    "https://www.surfline.com/surf-report/virginia-beach-584204220": {
+      "status": "blocked",
+      "reason": "403 Forbidden (Surfline blocks scraping)"
+    },
+    "https://www.surfline.com/surf-report/cocoa-beach-584204224": {
+      "status": "blocked",
+      "reason": "403 Forbidden (Surfline blocks scraping)"
+    },
+    "https://www.surfline.com/surf-report/bondi-beach-584214192": {
+      "status": "blocked",
+      "reason": "403 Forbidden (Surfline blocks scraping)"
+    },
+    "https://magicseaweed.com/Pipeline-Surf-Report/36/": {
+      "status": "blocked",
+      "reason": "403 Forbidden (Magicseaweed blocks scraping)"
+    },
+    "https://magicseaweed.com/Mavericks-Surf-Report/4211/": {
+      "status": "blocked",
+      "reason": "403 Forbidden (Magicseaweed blocks scraping)"
+    },
+    "https://magicseaweed.com/Teahupoo-Surf-Report/40/": {
+      "status": "blocked",
+      "reason": "403 Forbidden (Magicseaweed blocks scraping)"
+    },
+    "https://magicseaweed.com/Nazare-Surf-Report/4235/": {
+      "status": "blocked",
+      "reason": "403 Forbidden (Magicseaweed blocks scraping)"
+    },
+    "https://magicseaweed.com/Peahi-Jaws-Surf-Report/4210/": {
+      "status": "blocked",
+      "reason": "403 Forbidden (Magicseaweed blocks scraping)"
+    },
+    "https://magicseaweed.com/Snapper-Rocks-Surf-Report/28/": {
+      "status": "blocked",
+      "reason": "403 Forbidden (Magicseaweed blocks scraping)"
     }
   }
 }

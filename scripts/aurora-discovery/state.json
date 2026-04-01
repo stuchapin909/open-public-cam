@@ -5,10 +5,14 @@
     "https://www.gi.alaska.edu/aurora-forecast",
     "https://spectacularnwt.com/en/webcams",
     "https://www.visitrovaniemi.fi/webcam",
-    "https://en.visittromso.no/webcam"
+    "https://en.visittromso.no/webcam",
+    "https://www.churchillwild.com/webcam/",
+    "https://www.visitsvalbard.com/webcam",
+    "https://www.ruka.fi/en/webcam",
+    "https://www.levi.fi/en/webcam"
   ],
   "discovered_cameras": [],
-  "last_run": "2026-04-01T00:42:10.601940Z",
+  "last_run": "2026-04-01T03:11:28.411300+00:00",
   "results": {
     "https://spectacularnwt.com/en/webcams": {
       "status": "no_cams",
@@ -19,6 +23,22 @@
       "reason": "JS-rendered (Next.js), no image URLs in HTML"
     },
     "https://www.gi.alaska.edu/aurora-forecast": {
+      "status": "no_cams",
+      "reason": "404 Not Found"
+    },
+    "https://www.churchillwild.com/webcam/": {
+      "status": "no_cams",
+      "reason": "404 Not Found"
+    },
+    "https://www.visitsvalbard.com/webcam": {
+      "status": "no_cams",
+      "reason": "Tourism listing page, no live cam image URLs"
+    },
+    "https://www.ruka.fi/en/webcam": {
+      "status": "no_cams",
+      "reason": "404 Not Found"
+    },
+    "https://www.levi.fi/en/webcam": {
       "status": "no_cams",
       "reason": "404 Not Found"
     }

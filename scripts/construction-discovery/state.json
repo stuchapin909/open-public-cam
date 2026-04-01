@@ -5,10 +5,14 @@
     "https://spaceneedledev.com/panocam/index.html",
     "https://constructioncam.com/",
     "https://www.esbnyc.com/",
-    "https://www.cntower.ca/"
+    "https://www.cntower.ca/",
+    "https://www.toureiffel.paris/en/the-monument/webcams",
+    "https://www.sydneymonorail.com/webcam/",
+    "https://www.parliament.uk/about/living-heritage/building/palace/webcam/",
+    "https://www.tokyotower.co.jp/"
   ],
   "discovered_cameras": [],
-  "last_run": "2026-04-01T00:42:10.601940Z",
+  "last_run": "2026-04-01T03:12:17.040748+00:00",
   "results": {
     "https://www.esbnyc.com/": {
       "status": "no_cams",
@@ -21,6 +25,22 @@
     "https://www.cntower.ca/": {
       "status": "no_cams",
       "reason": "No image URLs found"
+    },
+    "https://www.toureiffel.paris/en/the-monument/webcams": {
+      "status": "no_cams",
+      "reason": "404 Not Found"
+    },
+    "https://www.sydneymonorail.com/webcam/": {
+      "status": "no_cams",
+      "reason": "Timeout/connection failed"
+    },
+    "https://www.parliament.uk/about/living-heritage/building/palace/webcam/": {
+      "status": "no_cams",
+      "reason": "403 Forbidden"
+    },
+    "https://www.tokyotower.co.jp/": {
+      "status": "no_cams",
+      "reason": "Live camera is YouTube link, no direct JPEG"
     }
   }
 }

@@ -5,10 +5,14 @@
     "https://www.circuitcat.com/en/webcam",
     "https://www.monzanet.it/en/webcam",
     "https://www.silverstone.co.uk/webcams",
-    "https://www.spa-francorchamps.be/en/webcam"
+    "https://www.spa-francorchamps.be/en/webcam",
+    "https://www.daytonainternationalspeedway.com/webcams",
+    "https://www.bristolmotorspeedway.com/webcams",
+    "https://www.lagunaseca.com/webcams",
+    "https://www.circuitoftheamericas.com/webcams"
   ],
   "discovered_cameras": [],
-  "last_run": "2026-04-01T00:42:10.601940Z",
+  "last_run": "2026-04-01T03:12:17.040748+00:00",
   "results": {
     "https://www.circuitcat.com/en/webcam": {
       "status": "no_cams",
@@ -19,6 +23,22 @@
       "reason": "404 Not Found"
     },
     "https://www.monzanet.it/en/webcam": {
+      "status": "no_cams",
+      "reason": "404 Not Found"
+    },
+    "https://www.daytonainternationalspeedway.com/webcams": {
+      "status": "no_cams",
+      "reason": "403 Forbidden"
+    },
+    "https://www.bristolmotorspeedway.com/webcams": {
+      "status": "no_cams",
+      "reason": "404 Not Found"
+    },
+    "https://www.lagunaseca.com/webcams": {
+      "status": "no_cams",
+      "reason": "Cloudflare challenge page, no content"
+    },
+    "https://www.circuitoftheamericas.com/webcams": {
       "status": "no_cams",
       "reason": "404 Not Found"
     }

@@ -4,7 +4,8 @@
     "https://www.siferry.com/",
     "https://www.wsdot.com/ferries/vesselwatch/VesselWatchWebcams.aspx",
     "https://cohoferry.com/webcam/",
-    "https://www.bcferries.com/current-conditions/"
+    "https://www.bcferries.com/current-conditions/",
+    "https://www.dot.state.ak.us/amhs/webcams.shtml"
   ],
   "discovered_cameras": [
     "https://www.bcferries.com/web_image/hdf/h28/8932230397982.jpg",
@@ -13,7 +14,7 @@
     "https://www.bcferries.com/web_image/h54/h90/8797249765406.jpg",
     "https://www.bcferries.com/web_image/h6d/h51/9053309009950.jpg"
   ],
-  "last_run": "2026-04-01T00:42:10.601940Z",
+  "last_run": "2026-04-01T03:12:17.040748+00:00",
   "results": {
     "https://cohoferry.com/webcam/": {
       "status": "no_cams",
@@ -26,6 +27,10 @@
     "https://www.siferry.com/": {
       "status": "no_cams",
       "reason": "Only wp-content images found"
+    },
+    "https://www.dot.state.ak.us/amhs/webcams.shtml": {
+      "status": "no_cams",
+      "reason": "Timeout/connection failed"
     }
   }
 }
