@@ -25,3 +25,4 @@ verification-evidence/
 
 # Temp files
 /tmp/*
+scripts/pipeline-state.json
