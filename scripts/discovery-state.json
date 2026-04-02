@@ -6,7 +6,9 @@
     "https://neoc.com/webcam3/",
     "https://www.foto-webcam.eu/webcam/wallackhaus/",
     "https://aurorainfo.eu/aurora-live-cameras/",
-    "https://www.aurorawebcams.com/webcams-map"
+    "https://www.aurorawebcams.com/webcams-map",
+    "https://www.spaceweatherlive.com/en/auroral-activity/webcams.html",
+    "https://theauroraguy.com/pages/webcams"
   ],
   "beach": [
     "https://www.skylinewebcams.com/en/live-cams-category/beach-cams.html",
@@ -16,7 +18,9 @@
     "https://pixcams.com/",
     "https://www.skylinewebcams.com/en/webcam/sea-beaches.html",
     "https://www.surfline.com/surf-cams",
-    "https://www.coastalwatch.com/cams"
+    "https://www.coastalwatch.com/cams",
+    "https://www.livebeaches.com/",
+    "https://www.webcamhopper.com/beach.html"
   ],
   "construction": [
     "https://www.earthcam.com/projects/construction/",
@@ -35,7 +39,9 @@
     "https://worldcam.eu/webcams/south-america/colombia/29132-ituango-hydroelectric",
     "https://www.webcamtaxi.com/en/usa/california/lake-oroville-dam.html",
     "https://hublives.com/webcam/hydroelectric-dam",
-    "https://webcam.scs.com.ua/en/europe/russia/irkutsk/dam/"
+    "https://webcam.scs.com.ua/en/europe/russia/irkutsk/dam/",
+    "https://www.melbournewater.com.au/water-and-environment/water-management/water-storage-reservoirs/thomson-reservoir/thomson-dam-cam",
+    "https://camhacker.com/"
   ],
   "ferry": [
     "https://www.skagitcounty.net/Departments/PublicWorksFerry/ferrycams.htm",
