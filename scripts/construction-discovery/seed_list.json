@@ -54,24 +54,6 @@
     "url": "https://www.cntower.ca/"
   },
   {
-    "name": "Eiffel Tower",
-    "country": "FR",
-    "city": "Paris",
-    "tz": "Europe/Paris",
-    "lat": 48.8584,
-    "lng": 2.2945,
-    "url": "https://www.toureiffel.paris/en/the-monument/webcams"
-  },
-  {
-    "name": "Sydney Harbour Bridge",
-    "country": "AU",
-    "city": "Sydney",
-    "tz": "Australia/Sydney",
-    "lat": -33.8523,
-    "lng": 151.2108,
-    "url": "https://www.sydneymonorail.com/webcam/"
-  },
-  {
     "name": "Big Ben",
     "country": "GB",
     "city": "London",

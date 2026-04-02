@@ -54,15 +54,6 @@
     "url": "https://www.wsdot.com/ferries/vesselwatch/VesselWatchWebcams.aspx"
   },
   {
-    "name": "Martha's Vineyard",
-    "country": "US",
-    "city": "Woods Hole",
-    "tz": "America/New_York",
-    "lat": 41.527,
-    "lng": -70.664,
-    "url": "https://www.steamshipauthority.com/webcam"
-  },
-  {
     "name": "Staten Island Ferry",
     "country": "US",
     "city": "New York",
@@ -70,15 +61,6 @@
     "lat": 40.6433,
     "lng": -74.0736,
     "url": "https://www.siferry.com/"
-  },
-  {
-    "name": "Alaska Marine Highway",
-    "country": "US",
-    "city": "Juneau",
-    "tz": "America/Anchorage",
-    "lat": 58.3019,
-    "lng": -134.42,
-    "url": "https://www.dot.state.ak.us/amhs/webcams.shtml"
   },
   {
     "name": "BC Ferries Horseshoe Bay",

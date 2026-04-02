@@ -36,24 +36,6 @@
     "url": "https://www.circuitcat.com/en/webcam"
   },
   {
-    "name": "Silverstone",
-    "country": "GB",
-    "city": "Silverstone",
-    "tz": "Europe/London",
-    "lat": 52.0717,
-    "lng": -1.0178,
-    "url": "https://www.silverstone.co.uk/webcams"
-  },
-  {
-    "name": "Monza",
-    "country": "IT",
-    "city": "Monza",
-    "tz": "Europe/Rome",
-    "lat": 45.6178,
-    "lng": 9.2817,
-    "url": "https://www.monzanet.it/en/webcam"
-  },
-  {
     "name": "Daytona International",
     "country": "US",
     "city": "Daytona Beach",
@@ -61,32 +43,5 @@
     "lat": 29.1814,
     "lng": -81.0739,
     "url": "https://www.daytonainternationalspeedway.com/webcams"
-  },
-  {
-    "name": "Bristol Motor Speedway",
-    "country": "US",
-    "city": "Bristol",
-    "tz": "America/New_York",
-    "lat": 36.5128,
-    "lng": -82.2617,
-    "url": "https://www.bristolmotorspeedway.com/webcams"
-  },
-  {
-    "name": "Laguna Seca",
-    "country": "US",
-    "city": "Monterey",
-    "tz": "America/Los_Angeles",
-    "lat": 36.5856,
-    "lng": -121.7569,
-    "url": "https://www.lagunaseca.com/webcams"
-  },
-  {
-    "name": "COTA Austin",
-    "country": "US",
-    "city": "Austin",
-    "tz": "America/Chicago",
-    "lat": 30.1327,
-    "lng": -97.6409,
-    "url": "https://www.circuitoftheamericas.com/webcams"
   }
 ]

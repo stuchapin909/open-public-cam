@@ -45,24 +45,6 @@
     "url": "https://www.road.is/webcams/"
   },
   {
-    "name": "Fairbanks Aurora",
-    "country": "US",
-    "city": "Fairbanks",
-    "tz": "America/Anchorage",
-    "lat": 64.8378,
-    "lng": -147.7164,
-    "url": "https://www.gi.alaska.edu/aurora-forecast"
-  },
-  {
-    "name": "Churchill Aurora",
-    "country": "CA",
-    "city": "Churchill",
-    "tz": "America/Winnipeg",
-    "lat": 58.77,
-    "lng": -94.17,
-    "url": "https://www.churchillwild.com/webcam/"
-  },
-  {
     "name": "Northern Norway Aurora",
     "country": "NO",
     "city": "Svalbard",
@@ -70,23 +52,5 @@
     "lat": 78.2232,
     "lng": 15.6267,
     "url": "https://www.visitsvalbard.com/webcam"
-  },
-  {
-    "name": "Ruka Finland",
-    "country": "FI",
-    "city": "Ruka",
-    "tz": "Europe/Helsinki",
-    "lat": 65.9486,
-    "lng": 28.2025,
-    "url": "https://www.ruka.fi/en/webcam"
-  },
-  {
-    "name": "Levi Finland",
-    "country": "FI",
-    "city": "Kittila",
-    "tz": "Europe/Helsinki",
-    "lat": 67.806,
-    "lng": 24.81,
-    "url": "https://www.levi.fi/en/webcam"
   }
 ]

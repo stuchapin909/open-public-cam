@@ -27,24 +27,6 @@
     "url": "https://www.usgs.gov/volcanoes/mount-rainier/webcams"
   },
   {
-    "name": "Etna",
-    "country": "IT",
-    "city": "Catania",
-    "tz": "Europe/Rome",
-    "lat": 37.751,
-    "lng": 14.9934,
-    "url": "https://www.ct.ingv.it/en/webcam-etna"
-  },
-  {
-    "name": "Stromboli",
-    "country": "IT",
-    "city": "Messina",
-    "tz": "Europe/Rome",
-    "lat": 38.788,
-    "lng": 15.2133,
-    "url": "https://www.ct.ingv.it/en/webcam-stromboli"
-  },
-  {
     "name": "Vesuvius",
     "country": "IT",
     "city": "Naples",
@@ -52,33 +34,6 @@
     "lat": 40.849,
     "lng": 14.427,
     "url": "https://www.ov.ingv.it/ov/webcam-vesuvio"
-  },
-  {
-    "name": "Sakurajima",
-    "country": "JP",
-    "city": "Kagoshima",
-    "tz": "Asia/Tokyo",
-    "lat": 31.5847,
-    "lng": 130.6575,
-    "url": "https://www.city.kagoshima.lg.jp/tenmon/category_16.html"
-  },
-  {
-    "name": "Popocatepetl",
-    "country": "MX",
-    "city": "Puebla",
-    "tz": "America/Mexico_City",
-    "lat": 19.023,
-    "lng": -98.622,
-    "url": "https://www.cenapred.unam.mx/popo/I.html"
-  },
-  {
-    "name": "Colima",
-    "country": "MX",
-    "city": "Colima",
-    "tz": "America/Mexico_City",
-    "lat": 19.514,
-    "lng": -103.62,
-    "url": "https://www.ucol.mx/volcan/colima/webcam.html"
   },
   {
     "name": "White Island",
