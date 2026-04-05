@@ -199,13 +199,63 @@
       "status": "unreachable",
       "note": "FAAN Nigeria - triggers download instead of page load",
       "checked_at": "%Y-%m-%dT%H:%M:%SZ"
+    },
+    "BER": {
+      "status": "not_found",
+      "note": "Berlin Brandenburg - no webcam section, search returned no results",
+      "checked_at": "2026-04-05T21:46:58Z"
+    },
+    "DRS": {
+      "status": "bot_blocked",
+      "note": "Dresden Airport - 403 Forbidden",
+      "checked_at": "2026-04-05T21:46:58Z"
+    },
+    "FMO": {
+      "status": "not_found",
+      "note": "Münster Osnabrück fmo.de - no webcam section",
+      "checked_at": "2026-04-05T21:46:58Z"
+    },
+    "HAM": {
+      "status": "not_found",
+      "note": "Hamburg Airport - has webcam page with 4 video players (HLS .m3u8 streams only, no direct image URLs)",
+      "checked_at": "2026-04-05T21:46:58Z"
+    },
+    "CGN": {
+      "status": "not_found",
+      "note": "Cologne Bonn - webcam page has HLS .m3u8 streams only (1000eyes.de), no direct image URLs",
+      "checked_at": "2026-04-05T21:46:58Z"
+    },
+    "DUS": {
+      "status": "not_found",
+      "note": "Düsseldorf - webcam page has HLS .m3u8 streams only (1000eyes.de), no direct image URLs",
+      "checked_at": "2026-04-05T21:46:58Z"
+    },
+    "NUE": {
+      "status": "not_found",
+      "note": "Nuremberg Airport - no webcam section on website",
+      "checked_at": "2026-04-05T21:46:58Z"
+    },
+    "CRL": {
+      "status": "unreachable",
+      "note": "Charleroi Airport - connection refused/unreachable",
+      "checked_at": "2026-04-05T21:46:58Z"
+    },
+    "OST": {
+      "status": "not_found",
+      "note": "Ostend-Bruges - no webcam section, live departures/arrivals only",
+      "checked_at": "2026-04-05T21:46:58Z"
+    },
+    "TUN": {
+      "status": "unreachable",
+      "note": "Tunis Carthage OACA - unreachable",
+      "checked_at": "2026-04-05T21:46:58Z"
     }
   },
   "discovered_cameras": [
     "airport-YYT-1775417333"
   ],
-  "last_run": "%Y-%m-%dT%H:%M:%SZ",
+  "last_run": "2026-04-05T21:46:58Z",
   "total_seed": 5264,
-  "total_checked": 40,
+  "total_checked": 50,
   "total_cameras_found": 1
 }
