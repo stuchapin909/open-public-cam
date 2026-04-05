@@ -249,13 +249,63 @@
       "status": "unreachable",
       "note": "Tunis Carthage OACA - unreachable",
       "checked_at": "2026-04-05T21:46:58Z"
+    },
+    "DJE": {
+      "status": "not_found",
+      "note": "Djerba Zarzis aeroport-de-djerba-zarzis.com - no webcam section, only flight schedules",
+      "checked_at": "2026-04-05T22:54:56Z"
+    },
+    "ERF": {
+      "status": "not_found",
+      "note": "Erfurt-Weimar flughafen-erfurt-weimar.de - no webcam, 404 on /webcam",
+      "checked_at": "2026-04-05T22:54:56Z"
+    },
+    "LEJ": {
+      "status": "not_found",
+      "note": "Leipzig/Halle mdf-ag.com - 403 Forbidden on /webcam",
+      "checked_at": "2026-04-05T22:54:56Z"
+    },
+    "STR": {
+      "status": "bot_blocked",
+      "note": "Stuttgart flughafen-stuttgart.de - Access Denied (bot detection)",
+      "checked_at": "2026-04-05T22:54:56Z"
+    },
+    "HAJ": {
+      "status": "not_found",
+      "note": "Hannover hannover-airport.de - no webcam section, 404 on /webcam",
+      "checked_at": "2026-04-05T22:54:56Z"
+    },
+    "BRE": {
+      "status": "bot_blocked",
+      "note": "Bremen bremen-airport.com - Cloudflare Just a moment blocked",
+      "checked_at": "2026-04-05T22:54:56Z"
+    },
+    "HHN": {
+      "status": "not_found",
+      "note": "Frankfurt-Hahn hahn-airport.de - no webcam section on website",
+      "checked_at": "2026-04-05T22:54:56Z"
+    },
+    "NRN": {
+      "status": "not_found",
+      "note": "Weeze airport-weeze.com - no webcam section found",
+      "checked_at": "2026-04-05T22:54:56Z"
+    },
+    "DTM": {
+      "status": "not_found",
+      "note": "Dortmund dortmund-airport.com - 404 on /webcam, no webcam on main site",
+      "checked_at": "2026-04-05T22:54:56Z"
+    },
+    "FDH": {
+      "status": "not_found",
+      "note": "Friedrichshafen bodensee-airport.eu - 404 on /webcam, no webcam section",
+      "checked_at": "2026-04-05T22:54:56Z"
     }
   },
   "discovered_cameras": [
     "airport-YYT-1775417333"
   ],
-  "last_run": "2026-04-05T21:46:58Z",
+  "last_run": "2026-04-05T22:54:56Z",
   "total_seed": 5264,
-  "total_checked": 50,
+  "total_checked": 60,
   "total_cameras_found": 1
 }
