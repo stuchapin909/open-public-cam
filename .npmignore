@@ -1,5 +1,6 @@
 # Runtime data (downloaded at startup from GitHub)
 cameras.json
+stats.json
 .registry-state.json
 local-cameras.json
 config.json

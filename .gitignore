@@ -5,6 +5,7 @@ node_modules.bad/
 # Local camera data (not committed)
 local-cameras.json
 .registry-state.json
+stats.json
 
 # Environment & config
 .env

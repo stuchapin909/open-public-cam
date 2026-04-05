@@ -13,14 +13,18 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CAMERAS_PATH = path.join(__dirname, "cameras.json");
 const README_PATH = path.join(__dirname, "README.md");
+const STATS_PATH = path.join(__dirname, "stats.json");
 
 const cameras = JSON.parse(fs.readFileSync(CAMERAS_PATH, "utf8"));
 
-// Count by country
+// Count by country and category
 const countryCounts = {};
+const categoryCounts = {};
 for (const c of cameras) {
   const cc = c.country || "??";
   countryCounts[cc] = (countryCounts[cc] || 0) + 1;
+  const cat = c.category || "other";
+  categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
 }
 
 const total = cameras.length;
@@ -49,6 +53,19 @@ function numWord(n) {
   const words = ["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen"];
   return words[n] || String(n);
 }
+
+// --- Write stats.json ---
+const sortedCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
+const stats = {
+  total,
+  countries: countryNum,
+  categories: Object.keys(categoryCounts).length,
+  by_country: Object.fromEntries(sorted),
+  by_category: Object.fromEntries(sortedCategories),
+  generated_at: new Date().toISOString(),
+};
+fs.writeFileSync(STATS_PATH, JSON.stringify(stats, null, 2) + "\n");
+console.log(`Wrote stats.json (${total} cameras, ${countryNum} countries, ${Object.keys(categoryCounts).length} categories)`);
 
 console.log(`Registry: ${total} cameras across ${countryNum} countries`);
 
