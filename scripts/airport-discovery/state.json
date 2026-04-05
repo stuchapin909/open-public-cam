@@ -1,0 +1,211 @@
+{
+  "checked_airports": {
+    "GOH": {
+      "status": "not_found",
+      "note": "Greenland airports.gl - no webcam section, only static images",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "AEY": {
+      "status": "not_found",
+      "note": "Icelandic domestic airport page - minimal content, no webcam",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "KEF": {
+      "status": "not_found",
+      "note": "Keflavik airport - no webcam/camera pages exist",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "PRN": {
+      "status": "bot_blocked",
+      "note": "Airport Pristina - bot detection (Just a moment... page)",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "YEG": {
+      "status": "not_found",
+      "note": "Edmonton flyyeg.com - no webcam, only static marketing images",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "YHZ": {
+      "status": "not_found",
+      "note": "Halifax Stanfield - no webcam page exists",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "YLW": {
+      "status": "bot_blocked",
+      "note": "Kelowna - Cloudflare blocked",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "YOW": {
+      "status": "not_found",
+      "note": "Ottawa yow.ca - no webcam, only news/airline logos",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "YQB": {
+      "status": "not_found",
+      "note": "Quebec aeroportdequebec.com - no webcam section",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "YUL": {
+      "status": "bot_blocked",
+      "note": "Montreal ADMTl - Cloudflare blocked",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "OSL": {
+      "status": "not_found",
+      "note": "Oslo Avinor - webcam pages removed",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "MUC": {
+      "status": "not_found",
+      "note": "Munich airport - no webcam pages exist",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "VIE": {
+      "status": "not_found",
+      "note": "Vienna airport - no webcam section, only static marketing images",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "GVA": {
+      "status": "not_found",
+      "note": "Geneva airport - no webcam section",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "BRU": {
+      "status": "bot_blocked",
+      "note": "Brussels airport - access denied",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "FRA": {
+      "status": "unreachable",
+      "note": "Frankfurt airport - page load timeout",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "ZRH": {
+      "status": "bot_blocked",
+      "note": "Zurich airport - Azure WAF blocked",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "RNO": {
+      "status": "not_found",
+      "note": "Reno-Tahoe - no webcam page exists",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "SEA": {
+      "status": "not_found",
+      "note": "Seattle-Tacoma - no webcam, only static photos",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "SZG": {
+      "status": "not_found",
+      "note": "Salzburg airport - no webcam page exists",
+      "checked_at": "2026-04-05T10:16:24Z"
+    },
+    "HIR": {
+      "status": "not_found",
+      "note": "Honiara International - no website, no webcam infrastructure in Solomon Islands",
+      "checked_at": "2026-04-05T11:23:05Z"
+    },
+    "LAE": {
+      "status": "not_found",
+      "note": "Nadzab Tomodachi International - no website, no webcam infrastructure in PNG",
+      "checked_at": "2026-04-05T11:23:05Z"
+    },
+    "POM": {
+      "status": "not_found",
+      "note": "Port Moresby Jacksons International - no website, NAC PNG has no public webcam feeds",
+      "checked_at": "2026-04-05T11:23:05Z"
+    },
+    "SFJ": {
+      "status": "not_found",
+      "note": "Kangerlussuaq International - no website, Greenland Mittarfeqarfiit webcam domain (webcam.mittarfeqarfiit.gl) does not resolve",
+      "checked_at": "2026-04-05T11:23:05Z"
+    },
+    "THU": {
+      "status": "not_found",
+      "note": "Pituffik Space Base - no website, Greenland Mittarfeqarfiit webcam domain does not resolve",
+      "checked_at": "2026-04-05T11:23:05Z"
+    },
+    "YVR": {
+      "status": "bot_blocked",
+      "note": "Vancouver yvr.ca - Cloudflare blocked",
+      "checked_at": "2026-04-05T11:23:05Z"
+    },
+    "YYC": {
+      "status": "not_found",
+      "note": "Calgary yyc.com - no webcam section, only marketing/operations pages",
+      "checked_at": "2026-04-05T11:23:05Z"
+    },
+    "YWG": {
+      "status": "bot_blocked",
+      "note": "Winnipeg ywg.ca - Cloudflare blocked",
+      "checked_at": "2026-04-05T11:23:05Z"
+    },
+    "YXE": {
+      "status": "not_found",
+      "note": "Saskatoon - no website in seed list, no webcam found via search",
+      "checked_at": "2026-04-05T11:23:05Z"
+    },
+    "YYJ": {
+      "status": "not_found",
+      "note": "Victoria victoriaairport.com - 403 Forbidden",
+      "checked_at": "2026-04-05T11:23:05Z"
+    },
+    "YYT": {
+      "status": "found",
+      "note": "Found live webcam at stjohnsairport.com/cam/cam.jpg - direct JPEG, 23KB, HTTP 200",
+      "checked_at": "%Y-%m-%dT%H:%M:%SZ"
+    },
+    "YYZ": {
+      "status": "bot_blocked",
+      "note": "Toronto Pearson - Radware captcha blocked",
+      "checked_at": "%Y-%m-%dT%H:%M:%SZ"
+    },
+    "CZL": {
+      "status": "not_found",
+      "note": "Constantine - city tourism page, not airport webcam",
+      "checked_at": "%Y-%m-%dT%H:%M:%SZ"
+    },
+    "TML": {
+      "status": "not_found",
+      "note": "Tamale Airport GACL - history page, no webcam section",
+      "checked_at": "%Y-%m-%dT%H:%M:%SZ"
+    },
+    "ABV": {
+      "status": "unreachable",
+      "note": "FAAN Nigeria - triggers download instead of page load",
+      "checked_at": "%Y-%m-%dT%H:%M:%SZ"
+    },
+    "ENU": {
+      "status": "unreachable",
+      "note": "FAAN Nigeria - triggers download instead of page load",
+      "checked_at": "%Y-%m-%dT%H:%M:%SZ"
+    },
+    "ILR": {
+      "status": "unreachable",
+      "note": "FAAN Nigeria - triggers download instead of page load",
+      "checked_at": "%Y-%m-%dT%H:%M:%SZ"
+    },
+    "KAD": {
+      "status": "unreachable",
+      "note": "FAAN Nigeria - triggers download instead of page load",
+      "checked_at": "%Y-%m-%dT%H:%M:%SZ"
+    },
+    "KAN": {
+      "status": "unreachable",
+      "note": "FAAN Nigeria - triggers download instead of page load",
+      "checked_at": "%Y-%m-%dT%H:%M:%SZ"
+    },
+    "MIU": {
+      "status": "unreachable",
+      "note": "FAAN Nigeria - triggers download instead of page load",
+      "checked_at": "%Y-%m-%dT%H:%M:%SZ"
+    }
+  },
+  "discovered_cameras": [
+    "airport-YYT-1775417333"
+  ],
+  "last_run": "%Y-%m-%dT%H:%M:%SZ",
+  "total_seed": 5264,
+  "total_checked": 40,
+  "total_cameras_found": 1
+}
