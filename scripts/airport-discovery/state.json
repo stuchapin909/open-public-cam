@@ -479,6 +479,51 @@
       "status": "not_found",
       "note": "LAX - 404 on main URL",
       "checked_at": "2026-04-06T07:55:00Z"
+    },
+    "LTN": {
+      "status": "not_found",
+      "note": "London Luton - no webcam section, 404 on /webcam",
+      "checked_at": "2026-04-06T09:03:52Z"
+    },
+    "EIN": {
+      "status": "not_found",
+      "note": "Eindhoven Airport - webcam page exists but is down (Pagina en mantenimiento)",
+      "checked_at": "2026-04-06T09:03:52Z"
+    },
+    "RTM": {
+      "status": "not_found",
+      "note": "Rotterdam The Hague Airport - no webcam section, 404 on /webcam",
+      "checked_at": "2026-04-06T09:03:52Z"
+    },
+    "CPT": {
+      "status": "not_found",
+      "note": "ACSA Cape Town International - no webcam section on airports.co.za",
+      "checked_at": "2026-04-06T09:03:52Z"
+    },
+    "JNB": {
+      "status": "not_found",
+      "note": "OR Tambo ortambo-airport.com - no webcam section, only flight/hotel/parking info",
+      "checked_at": "2026-04-06T09:03:52Z"
+    },
+    "MQP": {
+      "status": "not_found",
+      "note": "Kruger Mpumalanga kmiairport.co.za - no webcam section",
+      "checked_at": "2026-04-06T09:03:52Z"
+    },
+    "AGP": {
+      "status": "not_found",
+      "note": "AENA Malaga - webcam page exists (/airport-information/webcam.html) but currently under maintenance",
+      "checked_at": "2026-04-06T09:03:52Z"
+    },
+    "BRS": {
+      "status": "bot_blocked",
+      "note": "Bristol Airport - Cloudflare 403",
+      "checked_at": "2026-04-06T09:03:52Z"
+    },
+    "LPL": {
+      "status": "bot_blocked",
+      "note": "Liverpool John Lennon - Cloudflare 403",
+      "checked_at": "2026-04-06T09:03:52Z"
     }
   },
   "discovered_cameras": [
@@ -486,7 +531,7 @@
   ],
   "last_run": "2026-04-06T05:42:04Z",
   "total_seed": 5264,
-  "total_checked": 75,
+  "total_checked": 105,
   "total_cameras_found": 1,
   "checked": [
     {
