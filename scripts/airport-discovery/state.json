@@ -524,6 +524,41 @@
       "status": "bot_blocked",
       "note": "Liverpool John Lennon - Cloudflare 403",
       "checked_at": "2026-04-06T09:03:52Z"
+    },
+    "ADB": {
+      "status": "unreachable",
+      "note": "Website not responding (HTTP timeout)",
+      "checked_at": "2026-04-06T10:05:00Z"
+    },
+    "DLM": {
+      "status": "not_found",
+      "note": "Dalaman Airport - no webcam/camera section found",
+      "checked_at": "2026-04-06T10:06:00Z"
+    },
+    "AOE": {
+      "status": "not_found",
+      "note": "Eskisehir university airport page - news and flights only, no webcam",
+      "checked_at": "2026-04-06T10:07:00Z"
+    },
+    "GWD": {
+      "status": "unreachable",
+      "note": "Pakistan airport authority website not responding",
+      "checked_at": "2026-04-06T10:08:00Z"
+    },
+    "DXN": {
+      "status": "bot_blocked",
+      "note": "Noida airport - Azure WAF blocking",
+      "checked_at": "2026-04-06T10:08:00Z"
+    },
+    "NCE": {
+      "status": "not_found",
+      "note": "Nice airport - no webcam/camera section on site",
+      "checked_at": "2026-04-06T10:09:00Z"
+    },
+    "MUB": {
+      "status": "unreachable",
+      "note": "Botswana CAAB website not responding",
+      "checked_at": "2026-04-06T10:09:00Z"
     }
   },
   "discovered_cameras": [
