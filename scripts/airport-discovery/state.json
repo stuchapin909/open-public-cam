@@ -564,9 +564,9 @@
   "discovered_cameras": [
     "airport-YYT-1775417333"
   ],
-  "last_run": "2026-04-06T05:42:04Z",
+  "last_run": 1775478420981,
   "total_seed": 5264,
-  "total_checked": 105,
+  "total_checked": 111,
   "total_cameras_found": 1,
   "checked": [
     {
@@ -616,6 +616,54 @@
       "status": "no_webcam",
       "notes": "Redirects to kefairport.com. Camera/stream mentions are generic text only. All images are static contentstack CDN photos. No webcam pages or live feeds found at tested paths.",
       "checked_at": 1775458106863
+    },
+    {
+      "iata": "RVN",
+      "name": "Rovaniemi Airport",
+      "website": "https://www.finavia.fi/en/rovaniemi/",
+      "status": "no_webcam",
+      "notes": "Finavia site has no webcam pages. Known URL patterns (webcam, camera, traffic-situation) all return 404.",
+      "checked_at": 1775478420981
+    },
+    {
+      "iata": "LGW",
+      "name": "London Gatwick Airport",
+      "website": "https://www.gatwickairport.com/",
+      "status": "no_webcam",
+      "notes": "Site loads. No webcam/camera/live references found in HTML. Common paths (/webcam, /live, /cameras) all return 404.",
+      "checked_at": 1775478420981
+    },
+    {
+      "iata": "IOM",
+      "name": "Isle of Man Airport",
+      "website": "http://www.iom-airport.com/",
+      "status": "unreachable",
+      "notes": "Website does not respond to HTTP or HTTPS requests.",
+      "checked_at": 1775478420981
+    },
+    {
+      "iata": "TMP",
+      "name": "Tampere-Pirkkala Airport",
+      "website": "https://www.finavia.fi/en/tampere-pirkkala/",
+      "status": "no_webcam",
+      "notes": "Same Finavia domain as RVN - no webcams. Not browsed separately.",
+      "checked_at": 1775478420981
+    },
+    {
+      "iata": "NOC",
+      "name": "Ireland West Airport Knock",
+      "website": "https://www.irelandwestairport.com/",
+      "status": "no_webcam",
+      "notes": "Site loads. No webcam/camera/live references found in HTML source.",
+      "checked_at": 1775478420981
+    },
+    {
+      "iata": "AAR",
+      "name": "Aarhus Airport",
+      "website": "https://www.aar.dk/",
+      "status": "no_webcam",
+      "notes": "Site loads (Danish). No webcam/camera/live references found in HTML source.",
+      "checked_at": 1775478420981
     }
   ]
 }
