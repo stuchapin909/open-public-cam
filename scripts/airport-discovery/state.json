@@ -212,7 +212,7 @@
     },
     "FMO": {
       "status": "not_found",
-      "note": "Münster Osnabrück fmo.de - no webcam section",
+      "note": "M\u00fcnster Osnabr\u00fcck fmo.de - no webcam section",
       "checked_at": "2026-04-05T21:46:58Z"
     },
     "HAM": {
@@ -227,7 +227,7 @@
     },
     "DUS": {
       "status": "not_found",
-      "note": "Düsseldorf - webcam page has HLS .m3u8 streams only (1000eyes.de), no direct image URLs",
+      "note": "D\u00fcsseldorf - webcam page has HLS .m3u8 streams only (1000eyes.de), no direct image URLs",
       "checked_at": "2026-04-05T21:46:58Z"
     },
     "NUE": {
@@ -700,7 +700,7 @@
     },
     {
       "iata": "SEA",
-      "name": "Seattle–Tacoma International Airport",
+      "name": "Seattle\u2013Tacoma International Airport",
       "website": "https://www.portseattle.org/sea-tac",
       "status": "no_webcam",
       "notes": "Airport drive cameras page exists but cameras 'currently unavailable'. No other webcam pages.",
@@ -777,6 +777,54 @@
       "status": "no_webcam",
       "notes": "Site loads (Danish). No webcam/camera/live references found in HTML source.",
       "checked_at": 1775478420981
+    },
+    {
+      "iata": "ZRH",
+      "name": "Z\u00fcrich Airport",
+      "website": "http://www.zurich-airport.com/",
+      "status": "no_webcam",
+      "notes": "Site loads (redirects to flughafen-zuerich.ch). No webcam/camera/live stream pages found. Tested /webcam, /en/passengers/experience/webcam, and browsed observation deck pages.",
+      "checked_at": 1775498210360
+    },
+    {
+      "iata": "MUC",
+      "name": "Munich Airport",
+      "website": "http://www.munich-airport.com/",
+      "status": "no_webcam",
+      "notes": "Site loads. No webcam/camera pages found. Tested /en/webcam, /webcam, /en/discover/webcam, /en/discover/webcams, /en/company-business/webcam, /en/at-the-airport/webcam. All return 404.",
+      "checked_at": 1775498210360
+    },
+    {
+      "iata": "AMS",
+      "name": "Amsterdam Airport Schiphol",
+      "website": "https://www.schiphol.nl/",
+      "status": "unreachable",
+      "notes": "Cloudflare bot detection blocks both curl and browser. Site returns 403 via curl and shows challenge page in browser.",
+      "checked_at": 1775498210360
+    },
+    {
+      "iata": "FRA",
+      "name": "Frankfurt Main Airport",
+      "website": "https://www.frankfurt-airport.de/",
+      "status": "unreachable",
+      "notes": "Connection timeout. Website does not respond.",
+      "checked_at": 1775498210360
+    },
+    {
+      "iata": "HKG",
+      "name": "Hong Kong International Airport",
+      "website": "http://www.hongkongairport.com/",
+      "status": "no_webcam",
+      "notes": "Site loads. No webcam/live camera pages found. Tested /en/flights/flight-information/live-webcam, /en/airport/live-webcam, /en/flights/flight-information/live-cameras.page. All return 404.",
+      "checked_at": 1775498210360
+    },
+    {
+      "iata": "CPH",
+      "name": "Copenhagen Kastrup Airport",
+      "website": "http://www.cph.dk/en/",
+      "status": "no_webcam",
+      "notes": "Site loads. No webcam/camera/live stream references found in navigation or page content.",
+      "checked_at": 1775498210360
     }
   ]
 }
