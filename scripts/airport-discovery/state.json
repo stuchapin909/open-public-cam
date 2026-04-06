@@ -559,6 +559,56 @@
       "status": "unreachable",
       "note": "Botswana CAAB website not responding",
       "checked_at": "2026-04-06T10:09:00Z"
+    },
+    "RVN": {
+      "status": "not_found",
+      "note": "Finavia removed webcams - no webcam section on site",
+      "checked_at": "2026-04-06T13:36:04Z"
+    },
+    "TMP": {
+      "status": "not_found",
+      "note": "Finavia removed webcams - no webcam section on site",
+      "checked_at": "2026-04-06T13:36:04Z"
+    },
+    "TKU": {
+      "status": "not_found",
+      "note": "Finavia removed webcams - no webcam section on site",
+      "checked_at": "2026-04-06T13:36:04Z"
+    },
+    "AES": {
+      "status": "not_found",
+      "note": "Avinor removed webcams - no webcam section, old endpoints return 405",
+      "checked_at": "2026-04-06T13:36:04Z"
+    },
+    "BGO": {
+      "status": "not_found",
+      "note": "Avinor removed webcams - no webcam section on site",
+      "checked_at": "2026-04-06T13:36:04Z"
+    },
+    "LGW": {
+      "status": "not_found",
+      "note": "Gatwick - no webcam section on site",
+      "checked_at": "2026-04-06T13:36:04Z"
+    },
+    "LUX": {
+      "status": "not_found",
+      "note": "Luxembourg Airport - no webcam section on site",
+      "checked_at": "2026-04-06T13:36:04Z"
+    },
+    "BSL": {
+      "status": "not_found",
+      "note": "EuroAirport Basel - no webcam section on site",
+      "checked_at": "2026-04-06T13:36:04Z"
+    },
+    "LIS": {
+      "status": "not_found",
+      "note": "Lisbon Airport - no webcam section on site",
+      "checked_at": "2026-04-06T13:36:04Z"
+    },
+    "BCN": {
+      "status": "not_found",
+      "note": "Barcelona El Prat (AENA) - no webcam section on site",
+      "checked_at": "2026-04-06T13:36:04Z"
     }
   },
   "discovered_cameras": [
