@@ -212,7 +212,7 @@
     },
     "FMO": {
       "status": "not_found",
-      "note": "M\u00fcnster Osnabr\u00fcck fmo.de - no webcam section",
+      "note": "Münster Osnabrück fmo.de - no webcam section",
       "checked_at": "2026-04-05T21:46:58Z"
     },
     "HAM": {
@@ -227,7 +227,7 @@
     },
     "DUS": {
       "status": "not_found",
-      "note": "D\u00fcsseldorf - webcam page has HLS .m3u8 streams only (1000eyes.de), no direct image URLs",
+      "note": "Düsseldorf - webcam page has HLS .m3u8 streams only (1000eyes.de), no direct image URLs",
       "checked_at": "2026-04-05T21:46:58Z"
     },
     "NUE": {
@@ -705,7 +705,7 @@
     },
     "MMX": {
       "status": "not_found",
-      "note": "Malm\u00f6 Airport Swedavia - no webcam section exists",
+      "note": "Malmö Airport Swedavia - no webcam section exists",
       "checked_at": "2026-04-06T19:02:46Z"
     },
     "EDI": {
@@ -757,14 +757,29 @@
       "timestamp": 1775514311051,
       "status": "no_webcam",
       "notes": "No direct image URLs found on website"
+    },
+    "BGGH": {
+      "status": "not_found",
+      "note": "Greenland airports.gl Nuuk page - only static marketing images and SVGs, no webcam",
+      "checked_at": "2026-04-06T23:27:15Z"
+    },
+    "BIAR": {
+      "status": "not_found",
+      "note": "Icelandic innanlandsflugvellir.is Akureyri page - only Isavia SVG logo, no images at all",
+      "checked_at": "2026-04-06T23:27:15Z"
+    },
+    "BIKF": {
+      "status": "not_found",
+      "note": "Keflavik kefairport.com - redirects to kefairport.com, no webcam/camera/live pages (all 404), only marketing images via Next.js proxy",
+      "checked_at": "2026-04-06T23:27:15Z"
     }
   },
   "discovered_cameras": [
     "airport-YYT-1775417333"
   ],
-  "last_run": "2026-04-06T19:02:46Z",
+  "last_run": 1775522099790,
   "total_seed": 5264,
-  "total_checked": 148,
+  "total_checked": 165,
   "total_cameras_found": 1,
   "checked": [
     {
@@ -785,7 +800,7 @@
     },
     {
       "iata": "SEA",
-      "name": "Seattle\u2013Tacoma International Airport",
+      "name": "Seattle–Tacoma International Airport",
       "website": "https://www.portseattle.org/sea-tac",
       "status": "no_webcam",
       "notes": "Airport drive cameras page exists but cameras 'currently unavailable'. No other webcam pages.",
@@ -865,7 +880,7 @@
     },
     {
       "iata": "ZRH",
-      "name": "Z\u00fcrich Airport",
+      "name": "Zürich Airport",
       "website": "http://www.zurich-airport.com/",
       "status": "no_webcam",
       "notes": "Site loads (redirects to flughafen-zuerich.ch). No webcam/camera/live stream pages found. Tested /webcam, /en/passengers/experience/webcam, and browsed observation deck pages.",
@@ -910,6 +925,142 @@
       "status": "no_webcam",
       "notes": "Site loads. No webcam/camera/live stream references found in navigation or page content.",
       "checked_at": 1775498210360
+    },
+    {
+      "iata": "PRN",
+      "name": "Priština Adem Jashari International Airport",
+      "website": "http://www.airportpristina.com/",
+      "status": "no_webcam",
+      "notes": "Website redirects to limakkosovo.aero which has Cloudflare bot protection. Cannot access.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "YEG",
+      "name": "Edmonton International Airport",
+      "website": "http://www.edmontonairports.com/",
+      "status": "no_webcam",
+      "notes": "Site loads (flyyeg.com). No webcam/camera pages exist. Common webcam paths return 404.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "CZL",
+      "name": "Mohamed Boudiaf International Airport",
+      "website": "https://www.egsa-constantine.dz/constantine.html",
+      "status": "no_webcam",
+      "notes": "Site loads but is a city tourism page, not airport-specific. No webcam content.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "BRU",
+      "name": "Brussels Airport",
+      "website": "http://www.brusselsairport.be/en/",
+      "status": "no_webcam",
+      "notes": "Returns 403 via curl. Cannot verify webcam content.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "HAM",
+      "name": "Hamburg Helmut Schmidt Airport",
+      "website": "https://www.hamburg-airport.de/en/",
+      "status": "no_webcam",
+      "notes": "Has webcam page with 4 cameras (Apron N/S, Terminal 1/2) but all use HLS streaming (.m3u8), no direct image URLs.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "TPE",
+      "name": "Taiwan Taoyuan International Airport",
+      "website": "http://www.taoyuan-airport.com/",
+      "status": "no_webcam",
+      "notes": "Cloudflare bot protection. Cannot access.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "BCN",
+      "name": "Josep Tarradellas Barcelona-El Prat Airport",
+      "website": "https://www.aena.es/en/josep-tarradellas-barcelona-el-prat.html",
+      "status": "no_webcam",
+      "notes": "Webcam page exists (aena.es/ciudad/aeropuerto-barcelona-el-prat/webcam.html) but returns 'Pagina en mantenimiento' (under maintenance).",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "VIE",
+      "name": "Vienna International Airport",
+      "website": "http://www.viennaairport.com/en/",
+      "status": "no_webcam",
+      "notes": "Webcam URLs (/en/webcam, /en/live-cam, /webcam) all redirect to passengers page with no webcam content.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "YHZ",
+      "name": "Halifax / Stanfield International Airport",
+      "website": "http://www.hiaa.ca/",
+      "status": "no_webcam",
+      "notes": "Site loads. No webcam/camera references found on main page or common paths.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "HEL",
+      "name": "Helsinki Vantaa Airport",
+      "website": "http://www.finavia.fi/en/helsinki-airport",
+      "status": "no_webcam",
+      "notes": "Website returns 404.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "KIX",
+      "name": "Kansai International Airport",
+      "website": "http://www.kansai-airport.or.jp/en/index.asp",
+      "status": "no_webcam",
+      "notes": "Website returns 404.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "DUB",
+      "name": "Dublin Airport",
+      "website": "http://www.dublinairport.com/",
+      "status": "no_webcam",
+      "notes": "Site loads. No webcam/camera references found on main page or common webcam paths.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "STN",
+      "name": "London Stansted Airport",
+      "website": "http://www.stanstedairport.com/",
+      "status": "no_webcam",
+      "notes": "Site loads. No webcam/camera references found on main page or common webcam paths.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "CDG",
+      "name": "Charles de Gaulle International Airport",
+      "website": "http://www.aeroportsdeparis.fr/",
+      "status": "no_webcam",
+      "notes": "Webcam page exists but Incapsula bot protection blocks content access.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "BSL",
+      "name": "EuroAirport Basel-Mulhouse-Freiburg",
+      "website": "http://www.euroairport.com/",
+      "status": "no_webcam",
+      "notes": "Site loads. No webcam/camera references found.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "ARN",
+      "name": "Stockholm-Arlanda Airport",
+      "website": "https://www.swedavia.com/arlanda/",
+      "status": "no_webcam",
+      "notes": "Swedavia site loads. No webcam pages or image URLs found.",
+      "checked_at": 1775522099790
+    },
+    {
+      "iata": "GOT",
+      "name": "Göteborg Landvetter Airport",
+      "website": "https://www.swedavia.com/landvetter/",
+      "status": "no_webcam",
+      "notes": "Swedavia site loads. No webcam pages or image URLs found.",
+      "checked_at": 1775522099790
     }
   ]
 }
