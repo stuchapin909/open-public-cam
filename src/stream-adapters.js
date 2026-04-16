@@ -16,6 +16,8 @@
 
 import { execFile } from "child_process";
 import { promisify } from "util";
+import http from "http";
+import https from "https";
 import fs from "fs";
 import path from "path";
 import os from "os";
@@ -220,23 +222,24 @@ export async function extractYoutubeFrame(url, timeoutMs = FRAME_TIMEOUT_MS) {
  * Not as current as a live frame, but works when yt-dlp can't get the stream.
  */
 async function extractYoutubeThumbnail(url, outPath, timeoutMs) {
+  const basePath = outPath.replace(".jpg", "");
   try {
     await execFileAsync(YTDLP_PATH, [
       "--no-warnings",
       "--write-thumbnail",
       "--skip-download",
       "--convert-thumbnails", "jpg",
-      "-o", outPath.replace(".jpg", ""),
+      "-o", basePath,
       url,
     ], { timeout: timeoutMs });
 
-    // yt-dlp writes thumbnail as {name}.jpg
-    const thumbPath = outPath.replace(".jpg", ".jpg");
-    // Try multiple possible thumbnail paths
+    // yt-dlp may write thumbnails with various extensions/suffixes.
+    // Check known patterns, then glob for anything matching the base name.
     const candidates = [
+      `${basePath}.jpg`,
       outPath,
-      outPath.replace(".jpg", ".webp"),
-      outPath.replace(".jpg", ".png"),
+      `${basePath}.webp`,
+      `${basePath}.png`,
     ];
 
     for (const p of candidates) {
@@ -248,8 +251,28 @@ async function extractYoutubeThumbnail(url, outPath, timeoutMs) {
       }
     }
 
+    // Glob-based fallback: clean up any files yt-dlp may have written
+    const dir = path.dirname(basePath);
+    const prefix = path.basename(basePath);
+    try {
+      const files = fs.readdirSync(dir).filter(f => f.startsWith(prefix));
+      for (const f of files) {
+        const fullPath = path.join(dir, f);
+        const buf = fs.readFileSync(fullPath);
+        fs.unlinkSync(fullPath);
+        if (buf.length >= 500) return { buf, contentType: "image/jpeg" };
+      }
+    } catch {}
+
     return null;
   } catch {
+    // Clean up any partial thumbnail files
+    try {
+      const dir = path.dirname(basePath);
+      const prefix = path.basename(basePath);
+      const files = fs.readdirSync(dir).filter(f => f.startsWith(prefix));
+      for (const f of files) fs.unlinkSync(path.join(dir, f));
+    } catch {}
     return null;
   }
 }
@@ -341,8 +364,7 @@ export async function probeUrl(url) {
 
   // For HTTP(S) URLs, do a short GET to inspect content-type
   try {
-    const http_ = await import(url.startsWith("https") ? "https" : "http");
-    const mod = http_.default || http_;
+    const mod = url.startsWith("https") ? https : http;
 
     return new Promise((resolve) => {
       const req = mod.get(url, {

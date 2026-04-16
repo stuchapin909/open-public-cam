@@ -373,14 +373,17 @@ async function downloadSnapshot(cam) {
   const protocol = cam.stream_type || detectProtocol(config.url);
 
   // Non-HTTP stream protocols: dispatch directly to stream adapters.
-  // These can't go through the SSRF-safe HTTP pipeline.
+  // RTSP/RTMP can't go through the HTTP SSRF pipeline (different protocols).
+  // YouTube URLs are always youtube.com hostnames (public).
   if (protocol === "rtsp" || protocol === "rtmp" || protocol === "youtube") {
     return downloadViaStreamAdapter(cam, config.url, protocol);
   }
 
-  // HLS: URL-detected HLS goes straight to ffmpeg (no SSRF concern — ffmpeg
-  // handles its own DNS resolution, and HLS URLs are user-provided anyway).
+  // HLS URLs are HTTP(S) — run SSRF check before passing to ffmpeg.
+  // ffmpeg would follow the URL blindly, so we validate the hostname first.
   if (protocol === "hls") {
+    const hlsSafety = await isSafeUrl(config.url);
+    if (!hlsSafety.safe) return { error: `Blocked: ${hlsSafety.reason}` };
     return downloadViaStreamAdapter(cam, config.url, "hls");
   }
 
@@ -1022,9 +1025,16 @@ server.tool("stream_snapshot", "Extract a single frame from any webcam stream UR
 
   if (effectiveProtocol === "static" || effectiveProtocol === "mjpeg_hint") {
     // For static/MJPEG, create a temp camera object and use the standard pipeline
+    // (which includes SSRF checks)
     const tempCam = { id: `stream-${Date.now()}`, name: "Stream Snapshot", url, location: "Unknown" };
     const result = await downloadSnapshot(tempCam);
     return result.error ? errResponse(result.error) : { content: [{ type: "text", text: JSON.stringify(result) }] };
+  }
+
+  // SSRF check for HTTP-based stream protocols (HLS URLs are HTTP)
+  if (effectiveProtocol === "hls") {
+    const safety = await isSafeUrl(url);
+    if (!safety.safe) return errResponse(`Blocked: ${safety.reason}`);
   }
 
   const frame = await extractFrame(url, effectiveProtocol);
