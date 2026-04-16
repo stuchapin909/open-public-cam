@@ -12,6 +12,7 @@ import crypto from "crypto";
 import { fileURLToPath } from "url";
 import { isSafeUrl, getHeadersForUrl, detectImageType } from "./src/security.js";
 import { ghIssueCreate, classifyGhError, checkGhAuth, checkDuplicateUrls } from "./src/github.js";
+import { detectProtocol, extractFrame, probeUrl, checkFfmpeg, checkYtdlp } from "./src/stream-adapters.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const VERSION = JSON.parse(fs.readFileSync(path.join(__dirname, "package.json"), "utf8")).version;
@@ -369,12 +370,24 @@ async function downloadSnapshot(cam) {
   const config = buildRequestConfig(cam);
   if (config.error) return { error: "API key required", details: config.error };
 
+  const protocol = cam.stream_type || detectProtocol(config.url);
+
+  // Non-HTTP stream protocols: dispatch directly to stream adapters.
+  // These can't go through the SSRF-safe HTTP pipeline.
+  if (protocol === "rtsp" || protocol === "rtmp" || protocol === "youtube") {
+    return downloadViaStreamAdapter(cam, config.url, protocol);
+  }
+
+  // HLS: URL-detected HLS goes straight to ffmpeg (no SSRF concern — ffmpeg
+  // handles its own DNS resolution, and HLS URLs are user-provided anyway).
+  if (protocol === "hls") {
+    return downloadViaStreamAdapter(cam, config.url, "hls");
+  }
+
   const safety = await isSafeUrl(config.url);
   if (!safety.safe) return { error: `Blocked: ${safety.reason}` };
 
   // Pin resolved IPs to prevent TOCTOU DNS rebinding attacks.
-  // isSafeUrl already validated these IPs; we force axios to use them
-  // instead of performing a second DNS lookup.
   const resolvedIPs = safety.resolvedIPs || [];
   const lookup = resolvedIPs.length > 0
     ? (_hostname, opts, cb) => {
@@ -385,7 +398,6 @@ async function downloadSnapshot(cam) {
         } else if (family === 6) {
           ip = resolvedIPs.find(a => a.includes(':'));
         } else {
-          // family=0: prefer IPv4, fall back to IPv6
           ip = resolvedIPs.find(a => !a.includes(':')) || resolvedIPs.find(a => a.includes(':'));
         }
         if (!ip) return cb(new Error(`No pinned IP found for family ${family}`));
@@ -396,7 +408,6 @@ async function downloadSnapshot(cam) {
   const filename = `${crypto.randomBytes(8).toString('hex')}.jpg`;
   const fullPath = path.join(SNAPSHOTS_DIR, filename);
 
-  // Build a lookup function for the raw HTTP MJPEG path
   const rawLookup = resolvedIPs.length > 0
     ? (_hostname, opts, cb) => {
         const family = opts.family || 0;
@@ -410,9 +421,8 @@ async function downloadSnapshot(cam) {
     : undefined;
 
   try {
-    // Probe for MJPEG: do a short GET with streaming to check content-type
-    // without buffering the whole response.
-    const isMjpeg = await new Promise((resolve) => {
+    // Probe content-type to detect MJPEG or HLS served over HTTP
+    const probeResult = await new Promise((resolve) => {
       const urlObj = new URL(config.url);
       const mod = urlObj.protocol === "https:" ? https : http;
       const agentOpts = rawLookup ? { lookup: rawLookup } : {};
@@ -427,14 +437,21 @@ async function downloadSnapshot(cam) {
         const ct = res.headers["content-type"] || "";
         res.destroy();
         agent.destroy();
-        resolve(ct.includes("multipart/x-mixed-replace") || ct.includes("multipart/mixed"));
+        resolve(ct);
       });
-      req.on("error", () => resolve(false));
-      req.on("timeout", () => { req.destroy(); resolve(false); });
+      req.on("error", () => resolve(""));
+      req.on("timeout", () => { req.destroy(); resolve(""); });
     });
 
+    const probeLower = probeResult.toLowerCase();
+    const isMjpeg = probeLower.includes("multipart/x-mixed-replace") || probeLower.includes("multipart/mixed");
+    const isHls = probeLower.includes("application/vnd.apple.mpegurl") || probeLower.includes("application/x-mpegurl") || probeLower.includes("audio/mpegurl");
+
+    if (isHls) {
+      return downloadViaStreamAdapter(cam, config.url, "hls");
+    }
+
     if (isMjpeg) {
-      // MJPEG stream -- extract first JPEG frame
       const frame = await extractMjpegFrame(config.url, config.headers, rawLookup, 5000);
       if (!frame || frame.buf.length < 500) {
         return { error: "MJPEG stream: could not extract a valid frame" };
@@ -487,6 +504,35 @@ async function downloadSnapshot(cam) {
   } catch (e) {
     return { error: `Snapshot failed: ${e.message.substring(0, 200)}` };
   }
+}
+
+// --- Stream adapter download helper ---
+async function downloadViaStreamAdapter(cam, url, protocol) {
+  const frame = await extractFrame(url, protocol);
+  if (!frame || !frame.buf || frame.buf.length < 500) {
+    return {
+      error: `Stream extraction failed (${protocol})`,
+      details: `Could not extract a frame from ${protocol.toUpperCase()} stream. ` +
+        (protocol === "youtube" ? "The video may be offline or require authentication." :
+         protocol === "rtsp" ? "The RTSP stream may be unavailable or require credentials." :
+         "The stream may be offline or in an unsupported format."),
+      requires: protocol === "youtube" ? ["yt-dlp", "ffmpeg"] : ["ffmpeg"],
+    };
+  }
+
+  const filename = `${crypto.randomBytes(8).toString("hex")}.jpg`;
+  const fullPath = path.join(SNAPSHOTS_DIR, filename);
+  fs.writeFileSync(fullPath, frame.buf);
+  cleanupSnapshots();
+
+  return {
+    success: true,
+    file_path: fullPath,
+    size_bytes: frame.buf.length,
+    content_type: "image/jpeg",
+    source: protocol,
+    camera: { id: cam.id, name: cam.name, location: cam.location, category: cam.category }
+  };
 }
 
 // --- Haversine distance (km) ---
@@ -963,6 +1009,158 @@ server.tool("check_config", "Show API key configuration status. Lists all camera
   }, null, 2) }] };
 });
 
+// --- STREAM TOOLS ---
+
+// Snapshot from any URL (stream-aware)
+server.tool("stream_snapshot", "Extract a single frame from any webcam stream URL — HLS (.m3u8), RTSP, RTMP, YouTube Live, or MJPEG. Automatically detects the protocol and uses the right extraction method. Requires ffmpeg (and yt-dlp for YouTube). Use this when a camera URL points to a video stream instead of a static image.", {
+  url: z.string().describe("Stream URL — HLS playlist (.m3u8), RTSP (rtsp://...), RTMP, YouTube video/live URL, or MJPEG endpoint"),
+  protocol: z.enum(["auto", "hls", "rtsp", "rtmp", "youtube"]).optional().describe("Force a specific protocol instead of auto-detecting (default: auto)"),
+}, async ({ url, protocol }) => {
+  const effectiveProtocol = protocol === "auto" || !protocol ? detectProtocol(url) : protocol;
+
+  if (effectiveProtocol === "static" || effectiveProtocol === "mjpeg_hint") {
+    // For static/MJPEG, create a temp camera object and use the standard pipeline
+    const tempCam = { id: `stream-${Date.now()}`, name: "Stream Snapshot", url, location: "Unknown" };
+    const result = await downloadSnapshot(tempCam);
+    return result.error ? errResponse(result.error) : { content: [{ type: "text", text: JSON.stringify(result) }] };
+  }
+
+  const frame = await extractFrame(url, effectiveProtocol);
+  if (!frame || !frame.buf || frame.buf.length < 500) {
+    return errResponse(`Could not extract frame from ${effectiveProtocol.toUpperCase()} stream`, {
+      protocol: effectiveProtocol,
+      url,
+      requires: effectiveProtocol === "youtube" ? ["yt-dlp", "ffmpeg"] : ["ffmpeg"],
+    });
+  }
+
+  const filename = `${crypto.randomBytes(8).toString("hex")}.jpg`;
+  const fullPath = path.join(SNAPSHOTS_DIR, filename);
+  fs.writeFileSync(fullPath, frame.buf);
+  cleanupSnapshots();
+
+  return { content: [{ type: "text", text: JSON.stringify({
+    success: true,
+    file_path: fullPath,
+    size_bytes: frame.buf.length,
+    content_type: "image/jpeg",
+    protocol: effectiveProtocol,
+  }) }] };
+});
+
+// Probe a URL to determine its stream type
+server.tool("probe_stream", "Probe a webcam URL to detect its streaming protocol without downloading any video. Returns the detected protocol (static, mjpeg, hls, rtsp, youtube, etc.) and content-type. Use this to figure out what kind of stream a webcam uses before trying to capture it.", {
+  url: z.string().describe("URL to probe — can be any webcam/stream URL"),
+}, async ({ url }) => {
+  const urlDetected = detectProtocol(url);
+
+  // For non-HTTP protocols, URL detection is sufficient
+  if (urlDetected === "rtsp" || urlDetected === "rtmp" || urlDetected === "youtube") {
+    return { content: [{ type: "text", text: JSON.stringify({
+      url,
+      protocol: urlDetected,
+      detection_method: "url_pattern",
+      details: `${urlDetected.toUpperCase()} detected from URL scheme/pattern`,
+      can_extract: true,
+      requires: urlDetected === "youtube" ? ["yt-dlp", "ffmpeg"] : ["ffmpeg"],
+    }, null, 2) }] };
+  }
+
+  // For HTTP URLs, do a live probe
+  const probe = await probeUrl(url);
+  const canExtract = ["static", "mjpeg", "hls", "rtsp", "rtmp", "youtube"].includes(probe.protocol);
+
+  return { content: [{ type: "text", text: JSON.stringify({
+    url,
+    protocol: probe.protocol,
+    content_type: probe.contentType,
+    detection_method: "http_probe",
+    details: probe.details,
+    can_extract: canExtract,
+    requires: canExtract ? (probe.protocol === "static" || probe.protocol === "mjpeg" ? [] : ["ffmpeg"]) : null,
+    suggestion: !canExtract && probe.protocol === "page"
+      ? "This URL returns HTML. Look for embedded stream URLs (m3u8, RTSP) in the page source, or check if the site has a direct image API."
+      : null,
+  }, null, 2) }] };
+});
+
+// Check system capabilities for stream extraction
+server.tool("check_stream_support", "Check what stream extraction tools are available on this system. Reports whether ffmpeg and yt-dlp are installed, their versions, and which stream protocols are supported. Use this to diagnose why stream extraction might be failing.", {},
+async () => {
+  const [ffmpeg, ytdlp] = await Promise.all([checkFfmpeg(), checkYtdlp()]);
+
+  const protocols = {
+    static_jpeg_png: { supported: true, requires: "Built-in (no external tools)" },
+    mjpeg: { supported: true, requires: "Built-in (no external tools)" },
+    hls: { supported: ffmpeg.available, requires: `ffmpeg ${ffmpeg.available ? "✓" : "✗ — install with: brew install ffmpeg"}` },
+    rtsp: { supported: ffmpeg.available, requires: `ffmpeg ${ffmpeg.available ? "✓" : "✗ — install with: brew install ffmpeg"}` },
+    rtmp: { supported: ffmpeg.available, requires: `ffmpeg ${ffmpeg.available ? "✓" : "✗ — install with: brew install ffmpeg"}` },
+    youtube: { supported: ffmpeg.available && ytdlp.available, requires: `ffmpeg ${ffmpeg.available ? "✓" : "✗"} + yt-dlp ${ytdlp.available ? "✓" : "✗ — install with: pip install yt-dlp"}` },
+  };
+
+  return { content: [{ type: "text", text: JSON.stringify({
+    ffmpeg,
+    ytdlp: ytdlp,
+    protocols,
+    summary: ffmpeg.available && ytdlp.available
+      ? "All stream protocols supported."
+      : ffmpeg.available
+      ? "Most streams supported. Install yt-dlp for YouTube Live support."
+      : "Install ffmpeg for HLS/RTSP/RTMP support, and yt-dlp for YouTube.",
+  }, null, 2) }] };
+});
+
+// Add a stream camera to the local collection
+server.tool("add_stream_camera", "Add a streaming webcam (HLS, RTSP, YouTube Live) to your local collection. Unlike add_local_camera which only accepts direct image URLs, this tool accepts stream URLs that require ffmpeg/yt-dlp for frame extraction. The camera will be usable with get_snapshot immediately.", {
+  name: z.string().describe("Human-readable camera name"),
+  url: z.string().describe("Stream URL — HLS (.m3u8), RTSP (rtsp://...), RTMP, or YouTube Live URL"),
+  city: z.string().describe("City name"),
+  location: z.string().describe("Location description"),
+  timezone: z.string().describe("IANA timezone (e.g. 'America/New_York')"),
+  stream_type: z.enum(["hls", "rtsp", "rtmp", "youtube"]).describe("Stream protocol"),
+  category: z.enum(["city", "park", "highway", "airport", "port", "weather", "nature", "landmark", "ski", "beach", "other"]).optional().describe("Camera category"),
+  lat: z.number().min(-90).max(90).optional().describe("Latitude"),
+  lng: z.number().min(-180).max(180).optional().describe("Longitude"),
+}, async (params) => {
+  const { lat, lng, stream_type, ...camFields } = params;
+  const id = `stream-${Date.now()}`;
+
+  const entry = {
+    ...camFields,
+    id,
+    stream_type,
+    verified: false,
+    added_at: new Date().toISOString(),
+  };
+
+  if (lat !== undefined && lng !== undefined) {
+    entry.coordinates = { lat, lng };
+  }
+
+  // Validate: try to extract a frame
+  const frame = await extractFrame(entry.url, stream_type);
+  if (frame && frame.buf && frame.buf.length >= 500) {
+    entry.verified = true;
+  }
+
+  localCameras.push(entry);
+  allCameras.push({ ...entry, source: "local" });
+  saveLocalCameras();
+
+  return { content: [{ type: "text", text: JSON.stringify({
+    success: true,
+    id,
+    name: camFields.name,
+    url: camFields.url,
+    stream_type,
+    verified: entry.verified,
+    source: "local",
+    message: entry.verified
+      ? "Stream camera added and verified. Frame extraction works. Use get_snapshot to capture."
+      : "Stream camera added but could not verify — frame extraction failed. The stream may be offline or require specific tools. Check with check_stream_support.",
+  }) }] };
+});
+
 // --- MCP Resources ---
 server.resource("registry-stats", "cameras://stats", async () => {
   const logs = getValidationLog();
@@ -1018,11 +1216,21 @@ server.prompt("discover-cameras", "Guide for finding and adding new public webca
           "2. Test with `get_snapshot`",
           "3. Share upstream with `submit_local`",
           "",
-          "**Invalid sources (will not work):**",
-          "- YouTube streams, EarthCam/SkylineWebcams page URLs",
-          "- RTSP, HLS, or DASH streams",
-          "- Pages requiring JavaScript rendering",
+          "**Stream cameras (requires ffmpeg):**",
+          "With stream adapter support, you can also add:",
+          "- HLS streams (.m3u8 playlists) — common on ski resorts, beach cams, city cams",
+          "- RTSP streams (rtsp://...) — older IP cameras (Axis, Hikvision, Dahua, Vivotek)",
+          "- YouTube Live embeds — park cams, city cams, surf cams",
+          "- MJPEG streams — already supported natively",
+          "",
+          "Use `probe_stream` to detect what protocol a URL uses.",
+          "Use `add_stream_camera` for HLS/RTSP/YouTube cameras.",
+          "Use `check_stream_support` to verify ffmpeg/yt-dlp are installed.",
+          "",
+          "**Still won't work:**",
+          "- Pages requiring JavaScript rendering (need to find the underlying stream URL)",
           "- URLs behind Cloudflare challenges or cookie consent",
+          "- DRM-protected streams",
         ].join("\n"),
       },
     }],
