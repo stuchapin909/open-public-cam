@@ -166,13 +166,28 @@ export async function extractYoutubeFrame(url, timeoutMs = FRAME_TIMEOUT_MS) {
   const outPath = tmpFramePath();
 
   try {
-    // First, get the direct stream URL via yt-dlp
-    const { stdout } = await execFileAsync(YTDLP_PATH, [
-      "--no-warnings",
-      "-f", "best[ext=mp4]/best",
-      "--get-url",
-      url,
-    ], { timeout: timeoutMs });
+    const baseArgs = ["--no-warnings", "-f", "best[ext=mp4]/best", "--get-url", url];
+
+    let stdout;
+    try {
+      const result = await execFileAsync(YTDLP_PATH, baseArgs, { timeout: timeoutMs });
+      stdout = result.stdout;
+    } catch (e) {
+      // YouTube bot-check: retry with browser cookies
+      if (e.stderr?.includes("Sign in to confirm") || e.stderr?.includes("bot")) {
+        const cookieResult = await execFileAsync(YTDLP_PATH, [
+          "--no-warnings", "--cookies-from-browser", "chrome",
+          "-f", "best[ext=mp4]/best", "--get-url", url,
+        ], { timeout: timeoutMs }).catch(() => null);
+        if (cookieResult) {
+          stdout = cookieResult.stdout;
+        } else {
+          throw e;
+        }
+      } else {
+        throw e;
+      }
+    }
 
     const streamUrl = stdout.trim().split("\n")[0];
     if (!streamUrl) {

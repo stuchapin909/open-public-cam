@@ -513,9 +513,11 @@ async function downloadViaStreamAdapter(cam, url, protocol) {
     return {
       error: `Stream extraction failed (${protocol})`,
       details: `Could not extract a frame from ${protocol.toUpperCase()} stream. ` +
-        (protocol === "youtube" ? "The video may be offline or require authentication." :
-         protocol === "rtsp" ? "The RTSP stream may be unavailable or require credentials." :
-         "The stream may be offline or in an unsupported format."),
+        (protocol === "youtube"
+          ? "YouTube may require browser cookies for bot-check bypass. Try: yt-dlp --cookies-from-browser chrome --get-url <URL>. The video may also be offline, private, or require authentication."
+          : protocol === "rtsp"
+          ? "The RTSP stream may be unavailable, require credentials, or be behind a firewall."
+          : "The stream may be offline or in an unsupported format."),
       requires: protocol === "youtube" ? ["yt-dlp", "ffmpeg"] : ["ffmpeg"],
     };
   }
